@@ -2,15 +2,17 @@
 
 import { useState } from 'react'
 import { format } from 'date-fns'
+import { useToast } from '@/components/ui/toast'
 
 export default function Export() {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [isExporting, setIsExporting] = useState(false)
+  const { showToast } = useToast()
 
   const exportData = async (exportFormat: 'csv' | 'pdf') => {
     if (!startDate || !endDate) {
-      alert('Please select both start and end dates')
+      showToast('Please select both start and end dates', 'error')
       return
     }
 
@@ -30,11 +32,12 @@ export default function Export() {
         a.click()
         window.URL.revokeObjectURL(url)
         document.body.removeChild(a)
+        showToast('Export completed!', 'success')
       } else {
-        alert('Export failed')
+        showToast('Export failed', 'error')
       }
     } catch (error) {
-      alert('Error exporting data')
+      showToast('Error exporting data', 'error')
     } finally {
       setIsExporting(false)
     }
