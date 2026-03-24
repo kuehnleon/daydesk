@@ -332,9 +332,12 @@ export default function Calendar() {
           <div className="flex gap-2">
             <button
               onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
+              className="rounded-lg bg-indigo-600 p-2 text-white hover:bg-indigo-700"
+              aria-label="Previous month"
             >
-              Previous
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
             </button>
             <button
               onClick={() => setCurrentMonth(new Date())}
@@ -344,9 +347,12 @@ export default function Calendar() {
             </button>
             <button
               onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
+              className="rounded-lg bg-indigo-600 p-2 text-white hover:bg-indigo-700"
+              aria-label="Next month"
             >
-              Next
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </button>
           </div>
         </div>
