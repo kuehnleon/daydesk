@@ -1,36 +1,232 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WorkLog - Office Attendance Tracker
+
+A lightweight multi-user application for tracking office and home office attendance for German tax reporting.
+
+## Features
+
+- **Quick Logging**: One-tap buttons to log today's attendance
+- **Calendar View**: Visual month view to log/edit past days
+- **German Public Holidays**: Automatic fetching via Nager.Date API for all 16 states
+- **Export Reports**: CSV exports with date range selection
+- **Multi-user**: Each user has their own attendance records
+- **PWA Support**: Install on iPhone/macOS home screen
+- **Auth0 Authentication**: Secure user authentication
+
+> **Note**: PDF export is planned for a future release. CSV export is fully functional and suitable for German tax reporting.
+
+## Tech Stack
+
+- Next.js 16 (App Router)
+- TypeScript
+- Prisma + SQLite
+- NextAuth.js v5 + Auth0
+- TailwindCSS
+- PWA (installable)
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 20+ and npm
+- Auth0 account (free tier)
+
+### Auth0 Setup
+
+1. Create a free Auth0 account at https://auth0.com
+2. Create a new **Regular Web Application**
+3. Configure the following settings:
+
+   **Allowed Callback URLs:**
+   ```
+   http://localhost:3000/api/auth/callback/auth0
+   ```
+
+   **Allowed Logout URLs:**
+   ```
+   http://localhost:3000
+   ```
+
+   **Allowed Web Origins:**
+   ```
+   http://localhost:3000
+   ```
+
+4. Copy your credentials:
+   - Domain (e.g., `your-tenant.auth0.com`)
+   - Client ID
+   - Client Secret
+
+### Local Development
+
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd worklog
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Create `.env` file from example:
+   ```bash
+   cp .env.example .env
+   ```
+
+4. Update `.env` with your Auth0 credentials:
+   ```
+   DATABASE_URL="file:./dev.db"
+   NEXTAUTH_URL="http://localhost:3000"
+
+   APP_BASE_URL=http://localhost:3000
+   AUTH0_DOMAIN=your-domain.auth0.com
+   AUTH0_CLIENT_ID=your-client-id
+   AUTH0_CLIENT_SECRET=your-client-secret
+   AUTH0_SECRET=generate-a-random-secret
+   ```
+
+5. Generate Prisma client and push database schema:
+   ```bash
+   npm run db:generate
+   npm run db:push
+   ```
+
+6. Start development server:
+   ```bash
+   npm run dev
+   ```
+
+7. Open http://localhost:3000
+
+### Generate AUTH0_SECRET
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+openssl rand -hex 32
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Database Schema
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **User**: email, name, defaultState (German state code), workDays (comma-separated 1-5 for Mon-Fri)
+- **Attendance**: date, type (office/home/off/holiday/sick), transport (own_car/company_car/null), notes
+- **Account/Session**: NextAuth.js tables for auth
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Usage
 
-## Learn More
+### Quick Log
+- Dashboard has three buttons: Office (Own Car), Office (Company Car), Home Office
+- Click to log today's attendance instantly
 
-To learn more about Next.js, take a look at the following resources:
+### Calendar
+- View/edit any past or future day
+- Color-coded: Blue (office), Green (home), Red (holiday), Gray (weekend)
+- Click a day to add/edit attendance
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Export
+- Select date range
+- Download CSV report
+- Includes summary statistics
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+> CSV format is compatible with German tax software and spreadsheet applications.
 
-## Deploy on Vercel
+### Settings
+- Configure your German state (for holiday calculation)
+- Set default work days
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Kubernetes Deployment
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Build Docker Image
+
+```bash
+docker build -t worklog:latest .
+```
+
+### Deploy with Helm
+
+```bash
+cd helm/worklog
+
+# Create values override file
+cat > values.local.yaml <<EOF
+env:
+  DATABASE_URL: "file:/data/worklog.db"
+  NEXTAUTH_URL: "https://worklog.your-domain.com"
+  NEXTAUTH_SECRET: "your-production-secret"
+  AUTH0_CLIENT_ID: "your-client-id"
+  AUTH0_CLIENT_SECRET: "your-client-secret"
+  AUTH0_ISSUER: "https://your-domain.auth0.com"
+
+ingress:
+  enabled: true
+  host: worklog.your-domain.com
+EOF
+
+# Install/upgrade
+helm upgrade --install worklog . -f values.local.yaml
+```
+
+### Update Auth0 for Production
+
+In your Auth0 application settings, add production URLs:
+
+**Allowed Callback URLs:**
+```
+https://worklog.your-domain.com/api/auth/callback/auth0
+```
+
+**Allowed Logout URLs:**
+```
+https://worklog.your-domain.com
+```
+
+**Allowed Web Origins:**
+```
+https://worklog.your-domain.com
+```
+
+## PWA Installation
+
+### iOS (iPhone/iPad)
+1. Open in Safari
+2. Tap the Share button
+3. Scroll down and tap "Add to Home Screen"
+4. Tap "Add"
+
+### macOS
+1. Open in Safari
+2. File → Add to Dock
+
+### Android/Chrome
+1. Open in Chrome
+2. Tap the menu (three dots)
+3. Tap "Install app" or "Add to Home Screen"
+
+## Development
+
+```bash
+# Run development server
+npm run dev
+
+# Run Prisma Studio (database GUI)
+npm run db:studio
+
+# Create database migration
+npm run db:migrate
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
+```
+
+## Public Holiday API
+
+Uses [Nager.Date](https://date.nager.at) free API for German public holidays.
+- Supports all 16 German states
+- Automatically caches results
+- No API key required
+
+## License
+
+MIT
