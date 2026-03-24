@@ -1,12 +1,54 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
 import { signOut } from 'next-auth/react'
+import { useToast } from '@/components/ui/toast'
+
+type AttendanceType = 'office' | 'home' | null
+type TransportType = 'own_car' | 'company_car' | null
+
+interface TodayAttendance {
+  type: AttendanceType
+  transport: TransportType
+}
 
 export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(false)
+  const [todayAttendance, setTodayAttendance] = useState<TodayAttendance | null>(null)
+  const [isMounted, setIsMounted] = useState(false)
+  const { showToast } = useToast()
+
   const today = format(new Date(), 'yyyy-MM-dd')
+
+  useEffect(() => {
+    setIsMounted(true)
+    fetchTodayAttendance()
+  }, [])
+
+  const fetchTodayAttendance = async () => {
+    try {
+      const now = new Date()
+      const todayStr = format(now, 'yyyy-MM-dd')
+      const monthStr = format(now, 'yyyy-MM')
+
+      const response = await fetch(`/api/attendance?month=${monthStr}`)
+      if (response.ok) {
+        const data = await response.json()
+        // Find today's attendance by comparing date strings
+        const todayEntry = data.find((entry: { date: string }) => {
+          const entryDate = format(new Date(entry.date), 'yyyy-MM-dd')
+          return entryDate === todayStr
+        })
+
+        if (todayEntry) {
+          setTodayAttendance({ type: todayEntry.type, transport: todayEntry.transport })
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching attendance:', error)
+    }
+  }
 
   const logAttendance = async (type: string, transport: string | null) => {
     setIsLoading(true)
@@ -22,15 +64,40 @@ export default function Dashboard() {
       })
 
       if (response.ok) {
-        alert('Attendance logged successfully!')
+        setTodayAttendance({ type: type as AttendanceType, transport: transport as TransportType })
+        showToast('Attendance logged successfully!', 'success')
       } else {
-        alert('Failed to log attendance')
+        showToast('Failed to log attendance', 'error')
       }
     } catch (error) {
-      alert('Error logging attendance')
+      showToast('Error logging attendance', 'error')
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const isSelected = (type: AttendanceType, transport: TransportType) => {
+    if (!isMounted || !todayAttendance) return false
+    return todayAttendance.type === type && todayAttendance.transport === transport
+  }
+
+  // Base classes that are always applied (must match server render)
+  const baseButtonClasses = 'flex flex-col items-center justify-center rounded-2xl p-8 text-white shadow-lg transition-all hover:scale-105 disabled:opacity-50'
+
+  const getButtonClasses = (
+    type: AttendanceType,
+    transport: TransportType,
+    baseColor: string,
+    hoverColor: string,
+    selectedColor: string,
+    ringColor: string,
+    darkRingColor: string
+  ) => {
+    const selected = isSelected(type, transport)
+    if (selected) {
+      return `relative ${baseButtonClasses} ${selectedColor} ring-4 ${ringColor} ring-offset-2 ${darkRingColor} dark:ring-offset-gray-900`
+    }
+    return `${baseButtonClasses} ${baseColor} ${hoverColor}`
   }
 
   return (
@@ -78,8 +145,8 @@ export default function Dashboard() {
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
             Quick Log
           </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Log your attendance for today: {format(new Date(), 'EEEE, MMMM d, yyyy')}
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400" suppressHydrationWarning>
+            {`Log your attendance for today: ${format(new Date(), 'EEEE, MMMM d, yyyy')}`}
           </p>
         </div>
 
@@ -87,8 +154,15 @@ export default function Dashboard() {
           <button
             onClick={() => logAttendance('office', 'own_car')}
             disabled={isLoading}
-            className="flex flex-col items-center justify-center rounded-2xl bg-blue-500 p-8 text-white shadow-lg transition-transform hover:scale-105 hover:bg-blue-600 disabled:opacity-50"
+            className={getButtonClasses('office', 'own_car', 'bg-blue-500', 'hover:bg-blue-600', 'bg-blue-600', 'ring-blue-300', 'dark:ring-blue-400')}
           >
+            {isSelected('office', 'own_car') && (
+              <div className="absolute top-3 right-3 rounded-full bg-white p-1">
+                <svg className="h-4 w-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            )}
             <svg
               className="h-16 w-16 mb-4"
               fill="none"
@@ -109,8 +183,15 @@ export default function Dashboard() {
           <button
             onClick={() => logAttendance('office', 'company_car')}
             disabled={isLoading}
-            className="flex flex-col items-center justify-center rounded-2xl bg-indigo-500 p-8 text-white shadow-lg transition-transform hover:scale-105 hover:bg-indigo-600 disabled:opacity-50"
+            className={getButtonClasses('office', 'company_car', 'bg-indigo-500', 'hover:bg-indigo-600', 'bg-indigo-600', 'ring-indigo-300', 'dark:ring-indigo-400')}
           >
+            {isSelected('office', 'company_car') && (
+              <div className="absolute top-3 right-3 rounded-full bg-white p-1">
+                <svg className="h-4 w-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            )}
             <svg
               className="h-16 w-16 mb-4"
               fill="none"
@@ -131,8 +212,15 @@ export default function Dashboard() {
           <button
             onClick={() => logAttendance('home', null)}
             disabled={isLoading}
-            className="flex flex-col items-center justify-center rounded-2xl bg-green-500 p-8 text-white shadow-lg transition-transform hover:scale-105 hover:bg-green-600 disabled:opacity-50"
+            className={getButtonClasses('home', null, 'bg-green-500', 'hover:bg-green-600', 'bg-green-600', 'ring-green-300', 'dark:ring-green-400')}
           >
+            {isSelected('home', null) && (
+              <div className="absolute top-3 right-3 rounded-full bg-white p-1">
+                <svg className="h-4 w-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            )}
             <svg
               className="h-16 w-16 mb-4"
               fill="none"
