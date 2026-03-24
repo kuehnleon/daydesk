@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
 import { signOut } from 'next-auth/react'
 import { useToast } from '@/components/ui/toast'
+import { Building2, Home, Check } from 'lucide-react'
 
 type AttendanceType = 'office' | 'home' | null
 type TransportType = 'own_car' | 'company_car' | null
@@ -158,24 +159,10 @@ export default function Dashboard() {
           >
             {isSelected('office', 'own_car') && (
               <div className="absolute top-3 right-3 rounded-full bg-white p-1">
-                <svg className="h-4 w-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                </svg>
+                <Check className="h-4 w-4 text-blue-600" strokeWidth={3} />
               </div>
             )}
-            <svg
-              className="h-16 w-16 mb-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-              />
-            </svg>
+            <Building2 className="h-16 w-16 mb-4" />
             <span className="text-xl font-semibold">Office</span>
             <span className="text-sm opacity-90">(Own Car)</span>
           </button>
@@ -183,28 +170,14 @@ export default function Dashboard() {
           <button
             onClick={() => logAttendance('office', 'company_car')}
             disabled={isLoading}
-            className={getButtonClasses('office', 'company_car', 'bg-indigo-500', 'hover:bg-indigo-600', 'bg-indigo-600', 'ring-indigo-300', 'dark:ring-indigo-400')}
+            className={getButtonClasses('office', 'company_car', 'bg-purple-500', 'hover:bg-purple-600', 'bg-purple-600', 'ring-purple-300', 'dark:ring-purple-400')}
           >
             {isSelected('office', 'company_car') && (
               <div className="absolute top-3 right-3 rounded-full bg-white p-1">
-                <svg className="h-4 w-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                </svg>
+                <Check className="h-4 w-4 text-purple-600" strokeWidth={3} />
               </div>
             )}
-            <svg
-              className="h-16 w-16 mb-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-              />
-            </svg>
+            <Building2 className="h-16 w-16 mb-4" />
             <span className="text-xl font-semibold">Office</span>
             <span className="text-sm opacity-90">(Company Car)</span>
           </button>
@@ -212,28 +185,14 @@ export default function Dashboard() {
           <button
             onClick={() => logAttendance('home', null)}
             disabled={isLoading}
-            className={getButtonClasses('home', null, 'bg-green-500', 'hover:bg-green-600', 'bg-green-600', 'ring-green-300', 'dark:ring-green-400')}
+            className={getButtonClasses('home', null, 'bg-emerald-500', 'hover:bg-emerald-600', 'bg-emerald-600', 'ring-emerald-300', 'dark:ring-emerald-400')}
           >
             {isSelected('home', null) && (
               <div className="absolute top-3 right-3 rounded-full bg-white p-1">
-                <svg className="h-4 w-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                </svg>
+                <Check className="h-4 w-4 text-emerald-600" strokeWidth={3} />
               </div>
             )}
-            <svg
-              className="h-16 w-16 mb-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-              />
-            </svg>
+            <Home className="h-16 w-16 mb-4" />
             <span className="text-xl font-semibold">Home Office</span>
           </button>
         </div>
