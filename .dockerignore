@@ -1,0 +1,14 @@
+node_modules
+.next
+.env
+.env.local
+*.log
+.DS_Store
+.vscode
+.idea
+README.md
+docker-compose.yml
+helm/
+prisma/dev.db
+prisma/dev.db-journal
+.git
