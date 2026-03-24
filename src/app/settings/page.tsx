@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { GERMAN_STATES } from '@/lib/holidays'
+import { useToast } from '@/components/ui/toast'
 
 export default function Settings() {
   const [defaultState, setDefaultState] = useState('BW')
   const [workDays, setWorkDays] = useState('1,2,3,4,5')
   const [isSaving, setIsSaving] = useState(false)
+  const { showToast } = useToast()
 
   useEffect(() => {
     loadSettings()
@@ -31,12 +33,12 @@ export default function Settings() {
       })
 
       if (response.ok) {
-        alert('Settings saved successfully!')
+        showToast('Settings saved successfully!', 'success')
       } else {
-        alert('Failed to save settings')
+        showToast('Failed to save settings', 'error')
       }
     } catch (error) {
-      alert('Error saving settings')
+      showToast('Error saving settings', 'error')
     } finally {
       setIsSaving(false)
     }
