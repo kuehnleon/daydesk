@@ -17,6 +17,7 @@ export async function GET() {
       name: true,
       defaultState: true,
       workDays: true,
+      weekStartDay: true,
     },
   })
 
@@ -35,13 +36,14 @@ export async function PATCH(request: Request) {
   }
 
   const body = await request.json()
-  const { defaultState, workDays } = body
+  const { defaultState, workDays, weekStartDay } = body
 
   const user = await prisma.user.update({
     where: { email: session.user.email },
     data: {
       ...(defaultState && { defaultState }),
       ...(workDays && { workDays }),
+      ...(weekStartDay !== undefined && { weekStartDay }),
     },
   })
 
