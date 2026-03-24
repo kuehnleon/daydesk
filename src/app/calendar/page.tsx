@@ -3,6 +3,16 @@
 import { useState, useEffect, useCallback } from 'react'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, getDay, isBefore, isAfter } from 'date-fns'
 import { useToast } from '@/components/ui/toast'
+import {
+  Building2,
+  Home,
+  Car,
+  Palmtree,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  BarChart3
+} from 'lucide-react'
 
 interface Attendance {
   id: string
@@ -254,43 +264,23 @@ export default function Calendar() {
     return { officeOwnCar, officeCompanyCar, homeOffice, totalOffice, total: entries.length }
   }
 
-  // Icon components for attendance types
-  const OfficeIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-    </svg>
-  )
-
-  const HomeIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-    </svg>
-  )
-
-  const CarIcon = ({ className = "h-3 w-3" }: { className?: string }) => (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
-    </svg>
-  )
-
   const getAttendanceIcon = (attendance: Attendance) => {
     if (attendance.type === 'home') {
-      return <HomeIcon className="h-5 w-5 text-emerald-700 dark:text-emerald-300" />
+      return <Home className="h-5 w-5 text-emerald-700 dark:text-emerald-300" />
     }
     if (attendance.type === 'office' && attendance.transport === 'company_car') {
       return (
         <div className="flex items-center gap-0.5">
-          <OfficeIcon className="h-5 w-5 text-purple-700 dark:text-purple-300" />
-          <CarIcon className="h-3 w-3 text-purple-600 dark:text-purple-400" />
+          <Building2 className="h-5 w-5 text-purple-700 dark:text-purple-300" />
+          <Car className="h-3 w-3 text-purple-600 dark:text-purple-400" />
         </div>
       )
     }
     if (attendance.type === 'office') {
       return (
         <div className="flex items-center gap-0.5">
-          <OfficeIcon className="h-5 w-5 text-blue-700 dark:text-blue-300" />
-          {attendance.transport && <CarIcon className="h-3 w-3 text-blue-600 dark:text-blue-400" />}
+          <Building2 className="h-5 w-5 text-blue-700 dark:text-blue-300" />
+          {attendance.transport && <Car className="h-3 w-3 text-blue-600 dark:text-blue-400" />}
         </div>
       )
     }
@@ -335,9 +325,7 @@ export default function Calendar() {
               className="rounded-lg bg-indigo-600 p-2 text-white hover:bg-indigo-700"
               aria-label="Previous month"
             >
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
+              <ChevronLeft className="h-5 w-5" />
             </button>
             <button
               onClick={() => setCurrentMonth(new Date())}
@@ -350,9 +338,7 @@ export default function Calendar() {
               className="rounded-lg bg-indigo-600 p-2 text-white hover:bg-indigo-700"
               aria-label="Next month"
             >
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+              <ChevronRight className="h-5 w-5" />
             </button>
           </div>
         </div>
@@ -365,7 +351,7 @@ export default function Calendar() {
         <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm dark:bg-gray-800">
             <div className="rounded-lg bg-blue-200 p-2 dark:bg-blue-800">
-              <OfficeIcon className="h-5 w-5 text-blue-700 dark:text-blue-300" />
+              <Building2 className="h-5 w-5 text-blue-700 dark:text-blue-300" />
             </div>
             <div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">{summary.officeOwnCar}</div>
@@ -374,7 +360,7 @@ export default function Calendar() {
           </div>
           <div className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm dark:bg-gray-800">
             <div className="rounded-lg bg-purple-200 p-2 dark:bg-purple-800">
-              <OfficeIcon className="h-5 w-5 text-purple-700 dark:text-purple-300" />
+              <Building2 className="h-5 w-5 text-purple-700 dark:text-purple-300" />
             </div>
             <div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">{summary.officeCompanyCar}</div>
@@ -383,7 +369,7 @@ export default function Calendar() {
           </div>
           <div className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm dark:bg-gray-800">
             <div className="rounded-lg bg-emerald-200 p-2 dark:bg-emerald-800">
-              <HomeIcon className="h-5 w-5 text-emerald-700 dark:text-emerald-300" />
+              <Home className="h-5 w-5 text-emerald-700 dark:text-emerald-300" />
             </div>
             <div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">{summary.homeOffice}</div>
@@ -392,9 +378,7 @@ export default function Calendar() {
           </div>
           <div className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm dark:bg-gray-800">
             <div className="rounded-lg bg-gray-200 p-2 dark:bg-gray-700">
-              <svg className="h-5 w-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
+              <BarChart3 className="h-5 w-5 text-gray-600 dark:text-gray-300" />
             </div>
             <div>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">{summary.total}</div>
@@ -418,6 +402,7 @@ export default function Calendar() {
             const dateStr = format(day, 'yyyy-MM-dd')
             const attendance = attendances[dateStr]
             const selected = isDateSelected(day)
+            const isHoliday = holidays.has(dateStr)
 
             return (
               <button
@@ -434,7 +419,8 @@ export default function Calendar() {
               >
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-semibold">{format(day, 'd')}</span>
-                  {attendance && getAttendanceIcon(attendance)}
+                  {isHoliday && <Palmtree className="h-5 w-5 text-red-600 dark:text-red-400" />}
+                  {!isHoliday && attendance && getAttendanceIcon(attendance)}
                 </div>
               </button>
             )
@@ -454,9 +440,7 @@ export default function Calendar() {
                 onClick={closeModal}
                 className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
               >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <X className="h-5 w-5" />
               </button>
             </div>
 
@@ -466,9 +450,7 @@ export default function Calendar() {
                 disabled={isLoading}
                 className="relative flex items-center gap-4 rounded-xl bg-blue-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-blue-600 disabled:opacity-50"
               >
-                <svg className="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
+                <Building2 className="h-10 w-10" />
                 <div>
                   <div className="font-semibold">Office</div>
                   <div className="text-sm opacity-90">Own Car</div>
@@ -478,11 +460,9 @@ export default function Calendar() {
               <button
                 onClick={() => saveAttendance('office', 'company_car')}
                 disabled={isLoading}
-                className="relative flex items-center gap-4 rounded-xl bg-indigo-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-indigo-600 disabled:opacity-50"
+                className="relative flex items-center gap-4 rounded-xl bg-purple-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-purple-600 disabled:opacity-50"
               >
-                <svg className="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
+                <Building2 className="h-10 w-10" />
                 <div>
                   <div className="font-semibold">Office</div>
                   <div className="text-sm opacity-90">Company Car</div>
@@ -492,11 +472,9 @@ export default function Calendar() {
               <button
                 onClick={() => saveAttendance('home', null)}
                 disabled={isLoading}
-                className="relative flex items-center gap-4 rounded-xl bg-green-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-green-600 disabled:opacity-50"
+                className="relative flex items-center gap-4 rounded-xl bg-emerald-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-emerald-600 disabled:opacity-50"
               >
-                <svg className="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
+                <Home className="h-10 w-10" />
                 <div>
                   <div className="font-semibold">Home Office</div>
                 </div>
