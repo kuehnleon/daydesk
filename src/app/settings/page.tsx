@@ -7,6 +7,7 @@ import { useToast } from '@/components/ui/toast'
 export default function Settings() {
   const [defaultState, setDefaultState] = useState('BW')
   const [workDays, setWorkDays] = useState('1,2,3,4,5')
+  const [weekStartDay, setWeekStartDay] = useState(1)
   const [isSaving, setIsSaving] = useState(false)
   const { showToast } = useToast()
 
@@ -20,6 +21,7 @@ export default function Settings() {
       const data = await response.json()
       setDefaultState(data.defaultState)
       setWorkDays(data.workDays)
+      setWeekStartDay(data.weekStartDay ?? 1)
     }
   }
 
@@ -29,7 +31,7 @@ export default function Settings() {
       const response = await fetch('/api/settings', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ defaultState, workDays }),
+        body: JSON.stringify({ defaultState, workDays, weekStartDay }),
       })
 
       if (response.ok) {
@@ -100,6 +102,23 @@ export default function Settings() {
             </select>
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
               Used for calculating state-specific public holidays
+            </p>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Week Starts On
+            </label>
+            <select
+              value={weekStartDay}
+              onChange={(e) => setWeekStartDay(Number(e.target.value))}
+              className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            >
+              <option value={1}>Monday</option>
+              <option value={0}>Sunday</option>
+            </select>
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              First day of the week in the calendar view
             </p>
           </div>
 

@@ -8,12 +8,14 @@ generator client {
 }
 
 model User {
-  id           String       @id @default(cuid())
-  email        String       @unique
-  name         String?
-  image        String?
-  defaultState String       @default("BW")
-  workDays     String       @default("1,2,3,4,5")
+  id            String       @id @default(cuid())
+  email         String       @unique
+  emailVerified DateTime?
+  name          String?
+  image         String?
+  defaultState  String       @default("BW")
+  workDays      String       @default("1,2,3,4,5")
+  weekStartDay  Int          @default(1)
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
   attendances  Attendance[]
