@@ -315,20 +315,11 @@ export default function Calendar() {
     }
     if (attendance.type === 'office') {
       const color = attendance.location?.color
-      const hasTransport = attendance.transportId || attendance.location?.transportId
       return (
-        <div className="flex items-center gap-0.5">
-          <Building2
-            className="h-5 w-5"
-            style={{ color: color || '#3B82F6' }}
-          />
-          {hasTransport && (
-            <Car
-              className="h-3 w-3"
-              style={{ color: color || '#3B82F6' }}
-            />
-          )}
-        </div>
+        <Building2
+          className="h-5 w-5"
+          style={{ color: color || '#3B82F6' }}
+        />
       )
     }
     return null
