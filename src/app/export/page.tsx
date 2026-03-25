@@ -28,7 +28,7 @@ export default function Export() {
         const url = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = `worklog_${startDate}_${endDate}.${exportFormat}`
+        a.download = `daydesk_${startDate}_${endDate}.${exportFormat}`
         document.body.appendChild(a)
         a.click()
         window.URL.revokeObjectURL(url)

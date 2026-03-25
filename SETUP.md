@@ -1,11 +1,11 @@
-# WorkLog Setup Guide
+# Daydesk Setup Guide
 
 ## Quick Start (5 minutes)
 
 ### 1. Install Dependencies
 
 ```bash
-cd worklog
+cd daydesk
 npm install
 ```
 
@@ -70,8 +70,8 @@ Open http://localhost:3000 and sign in!
 #### Build Docker Image
 
 ```bash
-docker build -t your-registry/worklog:1.0.0 .
-docker push your-registry/worklog:1.0.0
+docker build -t your-registry/daydesk:1.0.0 .
+docker push your-registry/daydesk:1.0.0
 ```
 
 #### Deploy with Helm
@@ -79,21 +79,21 @@ docker push your-registry/worklog:1.0.0
 1. Create custom values file:
 
 ```bash
-cat > helm/worklog/values.local.yaml <<EOF
+cat > helm/daydesk/values.local.yaml <<EOF
 image:
-  repository: your-registry/worklog
+  repository: your-registry/daydesk
   tag: "1.0.0"
 
 ingress:
   enabled: true
-  host: worklog.yourdomain.com
+  host: daydesk.yourdomain.com
   tls:
     enabled: true
-    secretName: worklog-tls
+    secretName: daydesk-tls
 
 env:
-  DATABASE_URL: "file:/data/worklog.db"
-  NEXTAUTH_URL: "https://worklog.yourdomain.com"
+  DATABASE_URL: "file:/data/daydesk.db"
+  NEXTAUTH_URL: "https://daydesk.yourdomain.com"
   NEXTAUTH_SECRET: "$(openssl rand -base64 32)"
   AUTH0_CLIENT_ID: "your-production-client-id"
   AUTH0_CLIENT_SECRET: "your-production-client-secret"
@@ -104,15 +104,15 @@ EOF
 2. Install with Helm:
 
 ```bash
-helm upgrade --install worklog ./helm/worklog -f ./helm/worklog/values.local.yaml
+helm upgrade --install daydesk ./helm/daydesk -f ./helm/daydesk/values.local.yaml
 ```
 
 #### Update Auth0 for Production
 
 In your Auth0 application settings, add:
-- **Allowed Callback URLs**: `https://worklog.yourdomain.com/api/auth/callback/auth0`
-- **Allowed Logout URLs**: `https://worklog.yourdomain.com`
-- **Allowed Web Origins**: `https://worklog.yourdomain.com`
+- **Allowed Callback URLs**: `https://daydesk.yourdomain.com/api/auth/callback/auth0`
+- **Allowed Logout URLs**: `https://daydesk.yourdomain.com`
+- **Allowed Web Origins**: `https://daydesk.yourdomain.com`
 
 ### Option 2: Docker Compose (Development/Testing)
 
@@ -124,7 +124,7 @@ docker-compose up
 ## PWA Installation
 
 ### iOS (iPhone/iPad)
-1. Open https://worklog.yourdomain.com in **Safari**
+1. Open https://daydesk.yourdomain.com in **Safari**
 2. Tap the Share button (square with arrow)
 3. Scroll down and tap "Add to Home Screen"
 4. Tap "Add"

@@ -4,8 +4,8 @@ import { useEffect, useRef, useCallback } from 'react'
 import { format, getDay } from 'date-fns'
 import type { ReminderSettings } from '@/types'
 
-const STORAGE_KEY = 'worklog-reminder-settings'
-const LAST_SHOWN_KEY = 'worklog-reminder-last-shown'
+const STORAGE_KEY = 'daydesk-reminder-settings'
+const LAST_SHOWN_KEY = 'daydesk-reminder-last-shown'
 
 export function NotificationScheduler() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -96,10 +96,10 @@ export function NotificationScheduler() {
   const showNotification = useCallback(() => {
     if (Notification.permission !== 'granted') return
 
-    new Notification('WorkLog Reminder', {
+    new Notification('Daydesk Reminder', {
       body: "Don't forget to log your attendance for today!",
       icon: '/icon-192.png',
-      tag: 'worklog-attendance-reminder',
+      tag: 'daydesk-attendance-reminder',
       requireInteraction: false,
     })
   }, [])

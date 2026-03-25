@@ -51,7 +51,7 @@ export async function GET(request: Request) {
     return new NextResponse(csv, {
       headers: {
         'Content-Type': 'text/csv',
-        'Content-Disposition': `attachment; filename="worklog_${startDate}_${endDate}.csv"`,
+        'Content-Disposition': `attachment; filename="daydesk_${startDate}_${endDate}.csv"`,
       },
     })
   }
@@ -61,7 +61,7 @@ export async function GET(request: Request) {
     return new NextResponse(new Uint8Array(pdfBuffer), {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="worklog_${startDate}_${endDate}.pdf"`,
+        'Content-Disposition': `attachment; filename="daydesk_${startDate}_${endDate}.pdf"`,
       },
     })
   }
@@ -98,7 +98,7 @@ async function generatePDF(attendances: any[], startDate: string, endDate: strin
     doc.on('error', reject)
 
     // Header
-    doc.fontSize(20).font('Helvetica-Bold').text('WORKLOG EXPORT', { align: 'center' })
+    doc.fontSize(20).font('Helvetica-Bold').text('DAYDESK EXPORT', { align: 'center' })
     doc.moveDown(0.5)
     doc.fontSize(12).font('Helvetica').text(`${startDate} to ${endDate}`, { align: 'center' })
     doc.fontSize(10).text(`Generated: ${format(new Date(), 'yyyy-MM-dd HH:mm')}`, { align: 'center' })
