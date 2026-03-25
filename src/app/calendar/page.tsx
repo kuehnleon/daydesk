@@ -395,7 +395,7 @@ export default function Calendar() {
         </p>
 
         {/* Monthly Summary */}
-        <div className="mb-6 flex flex-wrap gap-3">
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {locations.map(loc => {
             const count = summary.locationCounts[loc.id] || 0
             if (count === 0) return null
@@ -410,9 +410,9 @@ export default function Calendar() {
                 >
                   <Building2 className="h-5 w-5" style={{ color: loc.color }} />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <div className="text-2xl font-bold text-gray-900 dark:text-white">{count}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">{loc.name}</div>
+                  <div className="truncate text-xs text-gray-500 dark:text-gray-400">{loc.name}</div>
                 </div>
               </div>
             )
@@ -423,9 +423,9 @@ export default function Calendar() {
               <div className="rounded-lg bg-blue-200 p-2 dark:bg-blue-800">
                 <Building2 className="h-5 w-5 text-blue-700 dark:text-blue-300" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <div className="text-2xl font-bold text-gray-900 dark:text-white">{summary.officeNoLocation}</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">Office (Legacy)</div>
+                <div className="truncate text-xs text-gray-500 dark:text-gray-400">Office (Legacy)</div>
               </div>
             </div>
           )}
@@ -434,9 +434,9 @@ export default function Calendar() {
             <div className="rounded-lg bg-emerald-200 p-2 dark:bg-emerald-800">
               <Home className="h-5 w-5 text-emerald-700 dark:text-emerald-300" />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="text-2xl font-bold text-gray-900 dark:text-white">{summary.homeOffice}</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">Home Office</div>
+              <div className="truncate text-xs text-gray-500 dark:text-gray-400">Home Office</div>
             </div>
           </div>
 
@@ -444,9 +444,9 @@ export default function Calendar() {
             <div className="rounded-lg bg-gray-200 p-2 dark:bg-gray-700">
               <BarChart3 className="h-5 w-5 text-gray-600 dark:text-gray-300" />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="text-2xl font-bold text-gray-900 dark:text-white">{summary.total}</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">Total Days</div>
+              <div className="truncate text-xs text-gray-500 dark:text-gray-400">Total Days</div>
             </div>
           </div>
         </div>
