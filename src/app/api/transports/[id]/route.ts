@@ -14,7 +14,7 @@ export async function PATCH(
 
   const { id } = await params
   const body = await request.json()
-  const { name, transportId, distance, color, sortOrder } = body
+  const { name, sortOrder } = body
 
   const user = await prisma.user.findUnique({
     where: { email: session.user.email },
@@ -24,28 +24,23 @@ export async function PATCH(
     return NextResponse.json({ error: 'User not found' }, { status: 404 })
   }
 
-  // Verify location belongs to user
-  const existing = await prisma.location.findFirst({
+  const existing = await prisma.transport.findFirst({
     where: { id, userId: user.id },
   })
 
   if (!existing) {
-    return NextResponse.json({ error: 'Location not found' }, { status: 404 })
+    return NextResponse.json({ error: 'Transport not found' }, { status: 404 })
   }
 
-  const location = await prisma.location.update({
+  const transport = await prisma.transport.update({
     where: { id },
     data: {
       ...(name !== undefined && { name }),
-      ...(transportId !== undefined && { transportId: transportId || null }),
-      ...(distance !== undefined && { distance: distance ? parseInt(distance) : null }),
-      ...(color !== undefined && { color }),
       ...(sortOrder !== undefined && { sortOrder }),
     },
-    include: { transport: true },
   })
 
-  return NextResponse.json(location)
+  return NextResponse.json(transport)
 }
 
 export async function DELETE(
@@ -68,16 +63,15 @@ export async function DELETE(
     return NextResponse.json({ error: 'User not found' }, { status: 404 })
   }
 
-  // Verify location belongs to user
-  const existing = await prisma.location.findFirst({
+  const existing = await prisma.transport.findFirst({
     where: { id, userId: user.id },
   })
 
   if (!existing) {
-    return NextResponse.json({ error: 'Location not found' }, { status: 404 })
+    return NextResponse.json({ error: 'Transport not found' }, { status: 404 })
   }
 
-  await prisma.location.delete({
+  await prisma.transport.delete({
     where: { id },
   })
 

@@ -17,13 +17,12 @@ export async function GET() {
     return NextResponse.json({ error: 'User not found' }, { status: 404 })
   }
 
-  const locations = await prisma.location.findMany({
+  const transports = await prisma.transport.findMany({
     where: { userId: user.id },
-    include: { transport: true },
     orderBy: { sortOrder: 'asc' },
   })
 
-  return NextResponse.json(locations)
+  return NextResponse.json(transports)
 }
 
 export async function POST(request: Request) {
@@ -34,10 +33,10 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { name, transportId, distance, color } = body
+  const { name } = body
 
-  if (!name || !color) {
-    return NextResponse.json({ error: 'Name and color are required' }, { status: 400 })
+  if (!name) {
+    return NextResponse.json({ error: 'Name is required' }, { status: 400 })
   }
 
   const user = await prisma.user.findUnique({
@@ -48,22 +47,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 })
   }
 
-  const maxSortOrder = await prisma.location.aggregate({
+  const maxSortOrder = await prisma.transport.aggregate({
     where: { userId: user.id },
     _max: { sortOrder: true },
   })
 
-  const location = await prisma.location.create({
+  const transport = await prisma.transport.create({
     data: {
       userId: user.id,
       name,
-      transportId: transportId || null,
-      distance: distance ? parseInt(distance) : null,
-      color,
       sortOrder: (maxSortOrder._max.sortOrder ?? -1) + 1,
     },
-    include: { transport: true },
   })
 
-  return NextResponse.json(location)
+  return NextResponse.json(transport)
 }
