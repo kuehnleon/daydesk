@@ -86,11 +86,10 @@ export default function Export() {
             </button>
             <button
               onClick={() => exportData('pdf')}
-              disabled={true}
-              className="rounded-lg bg-gray-400 px-4 py-3 text-sm font-semibold text-white cursor-not-allowed"
-              title="PDF export coming in next version"
+              disabled={isExporting}
+              className="rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
             >
-              Export PDF (Coming Soon)
+              Export PDF
             </button>
           </div>
 
