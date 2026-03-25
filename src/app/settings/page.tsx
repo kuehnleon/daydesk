@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { GERMAN_STATES } from '@/lib/holidays'
 import { useToast } from '@/components/ui/toast'
+import { ReminderSettings } from '@/components/settings/reminder-settings'
 import { Plus, Pencil, Trash2, GripVertical } from 'lucide-react'
 import type { Location, Transport } from '@/types'
 
@@ -425,6 +426,11 @@ export default function Settings() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Reminder Notifications Section */}
+        <div className="mb-6">
+          <ReminderSettings />
         </div>
 
         {/* Other Settings */}

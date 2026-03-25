@@ -50,3 +50,9 @@ export interface ExportParams {
   endDate: string
   format: 'csv' | 'pdf'
 }
+
+export interface ReminderSettings {
+  enabled: boolean
+  times: string[] // ["09:00", "14:00"]
+  workDaysOnly: boolean
+}
