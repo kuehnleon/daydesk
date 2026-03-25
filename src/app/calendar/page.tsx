@@ -13,13 +13,21 @@ import {
   X,
   BarChart3
 } from 'lucide-react'
+import type { Location, TransportType } from '@/types'
 
 interface Attendance {
   id: string
   date: string
   type: string
   transport: string | null
+  locationId: string | null
+  location: Location | null
   notes: string | null
+}
+
+const TRANSPORT_LABELS: Record<string, string> = {
+  own_car: 'Own Car',
+  company_car: 'Company Car',
 }
 
 export default function Calendar() {
@@ -29,14 +37,16 @@ export default function Calendar() {
   const [showModal, setShowModal] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [holidays, setHolidays] = useState<Set<string>>(new Set())
-  const [weekStartDay, setWeekStartDay] = useState(1) // 1 = Monday, 0 = Sunday
+  const [weekStartDay, setWeekStartDay] = useState(1)
   const [isSelecting, setIsSelecting] = useState(false)
   const [selectionStart, setSelectionStart] = useState<Date | null>(null)
   const [lastClickedDate, setLastClickedDate] = useState<Date | null>(null)
+  const [locations, setLocations] = useState<Location[]>([])
   const { showToast } = useToast()
 
   useEffect(() => {
     loadSettings()
+    loadLocations()
   }, [])
 
   useEffect(() => {
@@ -49,6 +59,14 @@ export default function Calendar() {
     if (response.ok) {
       const data = await response.json()
       setWeekStartDay(data.weekStartDay ?? 1)
+    }
+  }
+
+  const loadLocations = async () => {
+    const response = await fetch('/api/locations')
+    if (response.ok) {
+      const data = await response.json()
+      setLocations(data)
     }
   }
 
@@ -79,20 +97,16 @@ export default function Calendar() {
   const monthEnd = endOfMonth(currentMonth)
   const days = eachDayOfInterval({ start: monthStart, end: monthEnd })
 
-  // Get day names based on week start
   const getDayNames = () => {
-    const allDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
     if (weekStartDay === 1) {
       return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
     }
-    return allDays
+    return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
   }
 
-  // Get the offset for the first day of month based on week start
   const getFirstDayOffset = () => {
-    const dayOfWeek = getDay(monthStart) // 0 = Sunday, 1 = Monday, ...
+    const dayOfWeek = getDay(monthStart)
     if (weekStartDay === 1) {
-      // Monday start: Monday=0, Tuesday=1, ..., Sunday=6
       return dayOfWeek === 0 ? 6 : dayOfWeek - 1
     }
     return dayOfWeek
@@ -105,6 +119,13 @@ export default function Calendar() {
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6
 
     if (holidays.has(dateStr)) return 'bg-red-100 dark:bg-red-900'
+
+    // If attendance has a location with color, use a lighter version
+    if (attendance?.location?.color) {
+      // Use the location's color at 20% opacity
+      return ''
+    }
+
     if (attendance?.type === 'office' && attendance.transport === 'own_car') {
       return 'bg-blue-200 dark:bg-blue-800'
     }
@@ -115,6 +136,15 @@ export default function Calendar() {
     if (attendance?.type === 'home') return 'bg-emerald-200 dark:bg-emerald-800'
     if (isWeekend) return 'bg-gray-100 dark:bg-gray-800'
     return 'bg-white dark:bg-gray-700'
+  }
+
+  const getDayStyle = (date: Date) => {
+    const dateStr = format(date, 'yyyy-MM-dd')
+    const attendance = attendances[dateStr]
+    if (attendance?.location?.color) {
+      return { backgroundColor: `${attendance.location.color}33` } // 20% opacity
+    }
+    return {}
   }
 
   const isDateSelected = (date: Date) => {
@@ -131,13 +161,11 @@ export default function Calendar() {
     e.preventDefault()
 
     if (e.shiftKey && lastClickedDate) {
-      // Shift-click: select range from last clicked to current
       const range = getDateRange(lastClickedDate, day)
       const newSelection = new Set(range.map(d => format(d, 'yyyy-MM-dd')))
       setSelectedDates(newSelection)
       setShowModal(true)
     } else {
-      // Start drag selection
       setIsSelecting(true)
       setSelectionStart(day)
       setSelectedDates(new Set([format(day, 'yyyy-MM-dd')]))
@@ -183,7 +211,11 @@ export default function Calendar() {
     return getSelectedDatesArray().some(dateStr => attendances[dateStr])
   }
 
-  const saveAttendance = async (type: string, transport: string | null) => {
+  const saveAttendance = async (
+    type: string,
+    transport: TransportType,
+    locationId: string | null = null
+  ) => {
     const dates = getSelectedDatesArray()
     if (dates.length === 0) return
 
@@ -194,7 +226,7 @@ export default function Calendar() {
           fetch('/api/attendance', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ date: dateStr, type, transport }),
+            body: JSON.stringify({ date: dateStr, type, transport, locationId }),
           })
         )
       )
@@ -254,33 +286,47 @@ export default function Calendar() {
     return `Edit ${dates.length} days`
   }
 
-  // Calculate monthly summary
+  // Calculate monthly summary - now includes locations
   const getMonthlySummary = () => {
     const entries = Object.values(attendances)
-    const officeOwnCar = entries.filter(a => a.type === 'office' && a.transport === 'own_car').length
-    const officeCompanyCar = entries.filter(a => a.type === 'office' && a.transport === 'company_car').length
     const homeOffice = entries.filter(a => a.type === 'home').length
-    const totalOffice = officeOwnCar + officeCompanyCar
-    return { officeOwnCar, officeCompanyCar, homeOffice, totalOffice, total: entries.length }
+    const total = entries.length
+
+    // Group office entries by location
+    const locationCounts: Record<string, number> = {}
+    let officeNoLocation = 0
+
+    entries.forEach(a => {
+      if (a.type === 'office') {
+        if (a.locationId && a.location) {
+          locationCounts[a.locationId] = (locationCounts[a.locationId] || 0) + 1
+        } else {
+          officeNoLocation++
+        }
+      }
+    })
+
+    return { homeOffice, total, locationCounts, officeNoLocation }
   }
 
   const getAttendanceIcon = (attendance: Attendance) => {
     if (attendance.type === 'home') {
       return <Home className="h-5 w-5 text-emerald-700 dark:text-emerald-300" />
     }
-    if (attendance.type === 'office' && attendance.transport === 'company_car') {
-      return (
-        <div className="flex items-center gap-0.5">
-          <Building2 className="h-5 w-5 text-purple-700 dark:text-purple-300" />
-          <Car className="h-3 w-3 text-purple-600 dark:text-purple-400" />
-        </div>
-      )
-    }
     if (attendance.type === 'office') {
+      const color = attendance.location?.color
       return (
         <div className="flex items-center gap-0.5">
-          <Building2 className="h-5 w-5 text-blue-700 dark:text-blue-300" />
-          {attendance.transport && <Car className="h-3 w-3 text-blue-600 dark:text-blue-400" />}
+          <Building2
+            className="h-5 w-5"
+            style={{ color: color || '#3B82F6' }}
+          />
+          {attendance.transport && (
+            <Car
+              className="h-3 w-3"
+              style={{ color: color || '#3B82F6' }}
+            />
+          )}
         </div>
       )
     }
@@ -348,25 +394,44 @@ export default function Calendar() {
         </p>
 
         {/* Monthly Summary */}
-        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm dark:bg-gray-800">
-            <div className="rounded-lg bg-blue-200 p-2 dark:bg-blue-800">
-              <Building2 className="h-5 w-5 text-blue-700 dark:text-blue-300" />
+        <div className="mb-6 flex flex-wrap gap-3">
+          {/* Location-based summaries */}
+          {locations.map(loc => {
+            const count = summary.locationCounts[loc.id] || 0
+            if (count === 0) return null
+            return (
+              <div
+                key={loc.id}
+                className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm dark:bg-gray-800"
+              >
+                <div
+                  className="rounded-lg p-2"
+                  style={{ backgroundColor: `${loc.color}33` }}
+                >
+                  <Building2 className="h-5 w-5" style={{ color: loc.color }} />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white">{count}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">{loc.name}</div>
+                </div>
+              </div>
+            )
+          })}
+
+          {/* Legacy office entries without location */}
+          {summary.officeNoLocation > 0 && (
+            <div className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm dark:bg-gray-800">
+              <div className="rounded-lg bg-blue-200 p-2 dark:bg-blue-800">
+                <Building2 className="h-5 w-5 text-blue-700 dark:text-blue-300" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">{summary.officeNoLocation}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Office (Legacy)</div>
+              </div>
             </div>
-            <div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">{summary.officeOwnCar}</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">Office (Own Car)</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm dark:bg-gray-800">
-            <div className="rounded-lg bg-purple-200 p-2 dark:bg-purple-800">
-              <Building2 className="h-5 w-5 text-purple-700 dark:text-purple-300" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">{summary.officeCompanyCar}</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">Office (Company Car)</div>
-            </div>
-          </div>
+          )}
+
+          {/* Home Office */}
           <div className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm dark:bg-gray-800">
             <div className="rounded-lg bg-emerald-200 p-2 dark:bg-emerald-800">
               <Home className="h-5 w-5 text-emerald-700 dark:text-emerald-300" />
@@ -376,6 +441,8 @@ export default function Calendar() {
               <div className="text-xs text-gray-500 dark:text-gray-400">Home Office</div>
             </div>
           </div>
+
+          {/* Total */}
           <div className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm dark:bg-gray-800">
             <div className="rounded-lg bg-gray-200 p-2 dark:bg-gray-700">
               <BarChart3 className="h-5 w-5 text-gray-600 dark:text-gray-300" />
@@ -416,6 +483,7 @@ export default function Calendar() {
                   ${selected ? 'ring-2 ring-indigo-500 ring-offset-2 dark:ring-offset-gray-900' : 'hover:ring-2 hover:ring-indigo-300'}
                   ${isSelecting ? 'cursor-crosshair' : 'cursor-pointer'}
                 `}
+                style={getDayStyle(day)}
               >
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-semibold">{format(day, 'd')}</span>
@@ -444,31 +512,32 @@ export default function Calendar() {
               </button>
             </div>
 
-            <div className="grid gap-3">
-              <button
-                onClick={() => saveAttendance('office', 'own_car')}
-                disabled={isLoading}
-                className="relative flex items-center gap-4 rounded-xl bg-blue-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-blue-600 disabled:opacity-50"
-              >
-                <Building2 className="h-10 w-10" />
-                <div>
-                  <div className="font-semibold">Office</div>
-                  <div className="text-sm opacity-90">Own Car</div>
-                </div>
-              </button>
+            <div className="grid gap-3 max-h-80 overflow-y-auto">
+              {/* User's custom locations */}
+              {locations.map(location => (
+                <button
+                  key={location.id}
+                  onClick={() => saveAttendance('office', location.transport, location.id)}
+                  disabled={isLoading}
+                  className="relative flex items-center gap-4 rounded-xl p-4 text-left text-white transition-all hover:scale-[1.02] disabled:opacity-50"
+                  style={{ backgroundColor: location.color }}
+                >
+                  <Building2 className="h-10 w-10" />
+                  <div>
+                    <div className="font-semibold">{location.name}</div>
+                    {location.transport && (
+                      <div className="text-sm opacity-90">
+                        {TRANSPORT_LABELS[location.transport] || location.transport}
+                      </div>
+                    )}
+                    {location.distance && (
+                      <div className="text-xs opacity-75">{location.distance} km</div>
+                    )}
+                  </div>
+                </button>
+              ))}
 
-              <button
-                onClick={() => saveAttendance('office', 'company_car')}
-                disabled={isLoading}
-                className="relative flex items-center gap-4 rounded-xl bg-purple-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-purple-600 disabled:opacity-50"
-              >
-                <Building2 className="h-10 w-10" />
-                <div>
-                  <div className="font-semibold">Office</div>
-                  <div className="text-sm opacity-90">Company Car</div>
-                </div>
-              </button>
-
+              {/* Built-in Home Office */}
               <button
                 onClick={() => saveAttendance('home', null)}
                 disabled={isLoading}
