@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { ReminderSettings } from '@/types'
 
-const STORAGE_KEY = 'worklog-reminder-settings'
+const STORAGE_KEY = 'daydesk-reminder-settings'
 
 const DEFAULT_SETTINGS: ReminderSettings = {
   enabled: false,
@@ -103,10 +103,10 @@ export function useNotificationReminders() {
   const sendTestNotification = useCallback(() => {
     if (permission !== 'granted') return
 
-    new Notification('WorkLog Reminder', {
+    new Notification('Daydesk Reminder', {
       body: "This is a test notification. Don't forget to log your attendance!",
       icon: '/icon-192.png',
-      tag: 'worklog-test',
+      tag: 'daydesk-test',
     })
   }, [permission])
 

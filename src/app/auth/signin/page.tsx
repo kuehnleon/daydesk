@@ -14,7 +14,7 @@ export default async function SignIn() {
       <div className="w-full max-w-md space-y-8 rounded-2xl bg-white p-10 shadow-xl dark:bg-gray-800">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
-            WorkLog
+            Daydesk
           </h1>
           <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">
             Office Attendance Tracker

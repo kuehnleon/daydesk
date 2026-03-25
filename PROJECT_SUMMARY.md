@@ -1,4 +1,4 @@
-# WorkLog Project Summary
+# Daydesk Project Summary
 
 ## ✅ Created
 
@@ -54,7 +54,7 @@
 
 1. **Install dependencies:**
    ```bash
-   cd worklog
+   cd daydesk
    npm install
    ```
 
@@ -98,7 +98,7 @@
 ## 📦 File Structure
 
 ```
-worklog/
+daydesk/
 ├── src/
 │   ├── app/              Pages + API routes
 │   ├── components/       UI components
@@ -106,7 +106,7 @@ worklog/
 │   └── types/            TypeScript types
 ├── prisma/
 │   └── schema.prisma     Database schema
-├── helm/worklog/         Kubernetes deployment
+├── helm/daydesk/         Kubernetes deployment
 ├── Dockerfile            Production build
 └── README.md             Documentation
 ```
@@ -134,10 +134,10 @@ All 16 states with correct public holidays via Nager.Date API:
 
 ```bash
 # Build
-docker build -t worklog:1.0.0 .
+docker build -t daydesk:1.0.0 .
 
 # Deploy
-helm upgrade --install worklog ./helm/worklog -f values.local.yaml
+helm upgrade --install daydesk ./helm/daydesk -f values.local.yaml
 ```
 
 See README.md for full deployment instructions.

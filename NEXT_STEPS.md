@@ -1,8 +1,8 @@
-# WorkLog - Next Steps
+# Daydesk - Next Steps
 
-## ✅ What's Been Created
+## What's Been Created
 
-Your **WorkLog** application is now ready! Here's what you have:
+Your **Daydesk** application is now ready! Here's what you have:
 
 ### Application Features
 - ✅ Multi-user attendance tracking
@@ -20,10 +20,10 @@ Your **WorkLog** application is now ready! Here's what you have:
 - ✅ SQLite with persistent storage
 - ✅ Complete documentation
 
-## 🚀 Quick Start (3 Commands)
+## Quick Start (3 Commands)
 
 ```bash
-cd worklog
+cd daydesk
 npm install
 ./setup.sh
 ```
@@ -88,8 +88,8 @@ Create PWA icons (optional but recommended):
 
 # Option 2: Placeholder for testing
 cd public
-curl "https://via.placeholder.com/192/4f46e5/ffffff?text=WL" -o icon-192.png
-curl "https://via.placeholder.com/512/4f46e5/ffffff?text=WorkLog" -o icon-512.png
+curl "https://via.placeholder.com/192/4f46e5/ffffff?text=DD" -o icon-192.png
+curl "https://via.placeholder.com/512/4f46e5/ffffff?text=Daydesk" -o icon-512.png
 ```
 
 See `public/ICONS.md` for more options.
@@ -151,10 +151,10 @@ See README.md for full Helm deployment instructions.
 **Quick version:**
 ```bash
 # Build
-docker build -t worklog:1.0.0 .
+docker build -t daydesk:1.0.0 .
 
 # Deploy
-helm upgrade --install worklog ./helm/worklog -f values.local.yaml
+helm upgrade --install daydesk ./helm/daydesk -f values.local.yaml
 ```
 
 Don't forget to update Auth0 callbacks for production domain!

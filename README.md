@@ -1,4 +1,4 @@
-# WorkLog - Office Attendance Tracker
+# Daydesk - Office Attendance Tracker
 
 A lightweight multi-user application for tracking office and home office attendance for German tax reporting.
 
@@ -7,12 +7,10 @@ A lightweight multi-user application for tracking office and home office attenda
 - **Quick Logging**: One-tap buttons to log today's attendance
 - **Calendar View**: Visual month view to log/edit past days
 - **German Public Holidays**: Automatic fetching via Nager.Date API for all 16 states
-- **Export Reports**: CSV exports with date range selection
+- **Export Reports**: CSV and PDF exports with date range selection
 - **Multi-user**: Each user has their own attendance records
 - **PWA Support**: Install on iPhone/macOS home screen
 - **Auth0 Authentication**: Secure user authentication
-
-> **Note**: PDF export is planned for a future release. CSV export is fully functional and suitable for German tax reporting.
 
 ## Tech Stack
 
@@ -61,7 +59,7 @@ A lightweight multi-user application for tracking office and home office attenda
 1. Clone the repository:
    ```bash
    git clone <repository-url>
-   cd worklog
+   cd daydesk
    ```
 
 2. Install dependencies:
@@ -124,10 +122,10 @@ openssl rand -hex 32
 
 ### Export
 - Select date range
-- Download CSV report
+- Download CSV or PDF report
 - Includes summary statistics
 
-> CSV format is compatible with German tax software and spreadsheet applications.
+> Both formats are compatible with German tax software.
 
 ### Settings
 - Configure your German state (for holiday calculation)
@@ -138,19 +136,19 @@ openssl rand -hex 32
 ### Build Docker Image
 
 ```bash
-docker build -t worklog:latest .
+docker build -t daydesk:latest .
 ```
 
 ### Deploy with Helm
 
 ```bash
-cd helm/worklog
+cd helm/daydesk
 
 # Create values override file
 cat > values.local.yaml <<EOF
 env:
-  DATABASE_URL: "file:/data/worklog.db"
-  NEXTAUTH_URL: "https://worklog.your-domain.com"
+  DATABASE_URL: "file:/data/daydesk.db"
+  NEXTAUTH_URL: "https://daydesk.your-domain.com"
   NEXTAUTH_SECRET: "your-production-secret"
   AUTH0_CLIENT_ID: "your-client-id"
   AUTH0_CLIENT_SECRET: "your-client-secret"
@@ -158,11 +156,11 @@ env:
 
 ingress:
   enabled: true
-  host: worklog.your-domain.com
+  host: daydesk.your-domain.com
 EOF
 
 # Install/upgrade
-helm upgrade --install worklog . -f values.local.yaml
+helm upgrade --install daydesk . -f values.local.yaml
 ```
 
 ### Update Auth0 for Production
@@ -171,17 +169,17 @@ In your Auth0 application settings, add production URLs:
 
 **Allowed Callback URLs:**
 ```
-https://worklog.your-domain.com/api/auth/callback/auth0
+https://daydesk.your-domain.com/api/auth/callback/auth0
 ```
 
 **Allowed Logout URLs:**
 ```
-https://worklog.your-domain.com
+https://daydesk.your-domain.com
 ```
 
 **Allowed Web Origins:**
 ```
-https://worklog.your-domain.com
+https://daydesk.your-domain.com
 ```
 
 ## PWA Installation

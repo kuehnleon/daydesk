@@ -81,14 +81,14 @@ jobs:
       - name: Update Chart version
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
-          sed -i "s/^version:.*/version: $VERSION/" helm/worklog/Chart.yaml
-          sed -i "s/^appVersion:.*/appVersion: \"$VERSION\"/" helm/worklog/Chart.yaml
+          sed -i "s/^version:.*/version: $VERSION/" helm/daydesk/Chart.yaml
+          sed -i "s/^appVersion:.*/appVersion: \"$VERSION\"/" helm/daydesk/Chart.yaml
 
       - name: Package Helm chart
         run: |
-          helm package helm/worklog
+          helm package helm/daydesk
 
       - name: Push Helm chart to OCI Registry
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
-          helm push worklog-${VERSION}.tgz oci://${{ env.REGISTRY }}/${{ github.repository }}/charts
+          helm push daydesk-${VERSION}.tgz oci://${{ env.REGISTRY }}/${{ github.repository }}/charts

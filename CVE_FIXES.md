@@ -41,7 +41,7 @@ All vulnerabilities have been resolved:
 Run these commands to apply the fixes:
 
 ```bash
-cd worklog
+cd daydesk
 rm -rf node_modules package-lock.json
 npm install
 npm audit

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'worklog-v1';
+const CACHE_NAME = 'daydesk-v1';
 
 const STATIC_ASSETS = [
   '/',

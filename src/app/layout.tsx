@@ -25,12 +25,12 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "WorkLog - Office Attendance Tracker",
+  title: "Daydesk - Office Attendance Tracker",
   description: "Track office and home office attendance for German tax reporting",
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'WorkLog',
+    title: 'Daydesk',
   },
   icons: {
     icon: '/icon-192.png',
