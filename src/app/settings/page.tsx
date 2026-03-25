@@ -9,13 +9,15 @@ import type { Location, Transport } from '@/types'
 const COLOR_OPTIONS = [
   '#3B82F6', // blue
   '#8B5CF6', // purple
-  '#10B981', // emerald
   '#F59E0B', // amber
   '#EF4444', // red
   '#EC4899', // pink
   '#06B6D4', // cyan
   '#84CC16', // lime
+  '#6366F1', // indigo
 ]
+
+// Home Office uses emerald (#10B981) - reserved, not in COLOR_OPTIONS
 
 interface LocationFormData {
   name: string
@@ -33,6 +35,7 @@ export default function Settings() {
   const [workDays, setWorkDays] = useState('1,2,3,4,5')
   const [weekStartDay, setWeekStartDay] = useState(1)
   const [isSaving, setIsSaving] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
   const { showToast } = useToast()
 
   // Transport state
@@ -55,6 +58,7 @@ export default function Settings() {
   })
 
   useEffect(() => {
+    setIsMounted(true)
     loadSettings()
     loadTransports()
     loadLocations()
@@ -320,7 +324,7 @@ export default function Settings() {
             </button>
           </div>
 
-          {isLoadingTransports ? (
+          {!isMounted || isLoadingTransports ? (
             <p className="text-sm text-gray-500 dark:text-gray-400">Loading...</p>
           ) : transports.length === 0 ? (
             <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -368,12 +372,8 @@ export default function Settings() {
             </button>
           </div>
 
-          {isLoadingLocations ? (
+          {!isMounted || isLoadingLocations ? (
             <p className="text-sm text-gray-500 dark:text-gray-400">Loading...</p>
-          ) : locations.length === 0 ? (
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              No locations configured. Add your office locations to create dashboard shortcuts.
-            </p>
           ) : (
             <div className="space-y-2">
               {locations.map((location) => (
@@ -411,6 +411,18 @@ export default function Settings() {
                   </button>
                 </div>
               ))}
+
+              {/* Built-in Home Office */}
+              <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 dark:border-gray-700 dark:bg-gray-700/50">
+                <GripVertical className="h-4 w-4 text-gray-300 dark:text-gray-600" />
+                <div className="h-4 w-4 rounded bg-emerald-500" />
+                <span className="flex-1 font-medium text-gray-900 dark:text-white">
+                  Home Office
+                </span>
+                <span className="text-xs text-gray-400 dark:text-gray-500">
+                  Built-in
+                </span>
+              </div>
             </div>
           )}
         </div>
