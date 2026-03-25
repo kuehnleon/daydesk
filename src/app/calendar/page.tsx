@@ -9,6 +9,7 @@ import {
   Home,
   Car,
   Palmtree,
+  ThermometerSun,
   ChevronLeft,
   ChevronRight,
   X,
@@ -135,6 +136,8 @@ export default function Calendar() {
 
     if (attendance?.type === 'office') return 'bg-blue-100 dark:bg-blue-900'
     if (attendance?.type === 'home') return 'bg-emerald-200 dark:bg-emerald-800'
+    if (attendance?.type === 'off') return 'bg-amber-100 dark:bg-amber-900'
+    if (attendance?.type === 'sick') return 'bg-red-100 dark:bg-red-900'
     if (isWeekend) return 'bg-gray-100 dark:bg-gray-800'
     return 'bg-white dark:bg-gray-700'
   }
@@ -322,6 +325,12 @@ export default function Calendar() {
           style={{ color: color || '#3B82F6' }}
         />
       )
+    }
+    if (attendance.type === 'off') {
+      return <Palmtree className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+    }
+    if (attendance.type === 'sick') {
+      return <ThermometerSun className="h-5 w-5 text-red-600 dark:text-red-400" />
     }
     return null
   }
@@ -638,6 +647,28 @@ export default function Calendar() {
                 <Home className="h-10 w-10" />
                 <div>
                   <div className="font-semibold">Home Office</div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => saveAttendance('off', null)}
+                disabled={isLoading}
+                className="relative flex cursor-pointer items-center gap-4 rounded-xl bg-amber-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Palmtree className="h-10 w-10" />
+                <div>
+                  <div className="font-semibold">Day Off</div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => saveAttendance('sick', null)}
+                disabled={isLoading}
+                className="relative flex cursor-pointer items-center gap-4 rounded-xl bg-red-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <ThermometerSun className="h-10 w-10" />
+                <div>
+                  <div className="font-semibold">Sick</div>
                 </div>
               </button>
             </div>
