@@ -5,17 +5,12 @@ import { format } from 'date-fns'
 import { signOut } from 'next-auth/react'
 import { useToast } from '@/components/ui/toast'
 import { Building2, Home, Check } from 'lucide-react'
-import type { Location, TransportType } from '@/types'
+import type { Location } from '@/types'
 
 interface TodayAttendance {
   type: string
-  transport: TransportType
+  transportId: string | null
   locationId: string | null
-}
-
-const TRANSPORT_LABELS: Record<string, string> = {
-  own_car: 'Own Car',
-  company_car: 'Company Car',
 }
 
 export default function Dashboard() {
@@ -50,7 +45,7 @@ export default function Dashboard() {
         if (todayEntry) {
           setTodayAttendance({
             type: todayEntry.type,
-            transport: todayEntry.transport,
+            transportId: todayEntry.transportId,
             locationId: todayEntry.locationId,
           })
         }
@@ -74,7 +69,7 @@ export default function Dashboard() {
 
   const logAttendance = async (
     type: string,
-    transport: TransportType,
+    transportId: string | null,
     locationId: string | null = null
   ) => {
     setIsLoading(true)
@@ -85,13 +80,13 @@ export default function Dashboard() {
         body: JSON.stringify({
           date: today,
           type,
-          transport,
+          transportId,
           locationId,
         }),
       })
 
       if (response.ok) {
-        setTodayAttendance({ type, transport, locationId })
+        setTodayAttendance({ type, transportId, locationId })
         showToast('Attendance logged successfully!', 'success')
       } else {
         showToast('Failed to log attendance', 'error')
@@ -116,7 +111,6 @@ export default function Dashboard() {
   const baseButtonClasses =
     'relative flex flex-col items-center justify-center rounded-2xl p-6 text-white shadow-lg transition-all hover:scale-105 disabled:opacity-50'
 
-  // Darken a hex color for hover state
   const darkenColor = (hex: string): string => {
     const num = parseInt(hex.slice(1), 16)
     const r = Math.max(0, (num >> 16) - 20)
@@ -189,13 +183,12 @@ export default function Dashboard() {
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {/* User's custom locations */}
             {locations.map((location) => {
               const selected = isSelectedLocation(location.id)
               return (
                 <button
                   key={location.id}
-                  onClick={() => logAttendance('office', location.transport, location.id)}
+                  onClick={() => logAttendance('office', location.transportId, location.id)}
                   disabled={isLoading}
                   className={baseButtonClasses}
                   style={{
@@ -221,9 +214,7 @@ export default function Dashboard() {
                   <Building2 className="mb-3 h-12 w-12" />
                   <span className="text-lg font-semibold">{location.name}</span>
                   {location.transport && (
-                    <span className="text-sm opacity-90">
-                      ({TRANSPORT_LABELS[location.transport] || location.transport})
-                    </span>
+                    <span className="text-sm opacity-90">({location.transport.name})</span>
                   )}
                   {location.distance && (
                     <span className="mt-1 text-xs opacity-75">{location.distance} km</span>
@@ -232,7 +223,6 @@ export default function Dashboard() {
               )
             })}
 
-            {/* Built-in Home Office */}
             <button
               onClick={() => logAttendance('home', null, null)}
               disabled={isLoading}

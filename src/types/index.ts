@@ -1,11 +1,20 @@
 export type AttendanceType = 'office' | 'home' | 'off' | 'holiday' | 'sick'
-export type TransportType = 'own_car' | 'company_car' | null
+
+export interface Transport {
+  id: string
+  userId: string
+  name: string
+  sortOrder: number
+  createdAt: Date
+  updatedAt: Date
+}
 
 export interface Location {
   id: string
   userId: string
   name: string
-  transport: TransportType
+  transportId: string | null
+  transport: Transport | null
   distance: number | null
   color: string
   sortOrder: number
@@ -18,7 +27,8 @@ export interface AttendanceRecord {
   userId: string
   date: Date
   type: AttendanceType
-  transport: TransportType
+  transportId?: string | null
+  transport?: Transport | null
   locationId?: string | null
   location?: Location | null
   notes?: string
