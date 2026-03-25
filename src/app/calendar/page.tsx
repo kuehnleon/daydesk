@@ -495,13 +495,13 @@ export default function Calendar() {
               </button>
             </div>
 
-            <div className="grid gap-3 max-h-80 overflow-y-auto">
+            <div className="grid gap-3">
               {locations.map(location => (
                 <button
                   key={location.id}
                   onClick={() => saveAttendance('office', location.transportId, location.id)}
                   disabled={isLoading}
-                  className="relative flex items-center gap-4 rounded-xl p-4 text-left text-white transition-all hover:scale-[1.02] disabled:opacity-50"
+                  className="relative flex cursor-pointer items-center gap-4 rounded-xl p-4 text-left text-white transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50"
                   style={{ backgroundColor: location.color }}
                 >
                   <Building2 className="h-10 w-10" />
@@ -520,7 +520,7 @@ export default function Calendar() {
               <button
                 onClick={() => saveAttendance('home', null)}
                 disabled={isLoading}
-                className="relative flex items-center gap-4 rounded-xl bg-emerald-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-emerald-600 disabled:opacity-50"
+                className="relative flex cursor-pointer items-center gap-4 rounded-xl bg-emerald-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Home className="h-10 w-10" />
                 <div>
@@ -533,7 +533,7 @@ export default function Calendar() {
               <button
                 onClick={clearAttendance}
                 disabled={isLoading}
-                className="mt-4 w-full rounded-xl border-2 border-red-300 bg-red-50 p-3 text-red-700 transition-all hover:bg-red-100 disabled:opacity-50 dark:border-red-700 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
+                className="mt-4 w-full cursor-pointer rounded-xl border-2 border-red-300 bg-red-50 p-3 text-red-700 transition-all hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-700 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
               >
                 {selectedDates.size > 1 ? 'Clear All Entries' : 'Clear Entry'}
               </button>
