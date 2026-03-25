@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
 import { useToast } from '@/components/ui/toast'
 import { Navbar } from '@/components/navbar'
-import { Building2, Home, Check } from 'lucide-react'
+import { Building2, Home, Check, Palmtree, ThermometerSun } from 'lucide-react'
 import type { Location } from '@/types'
 
 interface TodayAttendance {
@@ -108,6 +108,11 @@ export default function Dashboard() {
     return todayAttendance.type === 'home' && !todayAttendance.locationId
   }
 
+  const isSelectedType = (type: string) => {
+    if (!isMounted || !todayAttendance) return false
+    return todayAttendance.type === type
+  }
+
   const baseButtonClasses =
     'relative flex flex-col items-center justify-center rounded-2xl p-6 text-white shadow-lg transition-all hover:scale-105 disabled:opacity-50'
 
@@ -203,6 +208,42 @@ export default function Dashboard() {
               )}
               <Home className="mb-3 h-12 w-12" />
               <span className="text-lg font-semibold">Home Office</span>
+            </button>
+
+            <button
+              onClick={() => logAttendance('off', null, null)}
+              disabled={isLoading}
+              className={`${baseButtonClasses} bg-amber-500 hover:bg-amber-600 ${
+                isSelectedType('off')
+                  ? 'ring-4 ring-amber-300 ring-offset-2 dark:ring-amber-400 dark:ring-offset-gray-900'
+                  : ''
+              }`}
+            >
+              {isSelectedType('off') && (
+                <div className="absolute top-3 right-3 rounded-full bg-white p-1">
+                  <Check className="h-4 w-4 text-amber-600" strokeWidth={3} />
+                </div>
+              )}
+              <Palmtree className="mb-3 h-12 w-12" />
+              <span className="text-lg font-semibold">Day Off</span>
+            </button>
+
+            <button
+              onClick={() => logAttendance('sick', null, null)}
+              disabled={isLoading}
+              className={`${baseButtonClasses} bg-red-500 hover:bg-red-600 ${
+                isSelectedType('sick')
+                  ? 'ring-4 ring-red-300 ring-offset-2 dark:ring-red-400 dark:ring-offset-gray-900'
+                  : ''
+              }`}
+            >
+              {isSelectedType('sick') && (
+                <div className="absolute top-3 right-3 rounded-full bg-white p-1">
+                  <Check className="h-4 w-4 text-red-600" strokeWidth={3} />
+                </div>
+              )}
+              <ThermometerSun className="mb-3 h-12 w-12" />
+              <span className="text-lg font-semibold">Sick</span>
             </button>
           </div>
         )}
