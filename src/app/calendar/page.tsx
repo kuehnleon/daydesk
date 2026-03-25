@@ -38,11 +38,15 @@ export default function Calendar() {
   const [selectionStart, setSelectionStart] = useState<Date | null>(null)
   const [lastClickedDate, setLastClickedDate] = useState<Date | null>(null)
   const [locations, setLocations] = useState<Location[]>([])
+  const [transports, setTransports] = useState<Transport[]>([])
+  const [expandedLocationId, setExpandedLocationId] = useState<string | null>(null)
+  const [selectedTransportId, setSelectedTransportId] = useState<string | null>(null)
   const { showToast } = useToast()
 
   useEffect(() => {
     loadSettings()
     loadLocations()
+    loadTransports()
   }, [])
 
   useEffect(() => {
@@ -63,6 +67,14 @@ export default function Calendar() {
     if (response.ok) {
       const data = await response.json()
       setLocations(data)
+    }
+  }
+
+  const loadTransports = async () => {
+    const response = await fetch('/api/transports')
+    if (response.ok) {
+      const data = await response.json()
+      setTransports(data)
     }
   }
 
@@ -189,6 +201,8 @@ export default function Calendar() {
   const closeModal = () => {
     setShowModal(false)
     setSelectedDates(new Set())
+    setExpandedLocationId(null)
+    setSelectedTransportId(null)
   }
 
   const getSelectedDatesArray = (): string[] => {
@@ -496,26 +510,145 @@ export default function Calendar() {
             </div>
 
             <div className="grid gap-3">
-              {locations.map(location => (
-                <button
-                  key={location.id}
-                  onClick={() => saveAttendance('office', location.transportId, location.id)}
-                  disabled={isLoading}
-                  className="relative flex cursor-pointer items-center gap-4 rounded-xl p-4 text-left text-white transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50"
-                  style={{ backgroundColor: location.color }}
-                >
-                  <Building2 className="h-10 w-10" />
-                  <div>
-                    <div className="font-semibold">{location.name}</div>
-                    {location.transport && (
-                      <div className="text-sm opacity-90">{location.transport.name}</div>
-                    )}
-                    {location.distance && (
-                      <div className="text-xs opacity-75">{location.distance} km</div>
+              {locations.map(location => {
+                const isExpanded = expandedLocationId === location.id
+                const hasTransports = transports.length > 0
+
+                if (isExpanded) {
+                  return (
+                    <div
+                      key={location.id}
+                      className="overflow-hidden rounded-xl text-white shadow-lg"
+                      style={{ backgroundColor: location.color }}
+                    >
+                      {/* Header */}
+                      <div className="flex items-center justify-between border-b border-white/20 p-4">
+                        <div className="flex items-center gap-3">
+                          <Building2 className="h-8 w-8" />
+                          <div>
+                            <div className="font-semibold">{location.name}</div>
+                            <div className="text-sm opacity-80">Select transport method</div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setExpandedLocationId(null)
+                            setSelectedTransportId(null)
+                          }}
+                          className="cursor-pointer rounded-lg p-1.5 transition-colors hover:bg-white/20"
+                        >
+                          <X className="h-5 w-5" />
+                        </button>
+                      </div>
+
+                      {/* Transport Options */}
+                      <div className="p-3">
+                        <div className="grid gap-2">
+                          {transports.map(transport => {
+                            const isSelected = selectedTransportId === transport.id
+                            const isDefault = transport.id === location.transportId
+                            return (
+                              <button
+                                key={transport.id}
+                                onClick={() => setSelectedTransportId(transport.id)}
+                                className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-all ${
+                                  isSelected
+                                    ? 'bg-white/25 ring-2 ring-white/50'
+                                    : 'bg-white/10 hover:bg-white/20'
+                                }`}
+                              >
+                                <div className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
+                                  isSelected ? 'border-white bg-white' : 'border-white/60'
+                                }`}>
+                                  {isSelected && (
+                                    <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: location.color }} />
+                                  )}
+                                </div>
+                                <span className="flex-1 font-medium">{transport.name}</span>
+                                {isDefault && (
+                                  <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs">default</span>
+                                )}
+                              </button>
+                            )
+                          })}
+                          {/* No transport option */}
+                          <button
+                            onClick={() => setSelectedTransportId(null)}
+                            className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-all ${
+                              selectedTransportId === null
+                                ? 'bg-white/25 ring-2 ring-white/50'
+                                : 'bg-white/10 hover:bg-white/20'
+                            }`}
+                          >
+                            <div className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
+                              selectedTransportId === null ? 'border-white bg-white' : 'border-white/60'
+                            }`}>
+                              {selectedTransportId === null && (
+                                <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: location.color }} />
+                              )}
+                            </div>
+                            <span className="flex-1 font-medium">No transport</span>
+                            {!location.transportId && (
+                              <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs">default</span>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Save Button */}
+                      <div className="border-t border-white/20 p-3">
+                        <button
+                          onClick={() => saveAttendance('office', selectedTransportId, location.id)}
+                          disabled={isLoading}
+                          className="w-full cursor-pointer rounded-lg bg-white py-2.5 font-semibold transition-all hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
+                          style={{ color: location.color }}
+                        >
+                          Save
+                        </button>
+                      </div>
+                    </div>
+                  )
+                }
+
+                return (
+                  <div
+                    key={location.id}
+                    className="relative flex items-center rounded-xl text-white transition-all hover:scale-[1.02]"
+                    style={{ backgroundColor: location.color }}
+                  >
+                    <button
+                      onClick={() => saveAttendance('office', location.transportId, location.id)}
+                      disabled={isLoading}
+                      className="flex flex-1 cursor-pointer items-center gap-4 p-4 text-left disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Building2 className="h-10 w-10" />
+                      <div>
+                        <div className="font-semibold">{location.name}</div>
+                        {location.transport && (
+                          <div className="text-sm opacity-90">{location.transport.name}</div>
+                        )}
+                        {location.distance && (
+                          <div className="text-xs opacity-75">{location.distance} km</div>
+                        )}
+                      </div>
+                    </button>
+                    {hasTransports && (
+                      <button
+                        onClick={() => {
+                          setExpandedLocationId(location.id)
+                          setSelectedTransportId(location.transportId)
+                        }}
+                        disabled={isLoading}
+                        className="mr-3 flex cursor-pointer items-center gap-1.5 rounded-lg bg-white/20 px-2.5 py-1.5 text-sm font-medium transition-all hover:bg-white/30 disabled:cursor-not-allowed disabled:opacity-50"
+                        title="Change transport method"
+                      >
+                        <Car className="h-4 w-4" />
+                        <ChevronRight className="h-3.5 w-3.5" />
+                      </button>
                     )}
                   </div>
-                </button>
-              ))}
+                )
+              })}
 
               <button
                 onClick={() => saveAttendance('home', null)}
