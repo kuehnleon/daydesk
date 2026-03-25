@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, getDay, isBefore, isAfter } from 'date-fns'
 import { useToast } from '@/components/ui/toast'
+import { Navbar } from '@/components/navbar'
 import {
   Building2,
   Home,
@@ -329,28 +330,7 @@ export default function Calendar() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <nav className="bg-white shadow-sm dark:bg-gray-800">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 justify-between">
-            <div className="flex items-center">
-              <a href="/dashboard" className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-                WorkLog
-              </a>
-            </div>
-            <div className="flex items-center gap-4">
-              <a href="/dashboard" className="text-sm font-medium text-gray-700 hover:text-indigo-600 dark:text-gray-300">
-                Dashboard
-              </a>
-              <a href="/export" className="text-sm font-medium text-gray-700 hover:text-indigo-600 dark:text-gray-300">
-                Export
-              </a>
-              <a href="/settings" className="text-sm font-medium text-gray-700 hover:text-indigo-600 dark:text-gray-300">
-                Settings
-              </a>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="mb-8 flex items-center justify-between">
