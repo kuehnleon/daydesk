@@ -627,6 +627,15 @@ export default function Calendar() {
                       <button
                         onClick={() => {
                           setExpandedLocationId(location.id)
+                          // Check if there's existing attendance for this location to preserve its transport
+                          const dates = getSelectedDatesArray()
+                          if (dates.length === 1) {
+                            const existing = attendances[dates[0]]
+                            if (existing?.locationId === location.id) {
+                              setSelectedTransportId(existing.transportId)
+                              return
+                            }
+                          }
                           setSelectedTransportId(location.transportId)
                         }}
                         disabled={isLoading}
