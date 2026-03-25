@@ -1,4 +1,4 @@
-# WorkLog - Icons
+# Daydesk - Icons
 
 The PWA requires icons for home screen installation.
 
@@ -45,9 +45,9 @@ If you just want to test PWA functionality without icons:
 
 ```bash
 # Create simple colored squares
-cd worklog/public
-curl "https://via.placeholder.com/192/4f46e5/ffffff?text=WL" -o icon-192.png
-curl "https://via.placeholder.com/512/4f46e5/ffffff?text=WorkLog" -o icon-512.png
+cd daydesk/public
+curl "https://via.placeholder.com/192/4f46e5/ffffff?text=DD" -o icon-192.png
+curl "https://via.placeholder.com/512/4f46e5/ffffff?text=Daydesk" -o icon-512.png
 ```
 
 These placeholder icons will work for testing PWA installation.

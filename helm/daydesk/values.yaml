@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: worklog
+  repository: daydesk
   pullPolicy: IfNotPresent
   tag: "latest"
 
@@ -15,10 +15,10 @@ ingress:
   className: "nginx"
   annotations: {}
     # cert-manager.io/cluster-issuer: letsencrypt-prod
-  host: worklog.example.com
+  host: daydesk.example.com
   tls:
     enabled: false
-    secretName: worklog-tls
+    secretName: daydesk-tls
 
 persistence:
   enabled: true
@@ -28,7 +28,7 @@ persistence:
   mountPath: /data
 
 env:
-  DATABASE_URL: "file:/data/worklog.db"
+  DATABASE_URL: "file:/data/daydesk.db"
   APP_BASE_URL: "http://localhost:3000"
   NEXTAUTH_URL: "http://localhost:3000"
   AUTH0_DOMAIN: ""

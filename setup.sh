@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "🚀 WorkLog Setup Script"
+echo "Daydesk Setup Script"
 echo "======================"
 echo ""
 

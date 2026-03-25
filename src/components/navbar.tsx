@@ -20,7 +20,7 @@ export function Navbar() {
         <div className="flex h-16 justify-between">
           <div className="flex items-center">
             <a href="/dashboard" className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-              WorkLog
+              Daydesk
             </a>
           </div>
           <div className="flex items-center gap-4">

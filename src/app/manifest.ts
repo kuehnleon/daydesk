@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'WorkLog - Office Attendance Tracker',
-    short_name: 'WorkLog',
+    name: 'Daydesk - Office Attendance Tracker',
+    short_name: 'Daydesk',
     description: 'Track office and home office attendance for German tax reporting',
     start_url: '/',
     display: 'standalone',
