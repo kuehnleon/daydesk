@@ -1,14 +1,61 @@
+# Dependencies
 node_modules
+
+# Build output
 .next
+dist
+out
+
+# Environment files
 .env
-.env.local
+.env.*
+!.env.example
+
+# Logs
 *.log
-.DS_Store
-.vscode
-.idea
-README.md
-docker-compose.yml
-helm/
+npm-debug.log*
+
+# Database
 prisma/dev.db
 prisma/dev.db-journal
+*.db
+
+# IDE/Editor
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
 .git
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Helm/K8s
+helm/
+
+# Documentation
+README.md
+SETUP.md
+CVE_FIXES.md
+NEXT_STEPS.md
+PROJECT_SUMMARY.md
+SECURITY_AUDIT.md
+AGENTS.md
+CLAUDE.md
+*.md
+!prisma/*.md
+
+# CI/CD
+.github/
+
+# Tasks
+tasks/
