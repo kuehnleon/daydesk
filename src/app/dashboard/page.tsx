@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
-import { signOut } from 'next-auth/react'
 import { useToast } from '@/components/ui/toast'
+import { Navbar } from '@/components/navbar'
 import { Building2, Home, Check } from 'lucide-react'
 import type { Location } from '@/types'
 
@@ -121,43 +121,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <nav className="bg-white shadow-sm dark:bg-gray-800">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 justify-between">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-                WorkLog
-              </h1>
-            </div>
-            <div className="flex items-center gap-4">
-              <a
-                href="/calendar"
-                className="text-sm font-medium text-gray-700 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400"
-              >
-                Calendar
-              </a>
-              <a
-                href="/export"
-                className="text-sm font-medium text-gray-700 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400"
-              >
-                Export
-              </a>
-              <a
-                href="/settings"
-                className="text-sm font-medium text-gray-700 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400"
-              >
-                Settings
-              </a>
-              <button
-                onClick={() => signOut({ callbackUrl: '/' })}
-                className="rounded-lg bg-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-              >
-                Sign Out
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="mb-8">
