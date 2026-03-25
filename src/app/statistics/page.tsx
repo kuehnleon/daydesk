@@ -232,13 +232,11 @@ export default function Statistics() {
               </>
             )}
 
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              {startDate && endDate && (
-                <span>
-                  Showing: {format(new Date(startDate), 'MMM d, yyyy')} - {format(new Date(endDate), 'MMM d, yyyy')}
-                </span>
-              )}
-            </div>
+            {startDate && endDate && (
+              <div className="flex h-[42px] items-center text-sm text-gray-500 dark:text-gray-400">
+                Showing: {format(new Date(startDate), 'MMM d, yyyy')} - {format(new Date(endDate), 'MMM d, yyyy')}
+              </div>
+            )}
           </div>
         </div>
 
