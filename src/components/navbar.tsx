@@ -9,6 +9,7 @@ export function Navbar() {
   const navLinks = [
     { href: '/dashboard', label: 'Dashboard' },
     { href: '/calendar', label: 'Calendar' },
+    { href: '/statistics', label: 'Statistics' },
     { href: '/export', label: 'Export' },
     { href: '/settings', label: 'Settings' },
   ]
