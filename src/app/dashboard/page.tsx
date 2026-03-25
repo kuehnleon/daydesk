@@ -5,19 +5,24 @@ import { format } from 'date-fns'
 import { signOut } from 'next-auth/react'
 import { useToast } from '@/components/ui/toast'
 import { Building2, Home, Check } from 'lucide-react'
-
-type AttendanceType = 'office' | 'home' | null
-type TransportType = 'own_car' | 'company_car' | null
+import type { Location, TransportType } from '@/types'
 
 interface TodayAttendance {
-  type: AttendanceType
+  type: string
   transport: TransportType
+  locationId: string | null
+}
+
+const TRANSPORT_LABELS: Record<string, string> = {
+  own_car: 'Own Car',
+  company_car: 'Company Car',
 }
 
 export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(false)
   const [todayAttendance, setTodayAttendance] = useState<TodayAttendance | null>(null)
   const [isMounted, setIsMounted] = useState(false)
+  const [locations, setLocations] = useState<Location[]>([])
   const { showToast } = useToast()
 
   const today = format(new Date(), 'yyyy-MM-dd')
@@ -25,6 +30,7 @@ export default function Dashboard() {
   useEffect(() => {
     setIsMounted(true)
     fetchTodayAttendance()
+    fetchLocations()
   }, [])
 
   const fetchTodayAttendance = async () => {
@@ -36,14 +42,17 @@ export default function Dashboard() {
       const response = await fetch(`/api/attendance?month=${monthStr}`)
       if (response.ok) {
         const data = await response.json()
-        // Find today's attendance by comparing date strings
         const todayEntry = data.find((entry: { date: string }) => {
           const entryDate = format(new Date(entry.date), 'yyyy-MM-dd')
           return entryDate === todayStr
         })
 
         if (todayEntry) {
-          setTodayAttendance({ type: todayEntry.type, transport: todayEntry.transport })
+          setTodayAttendance({
+            type: todayEntry.type,
+            transport: todayEntry.transport,
+            locationId: todayEntry.locationId,
+          })
         }
       }
     } catch (error) {
@@ -51,7 +60,23 @@ export default function Dashboard() {
     }
   }
 
-  const logAttendance = async (type: string, transport: string | null) => {
+  const fetchLocations = async () => {
+    try {
+      const response = await fetch('/api/locations')
+      if (response.ok) {
+        const data = await response.json()
+        setLocations(data)
+      }
+    } catch (error) {
+      console.error('Error fetching locations:', error)
+    }
+  }
+
+  const logAttendance = async (
+    type: string,
+    transport: TransportType,
+    locationId: string | null = null
+  ) => {
     setIsLoading(true)
     try {
       const response = await fetch('/api/attendance', {
@@ -61,44 +86,43 @@ export default function Dashboard() {
           date: today,
           type,
           transport,
+          locationId,
         }),
       })
 
       if (response.ok) {
-        setTodayAttendance({ type: type as AttendanceType, transport: transport as TransportType })
+        setTodayAttendance({ type, transport, locationId })
         showToast('Attendance logged successfully!', 'success')
       } else {
         showToast('Failed to log attendance', 'error')
       }
-    } catch (error) {
+    } catch {
       showToast('Error logging attendance', 'error')
     } finally {
       setIsLoading(false)
     }
   }
 
-  const isSelected = (type: AttendanceType, transport: TransportType) => {
+  const isSelectedLocation = (locationId: string) => {
     if (!isMounted || !todayAttendance) return false
-    return todayAttendance.type === type && todayAttendance.transport === transport
+    return todayAttendance.locationId === locationId
   }
 
-  // Base classes that are always applied (must match server render)
-  const baseButtonClasses = 'flex flex-col items-center justify-center rounded-2xl p-8 text-white shadow-lg transition-all hover:scale-105 disabled:opacity-50'
+  const isSelectedHomeOffice = () => {
+    if (!isMounted || !todayAttendance) return false
+    return todayAttendance.type === 'home' && !todayAttendance.locationId
+  }
 
-  const getButtonClasses = (
-    type: AttendanceType,
-    transport: TransportType,
-    baseColor: string,
-    hoverColor: string,
-    selectedColor: string,
-    ringColor: string,
-    darkRingColor: string
-  ) => {
-    const selected = isSelected(type, transport)
-    if (selected) {
-      return `relative ${baseButtonClasses} ${selectedColor} ring-4 ${ringColor} ring-offset-2 ${darkRingColor} dark:ring-offset-gray-900`
-    }
-    return `${baseButtonClasses} ${baseColor} ${hoverColor}`
+  const baseButtonClasses =
+    'relative flex flex-col items-center justify-center rounded-2xl p-6 text-white shadow-lg transition-all hover:scale-105 disabled:opacity-50'
+
+  // Darken a hex color for hover state
+  const darkenColor = (hex: string): string => {
+    const num = parseInt(hex.slice(1), 16)
+    const r = Math.max(0, (num >> 16) - 20)
+    const g = Math.max(0, ((num >> 8) & 0x00ff) - 20)
+    const b = Math.max(0, (num & 0x0000ff) - 20)
+    return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`
   }
 
   return (
@@ -143,59 +167,91 @@ export default function Dashboard() {
 
       <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Quick Log
-          </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400" suppressHydrationWarning>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Quick Log</h2>
+          <p
+            className="mt-2 text-sm text-gray-600 dark:text-gray-400"
+            suppressHydrationWarning
+          >
             {`Log your attendance for today: ${format(new Date(), 'EEEE, MMMM d, yyyy')}`}
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          <button
-            onClick={() => logAttendance('office', 'own_car')}
-            disabled={isLoading}
-            className={getButtonClasses('office', 'own_car', 'bg-blue-500', 'hover:bg-blue-600', 'bg-blue-600', 'ring-blue-300', 'dark:ring-blue-400')}
-          >
-            {isSelected('office', 'own_car') && (
-              <div className="absolute top-3 right-3 rounded-full bg-white p-1">
-                <Check className="h-4 w-4 text-blue-600" strokeWidth={3} />
-              </div>
-            )}
-            <Building2 className="h-16 w-16 mb-4" />
-            <span className="text-xl font-semibold">Office</span>
-            <span className="text-sm opacity-90">(Own Car)</span>
-          </button>
+        {locations.length === 0 ? (
+          <div className="rounded-2xl bg-white p-8 text-center shadow-lg dark:bg-gray-800">
+            <Building2 className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+            <p className="text-gray-600 dark:text-gray-400">
+              No locations configured.{' '}
+              <a href="/settings" className="text-indigo-600 hover:underline dark:text-indigo-400">
+                Add locations in Settings
+              </a>{' '}
+              to create quick-log shortcuts.
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {/* User's custom locations */}
+            {locations.map((location) => {
+              const selected = isSelectedLocation(location.id)
+              return (
+                <button
+                  key={location.id}
+                  onClick={() => logAttendance('office', location.transport, location.id)}
+                  disabled={isLoading}
+                  className={baseButtonClasses}
+                  style={{
+                    backgroundColor: location.color,
+                    boxShadow: selected
+                      ? `0 0 0 4px white, 0 0 0 6px ${location.color}`
+                      : undefined,
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isLoading) {
+                      e.currentTarget.style.backgroundColor = darkenColor(location.color)
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = location.color
+                  }}
+                >
+                  {selected && (
+                    <div className="absolute top-3 right-3 rounded-full bg-white p-1">
+                      <Check className="h-4 w-4" style={{ color: location.color }} strokeWidth={3} />
+                    </div>
+                  )}
+                  <Building2 className="mb-3 h-12 w-12" />
+                  <span className="text-lg font-semibold">{location.name}</span>
+                  {location.transport && (
+                    <span className="text-sm opacity-90">
+                      ({TRANSPORT_LABELS[location.transport] || location.transport})
+                    </span>
+                  )}
+                  {location.distance && (
+                    <span className="mt-1 text-xs opacity-75">{location.distance} km</span>
+                  )}
+                </button>
+              )
+            })}
 
-          <button
-            onClick={() => logAttendance('office', 'company_car')}
-            disabled={isLoading}
-            className={getButtonClasses('office', 'company_car', 'bg-purple-500', 'hover:bg-purple-600', 'bg-purple-600', 'ring-purple-300', 'dark:ring-purple-400')}
-          >
-            {isSelected('office', 'company_car') && (
-              <div className="absolute top-3 right-3 rounded-full bg-white p-1">
-                <Check className="h-4 w-4 text-purple-600" strokeWidth={3} />
-              </div>
-            )}
-            <Building2 className="h-16 w-16 mb-4" />
-            <span className="text-xl font-semibold">Office</span>
-            <span className="text-sm opacity-90">(Company Car)</span>
-          </button>
-
-          <button
-            onClick={() => logAttendance('home', null)}
-            disabled={isLoading}
-            className={getButtonClasses('home', null, 'bg-emerald-500', 'hover:bg-emerald-600', 'bg-emerald-600', 'ring-emerald-300', 'dark:ring-emerald-400')}
-          >
-            {isSelected('home', null) && (
-              <div className="absolute top-3 right-3 rounded-full bg-white p-1">
-                <Check className="h-4 w-4 text-emerald-600" strokeWidth={3} />
-              </div>
-            )}
-            <Home className="h-16 w-16 mb-4" />
-            <span className="text-xl font-semibold">Home Office</span>
-          </button>
-        </div>
+            {/* Built-in Home Office */}
+            <button
+              onClick={() => logAttendance('home', null, null)}
+              disabled={isLoading}
+              className={`${baseButtonClasses} bg-emerald-500 hover:bg-emerald-600 ${
+                isSelectedHomeOffice()
+                  ? 'ring-4 ring-emerald-300 ring-offset-2 dark:ring-emerald-400 dark:ring-offset-gray-900'
+                  : ''
+              }`}
+            >
+              {isSelectedHomeOffice() && (
+                <div className="absolute top-3 right-3 rounded-full bg-white p-1">
+                  <Check className="h-4 w-4 text-emerald-600" strokeWidth={3} />
+                </div>
+              )}
+              <Home className="mb-3 h-12 w-12" />
+              <span className="text-lg font-semibold">Home Office</span>
+            </button>
+          </div>
+        )}
       </main>
     </div>
   )

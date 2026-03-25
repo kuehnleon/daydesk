@@ -46,6 +46,9 @@ export async function GET(request: Request) {
       userId: user.id,
       ...dateFilter,
     },
+    include: {
+      location: true,
+    },
     orderBy: { date: 'asc' },
   })
 
@@ -60,7 +63,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { date, type, transport, notes } = body
+  const { date, type, transport, locationId, notes } = body
 
   const user = await prisma.user.findUnique({
     where: { email: session.user.email },
@@ -80,6 +83,7 @@ export async function POST(request: Request) {
     update: {
       type,
       transport,
+      locationId: locationId || null,
       notes,
     },
     create: {
@@ -87,7 +91,11 @@ export async function POST(request: Request) {
       date: new Date(date),
       type,
       transport,
+      locationId: locationId || null,
       notes,
+    },
+    include: {
+      location: true,
     },
   })
 

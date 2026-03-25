@@ -21,6 +21,7 @@ model User {
   attendances  Attendance[]
   accounts     Account[]
   sessions     Session[]
+  locations    Location[]
 
   @@map("users")
 }
@@ -65,17 +66,36 @@ model VerificationToken {
 }
 
 model Attendance {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  date      DateTime
-  type      String
-  transport String?
-  notes     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date       DateTime
+  type       String
+  transport  String?
+  locationId String?
+  location   Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  notes      String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   @@unique([userId, date])
   @@index([userId, date])
   @@map("attendances")
+}
+
+model Location {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  transport   String?
+  distance    Int?
+  color       String
+  sortOrder   Int          @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  attendances Attendance[]
+
+  @@index([userId])
+  @@map("locations")
 }

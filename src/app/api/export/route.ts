@@ -38,6 +38,9 @@ export async function GET(request: Request) {
         lte: parseISO(endDate),
       },
     },
+    include: {
+      location: true,
+    },
     orderBy: { date: 'asc' },
   })
 
@@ -56,11 +59,13 @@ export async function GET(request: Request) {
 }
 
 function generateCSV(attendances: any[]): string {
-  const headers = ['Date', 'Type', 'Transport', 'Notes']
+  const headers = ['Date', 'Type', 'Location', 'Transport', 'Distance (km)', 'Notes']
   const rows = attendances.map(a => [
     format(new Date(a.date), 'yyyy-MM-dd'),
     a.type,
+    a.location?.name || '',
     a.transport || '',
+    a.location?.distance?.toString() || '',
     a.notes || '',
   ])
 
