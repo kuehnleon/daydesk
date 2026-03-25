@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { format, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths } from 'date-fns'
 import { Navbar } from '@/components/navbar'
-import { Building2, Home, Palmtree, Car, MapPin, Calendar, TrendingUp } from 'lucide-react'
+import { Building2, Home, Palmtree, Car, MapPin, Calendar, TrendingUp, ThermometerSun } from 'lucide-react'
 import type { Location, Transport } from '@/types'
 
 interface Attendance {
@@ -176,7 +176,7 @@ export default function Statistics() {
     { key: 'home', label: 'Home Office', icon: Home, color: '#10B981' },
     { key: 'off', label: 'Day Off', icon: Palmtree, color: '#F59E0B' },
     { key: 'holiday', label: 'Holiday', icon: Calendar, color: '#8B5CF6' },
-    { key: 'sick', label: 'Sick', icon: TrendingUp, color: '#EF4444' },
+    { key: 'sick', label: 'Sick', icon: ThermometerSun, color: '#EF4444' },
   ]
 
   return (
