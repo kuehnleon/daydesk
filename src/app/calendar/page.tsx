@@ -13,21 +13,17 @@ import {
   X,
   BarChart3
 } from 'lucide-react'
-import type { Location, TransportType } from '@/types'
+import type { Location, Transport } from '@/types'
 
 interface Attendance {
   id: string
   date: string
   type: string
-  transport: string | null
+  transportId: string | null
+  transport: Transport | null
   locationId: string | null
-  location: Location | null
+  location: (Location & { transport: Transport | null }) | null
   notes: string | null
-}
-
-const TRANSPORT_LABELS: Record<string, string> = {
-  own_car: 'Own Car',
-  company_car: 'Company Car',
 }
 
 export default function Calendar() {
@@ -120,18 +116,10 @@ export default function Calendar() {
 
     if (holidays.has(dateStr)) return 'bg-red-100 dark:bg-red-900'
 
-    // If attendance has a location with color, use a lighter version
     if (attendance?.location?.color) {
-      // Use the location's color at 20% opacity
       return ''
     }
 
-    if (attendance?.type === 'office' && attendance.transport === 'own_car') {
-      return 'bg-blue-200 dark:bg-blue-800'
-    }
-    if (attendance?.type === 'office' && attendance.transport === 'company_car') {
-      return 'bg-purple-200 dark:bg-purple-800'
-    }
     if (attendance?.type === 'office') return 'bg-blue-100 dark:bg-blue-900'
     if (attendance?.type === 'home') return 'bg-emerald-200 dark:bg-emerald-800'
     if (isWeekend) return 'bg-gray-100 dark:bg-gray-800'
@@ -142,7 +130,7 @@ export default function Calendar() {
     const dateStr = format(date, 'yyyy-MM-dd')
     const attendance = attendances[dateStr]
     if (attendance?.location?.color) {
-      return { backgroundColor: `${attendance.location.color}33` } // 20% opacity
+      return { backgroundColor: `${attendance.location.color}33` }
     }
     return {}
   }
@@ -213,7 +201,7 @@ export default function Calendar() {
 
   const saveAttendance = async (
     type: string,
-    transport: TransportType,
+    transportId: string | null,
     locationId: string | null = null
   ) => {
     const dates = getSelectedDatesArray()
@@ -226,7 +214,7 @@ export default function Calendar() {
           fetch('/api/attendance', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ date: dateStr, type, transport, locationId }),
+            body: JSON.stringify({ date: dateStr, type, transportId, locationId }),
           })
         )
       )
@@ -286,13 +274,11 @@ export default function Calendar() {
     return `Edit ${dates.length} days`
   }
 
-  // Calculate monthly summary - now includes locations
   const getMonthlySummary = () => {
     const entries = Object.values(attendances)
     const homeOffice = entries.filter(a => a.type === 'home').length
     const total = entries.length
 
-    // Group office entries by location
     const locationCounts: Record<string, number> = {}
     let officeNoLocation = 0
 
@@ -315,13 +301,14 @@ export default function Calendar() {
     }
     if (attendance.type === 'office') {
       const color = attendance.location?.color
+      const hasTransport = attendance.transportId || attendance.location?.transportId
       return (
         <div className="flex items-center gap-0.5">
           <Building2
             className="h-5 w-5"
             style={{ color: color || '#3B82F6' }}
           />
-          {attendance.transport && (
+          {hasTransport && (
             <Car
               className="h-3 w-3"
               style={{ color: color || '#3B82F6' }}
@@ -395,7 +382,6 @@ export default function Calendar() {
 
         {/* Monthly Summary */}
         <div className="mb-6 flex flex-wrap gap-3">
-          {/* Location-based summaries */}
           {locations.map(loc => {
             const count = summary.locationCounts[loc.id] || 0
             if (count === 0) return null
@@ -418,7 +404,6 @@ export default function Calendar() {
             )
           })}
 
-          {/* Legacy office entries without location */}
           {summary.officeNoLocation > 0 && (
             <div className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm dark:bg-gray-800">
               <div className="rounded-lg bg-blue-200 p-2 dark:bg-blue-800">
@@ -431,7 +416,6 @@ export default function Calendar() {
             </div>
           )}
 
-          {/* Home Office */}
           <div className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm dark:bg-gray-800">
             <div className="rounded-lg bg-emerald-200 p-2 dark:bg-emerald-800">
               <Home className="h-5 w-5 text-emerald-700 dark:text-emerald-300" />
@@ -442,7 +426,6 @@ export default function Calendar() {
             </div>
           </div>
 
-          {/* Total */}
           <div className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm dark:bg-gray-800">
             <div className="rounded-lg bg-gray-200 p-2 dark:bg-gray-700">
               <BarChart3 className="h-5 w-5 text-gray-600 dark:text-gray-300" />
@@ -513,11 +496,10 @@ export default function Calendar() {
             </div>
 
             <div className="grid gap-3 max-h-80 overflow-y-auto">
-              {/* User's custom locations */}
               {locations.map(location => (
                 <button
                   key={location.id}
-                  onClick={() => saveAttendance('office', location.transport, location.id)}
+                  onClick={() => saveAttendance('office', location.transportId, location.id)}
                   disabled={isLoading}
                   className="relative flex items-center gap-4 rounded-xl p-4 text-left text-white transition-all hover:scale-[1.02] disabled:opacity-50"
                   style={{ backgroundColor: location.color }}
@@ -526,9 +508,7 @@ export default function Calendar() {
                   <div>
                     <div className="font-semibold">{location.name}</div>
                     {location.transport && (
-                      <div className="text-sm opacity-90">
-                        {TRANSPORT_LABELS[location.transport] || location.transport}
-                      </div>
+                      <div className="text-sm opacity-90">{location.transport.name}</div>
                     )}
                     {location.distance && (
                       <div className="text-xs opacity-75">{location.distance} km</div>
@@ -537,7 +517,6 @@ export default function Calendar() {
                 </button>
               ))}
 
-              {/* Built-in Home Office */}
               <button
                 onClick={() => saveAttendance('home', null)}
                 disabled={isLoading}

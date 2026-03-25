@@ -39,7 +39,8 @@ export async function GET(request: Request) {
       },
     },
     include: {
-      location: true,
+      location: { include: { transport: true } },
+      transport: true,
     },
     orderBy: { date: 'asc' },
   })
@@ -64,7 +65,7 @@ function generateCSV(attendances: any[]): string {
     format(new Date(a.date), 'yyyy-MM-dd'),
     a.type,
     a.location?.name || '',
-    a.transport || '',
+    a.transport?.name || a.location?.transport?.name || '',
     a.location?.distance?.toString() || '',
     a.notes || '',
   ])

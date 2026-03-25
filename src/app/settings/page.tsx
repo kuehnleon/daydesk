@@ -4,13 +4,7 @@ import { useState, useEffect } from 'react'
 import { GERMAN_STATES } from '@/lib/holidays'
 import { useToast } from '@/components/ui/toast'
 import { Plus, Pencil, Trash2, GripVertical } from 'lucide-react'
-import type { Location, TransportType } from '@/types'
-
-const TRANSPORT_OPTIONS: { value: TransportType; label: string }[] = [
-  { value: null, label: 'None' },
-  { value: 'own_car', label: 'Own Car' },
-  { value: 'company_car', label: 'Company Car' },
-]
+import type { Location, Transport } from '@/types'
 
 const COLOR_OPTIONS = [
   '#3B82F6', // blue
@@ -25,9 +19,13 @@ const COLOR_OPTIONS = [
 
 interface LocationFormData {
   name: string
-  transport: TransportType
+  transportId: string
   distance: string
   color: string
+}
+
+interface TransportFormData {
+  name: string
 }
 
 export default function Settings() {
@@ -37,6 +35,13 @@ export default function Settings() {
   const [isSaving, setIsSaving] = useState(false)
   const { showToast } = useToast()
 
+  // Transport state
+  const [transports, setTransports] = useState<Transport[]>([])
+  const [isLoadingTransports, setIsLoadingTransports] = useState(true)
+  const [showTransportModal, setShowTransportModal] = useState(false)
+  const [editingTransport, setEditingTransport] = useState<Transport | null>(null)
+  const [transportForm, setTransportForm] = useState<TransportFormData>({ name: '' })
+
   // Location state
   const [locations, setLocations] = useState<Location[]>([])
   const [isLoadingLocations, setIsLoadingLocations] = useState(true)
@@ -44,13 +49,14 @@ export default function Settings() {
   const [editingLocation, setEditingLocation] = useState<Location | null>(null)
   const [locationForm, setLocationForm] = useState<LocationFormData>({
     name: '',
-    transport: null,
+    transportId: '',
     distance: '',
     color: COLOR_OPTIONS[0],
   })
 
   useEffect(() => {
     loadSettings()
+    loadTransports()
     loadLocations()
   }, [])
 
@@ -61,6 +67,19 @@ export default function Settings() {
       setDefaultState(data.defaultState)
       setWorkDays(data.workDays)
       setWeekStartDay(data.weekStartDay ?? 1)
+    }
+  }
+
+  const loadTransports = async () => {
+    setIsLoadingTransports(true)
+    try {
+      const response = await fetch('/api/transports')
+      if (response.ok) {
+        const data = await response.json()
+        setTransports(data)
+      }
+    } finally {
+      setIsLoadingTransports(false)
     }
   }
 
@@ -106,11 +125,84 @@ export default function Settings() {
     setWorkDays(newDays.join(','))
   }
 
+  // Transport handlers
+  const openAddTransport = () => {
+    setEditingTransport(null)
+    setTransportForm({ name: '' })
+    setShowTransportModal(true)
+  }
+
+  const openEditTransport = (transport: Transport) => {
+    setEditingTransport(transport)
+    setTransportForm({ name: transport.name })
+    setShowTransportModal(true)
+  }
+
+  const saveTransport = async () => {
+    if (!transportForm.name.trim()) {
+      showToast('Name is required', 'error')
+      return
+    }
+
+    try {
+      if (editingTransport) {
+        const response = await fetch(`/api/transports/${editingTransport.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(transportForm),
+        })
+        if (response.ok) {
+          showToast('Transport updated', 'success')
+        } else {
+          showToast('Failed to update transport', 'error')
+          return
+        }
+      } else {
+        const response = await fetch('/api/transports', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(transportForm),
+        })
+        if (response.ok) {
+          showToast('Transport added', 'success')
+        } else {
+          showToast('Failed to add transport', 'error')
+          return
+        }
+      }
+      setShowTransportModal(false)
+      loadTransports()
+      loadLocations() // Refresh to get updated transport names
+    } catch {
+      showToast('Error saving transport', 'error')
+    }
+  }
+
+  const deleteTransport = async (id: string) => {
+    if (!confirm('Delete this transport method? Locations using it will have their transport cleared.')) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/transports/${id}`, { method: 'DELETE' })
+      if (response.ok) {
+        showToast('Transport deleted', 'success')
+        loadTransports()
+        loadLocations()
+      } else {
+        showToast('Failed to delete transport', 'error')
+      }
+    } catch {
+      showToast('Error deleting transport', 'error')
+    }
+  }
+
+  // Location handlers
   const openAddLocation = () => {
     setEditingLocation(null)
     setLocationForm({
       name: '',
-      transport: null,
+      transportId: '',
       distance: '',
       color: COLOR_OPTIONS[0],
     })
@@ -121,7 +213,7 @@ export default function Settings() {
     setEditingLocation(location)
     setLocationForm({
       name: location.name,
-      transport: location.transport,
+      transportId: location.transportId || '',
       distance: location.distance?.toString() || '',
       color: location.color,
     })
@@ -215,6 +307,54 @@ export default function Settings() {
       <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
         <h2 className="mb-8 text-3xl font-bold text-gray-900 dark:text-white">Settings</h2>
 
+        {/* Transport Methods Section */}
+        <div className="mb-6 rounded-2xl bg-white p-8 shadow-lg dark:bg-gray-800">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Transport Methods</h3>
+            <button
+              onClick={openAddTransport}
+              className="flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
+            >
+              <Plus className="h-4 w-4" />
+              Add
+            </button>
+          </div>
+
+          {isLoadingTransports ? (
+            <p className="text-sm text-gray-500 dark:text-gray-400">Loading...</p>
+          ) : transports.length === 0 ? (
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              No transport methods configured. Add methods like &quot;Own Car&quot;, &quot;Bike&quot;, &quot;Public Transport&quot;.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {transports.map((transport) => (
+                <div
+                  key={transport.id}
+                  className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 dark:border-gray-700 dark:bg-gray-700/50"
+                >
+                  <GripVertical className="h-4 w-4 text-gray-400" />
+                  <span className="flex-1 font-medium text-gray-900 dark:text-white">
+                    {transport.name}
+                  </span>
+                  <button
+                    onClick={() => openEditTransport(transport)}
+                    className="rounded p-1 text-gray-500 hover:bg-gray-200 hover:text-gray-700 dark:hover:bg-gray-600 dark:hover:text-gray-300"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => deleteTransport(transport.id)}
+                    className="rounded p-1 text-gray-500 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Locations Section */}
         <div className="mb-6 rounded-2xl bg-white p-8 shadow-lg dark:bg-gray-800">
           <div className="mb-4 flex items-center justify-between">
@@ -250,9 +390,7 @@ export default function Settings() {
                     {location.name}
                   </span>
                   <span className="text-sm text-gray-500 dark:text-gray-400">
-                    {location.transport
-                      ? TRANSPORT_OPTIONS.find(t => t.value === location.transport)?.label
-                      : 'No transport'}
+                    {location.transport?.name || 'No transport'}
                   </span>
                   {location.distance && (
                     <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -350,6 +488,47 @@ export default function Settings() {
         </div>
       </main>
 
+      {/* Transport Modal */}
+      {showTransportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+              {editingTransport ? 'Edit Transport' : 'Add Transport'}
+            </h3>
+
+            <div className="space-y-4">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  value={transportForm.name}
+                  onChange={(e) => setTransportForm({ ...transportForm, name: e.target.value })}
+                  placeholder="e.g., Own Car, Bike, Public Transport"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={() => setShowTransportModal(false)}
+                className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveTransport}
+                className="flex-1 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+              >
+                {editingTransport ? 'Save' : 'Add'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Location Modal */}
       {showLocationModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -377,16 +556,14 @@ export default function Settings() {
                   Default Transport
                 </label>
                 <select
-                  value={locationForm.transport ?? ''}
-                  onChange={(e) => setLocationForm({
-                    ...locationForm,
-                    transport: e.target.value === '' ? null : e.target.value as TransportType,
-                  })}
+                  value={locationForm.transportId}
+                  onChange={(e) => setLocationForm({ ...locationForm, transportId: e.target.value })}
                   className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 >
-                  {TRANSPORT_OPTIONS.map((opt) => (
-                    <option key={opt.label} value={opt.value ?? ''}>
-                      {opt.label}
+                  <option value="">None</option>
+                  {transports.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name}
                     </option>
                   ))}
                 </select>

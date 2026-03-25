@@ -19,6 +19,7 @@ export async function GET() {
 
   const locations = await prisma.location.findMany({
     where: { userId: user.id },
+    include: { transport: true },
     orderBy: { sortOrder: 'asc' },
   })
 
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { name, transport, distance, color } = body
+  const { name, transportId, distance, color } = body
 
   if (!name || !color) {
     return NextResponse.json({ error: 'Name and color are required' }, { status: 400 })
@@ -47,7 +48,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 })
   }
 
-  // Get max sortOrder for this user
   const maxSortOrder = await prisma.location.aggregate({
     where: { userId: user.id },
     _max: { sortOrder: true },
@@ -57,11 +57,12 @@ export async function POST(request: Request) {
     data: {
       userId: user.id,
       name,
-      transport: transport || null,
+      transportId: transportId || null,
       distance: distance ? parseInt(distance) : null,
       color,
       sortOrder: (maxSortOrder._max.sortOrder ?? -1) + 1,
     },
+    include: { transport: true },
   })
 
   return NextResponse.json(location)

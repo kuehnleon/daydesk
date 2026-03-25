@@ -14,7 +14,7 @@ export async function PATCH(
 
   const { id } = await params
   const body = await request.json()
-  const { name, transport, distance, color, sortOrder } = body
+  const { name, transportId, distance, color, sortOrder } = body
 
   const user = await prisma.user.findUnique({
     where: { email: session.user.email },
@@ -37,11 +37,12 @@ export async function PATCH(
     where: { id },
     data: {
       ...(name !== undefined && { name }),
-      ...(transport !== undefined && { transport: transport || null }),
+      ...(transportId !== undefined && { transportId: transportId || null }),
       ...(distance !== undefined && { distance: distance ? parseInt(distance) : null }),
       ...(color !== undefined && { color }),
       ...(sortOrder !== undefined && { sortOrder }),
     },
+    include: { transport: true },
   })
 
   return NextResponse.json(location)

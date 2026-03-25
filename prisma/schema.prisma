@@ -22,6 +22,7 @@ model User {
   accounts     Account[]
   sessions     Session[]
   locations    Location[]
+  transports   Transport[]
 
   @@map("users")
 }
@@ -66,17 +67,18 @@ model VerificationToken {
 }
 
 model Attendance {
-  id         String    @id @default(cuid())
-  userId     String
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  date       DateTime
-  type       String
-  transport  String?
-  locationId String?
-  location   Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
-  notes      String?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id          String     @id @default(cuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date        DateTime
+  type        String
+  transportId String?
+  transport   Transport? @relation(fields: [transportId], references: [id], onDelete: SetNull)
+  locationId  String?
+  location    Location?  @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  notes       String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
   @@unique([userId, date])
   @@index([userId, date])
@@ -88,7 +90,8 @@ model Location {
   userId      String
   user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   name        String
-  transport   String?
+  transportId String?
+  transport   Transport?   @relation(fields: [transportId], references: [id], onDelete: SetNull)
   distance    Int?
   color       String
   sortOrder   Int          @default(0)
@@ -98,4 +101,19 @@ model Location {
 
   @@index([userId])
   @@map("locations")
+}
+
+model Transport {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  sortOrder   Int          @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  locations   Location[]
+  attendances Attendance[]
+
+  @@index([userId])
+  @@map("transports")
 }
