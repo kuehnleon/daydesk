@@ -78,9 +78,9 @@ spec:
             - name: DATABASE_URL
               value: "file:/data/daydesk.db"
             - name: APP_BASE_URL
-              value: "https://daydesk.deskcode.de"
+              value: "https://daydesk.mydomain.de"
             - name: NEXTAUTH_URL
-              value: "https://daydesk.deskcode.de"
+              value: "https://daydesk.mydomain.de"
             - name: AUTH0_DOMAIN
               value: "CHANGE_ME.auth0.com"
           envFrom:
@@ -142,7 +142,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: daydesk.deskcode.de
+    - host: daydesk.mydomain.de
       http:
         paths:
           - path: /
@@ -154,5 +154,5 @@ spec:
                   number: 80
   tls:
     - hosts:
-        - daydesk.deskcode.de
+        - daydesk.mydomain.de
       secretName: daydesk-tls
