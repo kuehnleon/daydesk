@@ -6,6 +6,8 @@ import { useToast } from '@/components/ui/toast'
 import { Navbar } from '@/components/navbar'
 import { ReminderSettings } from '@/components/settings/reminder-settings'
 import { Plus, Pencil, Trash2, GripVertical } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
+import { minLoadingDelay } from '@/lib/loading'
 import type { Location, Transport } from '@/types'
 
 const COLOR_OPTIONS = [
@@ -79,7 +81,7 @@ export default function Settings() {
   const loadTransports = async () => {
     setIsLoadingTransports(true)
     try {
-      const response = await fetch('/api/transports')
+      const [response] = await Promise.all([fetch('/api/transports'), minLoadingDelay()])
       if (response.ok) {
         const data = await response.json()
         setTransports(data)
@@ -92,7 +94,7 @@ export default function Settings() {
   const loadLocations = async () => {
     setIsLoadingLocations(true)
     try {
-      const response = await fetch('/api/locations')
+      const [response] = await Promise.all([fetch('/api/locations'), minLoadingDelay()])
       if (response.ok) {
         const data = await response.json()
         setLocations(data)
@@ -306,7 +308,10 @@ export default function Settings() {
           </div>
 
           {!isMounted || isLoadingTransports ? (
-            <p className="text-sm text-gray-500 dark:text-gray-400">Loading...</p>
+            <div className="space-y-2">
+              <Skeleton className="h-10 rounded-lg" />
+              <Skeleton className="h-10 rounded-lg" />
+            </div>
           ) : transports.length === 0 ? (
             <p className="text-sm text-gray-500 dark:text-gray-400">
               No transport methods configured. Add methods like &quot;Own Car&quot;, &quot;Bike&quot;, &quot;Public Transport&quot;.
@@ -354,7 +359,11 @@ export default function Settings() {
           </div>
 
           {!isMounted || isLoadingLocations ? (
-            <p className="text-sm text-gray-500 dark:text-gray-400">Loading...</p>
+            <div className="space-y-2">
+              <Skeleton className="h-10 rounded-lg" />
+              <Skeleton className="h-10 rounded-lg" />
+              <Skeleton className="h-10 rounded-lg" />
+            </div>
           ) : (
             <div className="space-y-2">
               {locations.map((location) => (

@@ -5,6 +5,8 @@ import { format, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths } f
 import { Navbar } from '@/components/navbar'
 import { Building2, Home, Palmtree, Car, MapPin, Calendar, TrendingUp, ThermometerSun } from 'lucide-react'
 import type { Location, Transport } from '@/types'
+import { Skeleton } from '@/components/ui/skeleton'
+import { minLoadingDelay } from '@/lib/loading'
 
 interface Attendance {
   id: string
@@ -86,7 +88,10 @@ export default function Statistics() {
   const loadAttendances = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch(`/api/attendance?startDate=${startDate}&endDate=${endDate}`)
+      const [response] = await Promise.all([
+        fetch(`/api/attendance?startDate=${startDate}&endDate=${endDate}`),
+        minLoadingDelay(),
+      ])
       if (response.ok) {
         const data = await response.json()
         setAttendances(data)
@@ -241,7 +246,14 @@ export default function Statistics() {
         </div>
 
         {isLoading ? (
-          <div className="text-center text-gray-500 dark:text-gray-400">Loading statistics...</div>
+          <div className="mb-8">
+            <Skeleton className="mb-4 h-6 w-48" />
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="h-[72px] rounded-xl" />
+              ))}
+            </div>
+          </div>
         ) : (
           <>
             {/* Attendance Overview */}
