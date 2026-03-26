@@ -19,6 +19,16 @@ RUN npx prisma generate
 # Build application
 RUN npm run build
 
+# Production dependencies stage
+FROM node:24-alpine AS deps
+
+WORKDIR /app
+
+COPY package*.json ./
+
+# Install only production dependencies
+RUN npm ci --omit=dev
+
 # Production stage
 FROM node:24-alpine AS runner
 
@@ -29,16 +39,17 @@ ENV NODE_ENV=production
 # Create data directory for SQLite
 RUN mkdir -p /data && chown -R node:node /data
 
-# Copy necessary files
+# Copy production node_modules (includes prisma CLI and all deps)
+COPY --from=deps /app/node_modules ./node_modules
+
+# Copy built application
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
-# Install prisma CLI with all dependencies for migrations
-RUN npm install prisma --omit=dev --ignore-scripts
+# Copy generated Prisma client
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 USER node
 
