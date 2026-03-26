@@ -1,4 +1,4 @@
-const CACHE_NAME = 'daydesk-v3';
+const CACHE_NAME = 'daydesk-v4';
 
 const STATIC_ASSETS = [
   '/icon-192.png',
@@ -40,6 +40,9 @@ self.addEventListener('fetch', (event) => {
 
   // Skip non-GET requests
   if (request.method !== 'GET') return;
+
+  // Skip non-HTTP(S) requests (e.g. chrome-extension://)
+  if (!url.protocol.startsWith('http')) return;
 
   // Skip auth-related requests (never cache)
   if (url.pathname.startsWith('/api/auth')) return;
