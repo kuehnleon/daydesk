@@ -1,13 +1,13 @@
-const CACHE_NAME = 'daydesk-v2';
+const CACHE_NAME = 'daydesk-v3';
 
 const STATIC_ASSETS = [
-  '/dashboard',
-  '/calendar',
-  '/settings',
-  '/export',
   '/icon-192.png',
   '/icon-512.png',
 ];
+
+// Protected pages that require authentication — never serve from cache
+// so the proxy redirect to /auth/signin is always respected
+const PROTECTED_PATHS = ['/dashboard', '/calendar', '/settings', '/export', '/statistics'];
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
@@ -69,7 +69,27 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Static assets and pages: stale-while-revalidate
+  // Protected pages: network-first so auth redirects are always respected
+  if (PROTECTED_PATHS.some((p) => url.pathname.startsWith(p))) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok && !response.redirected) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          return caches.match(request);
+        })
+    );
+    return;
+  }
+
+  // Static assets: stale-while-revalidate
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       const fetchPromise = fetch(request).then((networkResponse) => {
