@@ -37,6 +37,8 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+# Prisma CLI dependencies
+COPY --from=builder /app/node_modules/effect ./node_modules/effect
 
 USER node
 
