@@ -37,7 +37,6 @@ yarn-error.log*
 # database
 prisma/dev.db
 prisma/dev.db-journal
-prisma/migrations/
 
 # helm values overrides
 helm/**/values.local.yaml
