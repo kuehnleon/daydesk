@@ -1,7 +1,6 @@
-const CACHE_NAME = 'daydesk-v1';
+const CACHE_NAME = 'daydesk-v2';
 
 const STATIC_ASSETS = [
-  '/',
   '/dashboard',
   '/calendar',
   '/settings',
@@ -45,13 +44,16 @@ self.addEventListener('fetch', (event) => {
   // Skip auth-related requests (never cache)
   if (url.pathname.startsWith('/api/auth')) return;
 
+  // Skip root path — it redirects to /dashboard, and caching redirects causes errors
+  if (url.pathname === '/') return;
+
   // API requests: network-first with cache fallback
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          // Clone and cache successful responses
-          if (response.ok) {
+          // Clone and cache successful, non-redirected responses
+          if (response.ok && !response.redirected) {
             const responseClone = response.clone();
             caches.open(CACHE_NAME).then((cache) => {
               cache.put(request, responseClone);
@@ -71,7 +73,7 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       const fetchPromise = fetch(request).then((networkResponse) => {
-        if (networkResponse.ok) {
+        if (networkResponse.ok && !networkResponse.redirected) {
           const responseClone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(request, responseClone);
