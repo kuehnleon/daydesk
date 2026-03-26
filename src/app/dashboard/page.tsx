@@ -139,113 +139,109 @@ export default function Dashboard() {
           </p>
         </div>
 
-        {locations.length === 0 ? (
-          <div className="rounded-2xl bg-white p-8 text-center shadow-lg dark:bg-gray-800">
-            <Building2 className="mx-auto mb-4 h-12 w-12 text-gray-400" />
-            <p className="text-gray-600 dark:text-gray-400">
-              No locations configured.{' '}
-              <a href="/settings" className="text-indigo-600 hover:underline dark:text-indigo-400">
-                Add locations in Settings
-              </a>{' '}
-              to create quick-log shortcuts.
-            </p>
-          </div>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {locations.map((location) => {
-              const selected = isSelectedLocation(location.id)
-              return (
-                <button
-                  key={location.id}
-                  onClick={() => logAttendance('office', location.transportId, location.id)}
-                  disabled={isLoading}
-                  className={baseButtonClasses}
-                  style={{
-                    backgroundColor: location.color,
-                    boxShadow: selected
-                      ? `0 0 0 4px white, 0 0 0 6px ${location.color}`
-                      : undefined,
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isLoading) {
-                      e.currentTarget.style.backgroundColor = darkenColor(location.color)
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = location.color
-                  }}
-                >
-                  {selected && (
-                    <div className="absolute top-3 right-3 rounded-full bg-white p-1">
-                      <Check className="h-4 w-4" style={{ color: location.color }} strokeWidth={3} />
-                    </div>
-                  )}
-                  <Building2 className="mb-3 h-12 w-12" />
-                  <span className="text-lg font-semibold">{location.name}</span>
-                  {location.transport && (
-                    <span className="text-sm opacity-90">({location.transport.name})</span>
-                  )}
-                  {location.distance && (
-                    <span className="mt-1 text-xs opacity-75">{location.distance} km</span>
-                  )}
-                </button>
-              )
-            })}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {locations.map((location) => {
+            const selected = isSelectedLocation(location.id)
+            return (
+              <button
+                key={location.id}
+                onClick={() => logAttendance('office', location.transportId, location.id)}
+                disabled={isLoading}
+                className={baseButtonClasses}
+                style={{
+                  backgroundColor: location.color,
+                  boxShadow: selected
+                    ? `0 0 0 4px white, 0 0 0 6px ${location.color}`
+                    : undefined,
+                }}
+                onMouseEnter={(e) => {
+                  if (!isLoading) {
+                    e.currentTarget.style.backgroundColor = darkenColor(location.color)
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = location.color
+                }}
+              >
+                {selected && (
+                  <div className="absolute top-3 right-3 rounded-full bg-white p-1">
+                    <Check className="h-4 w-4" style={{ color: location.color }} strokeWidth={3} />
+                  </div>
+                )}
+                <Building2 className="mb-3 h-12 w-12" />
+                <span className="text-lg font-semibold">{location.name}</span>
+                {location.transport && (
+                  <span className="text-sm opacity-90">({location.transport.name})</span>
+                )}
+                {location.distance && (
+                  <span className="mt-1 text-xs opacity-75">{location.distance} km</span>
+                )}
+              </button>
+            )
+          })}
 
-            <button
-              onClick={() => logAttendance('home', null, null)}
-              disabled={isLoading}
-              className={`${baseButtonClasses} bg-emerald-500 hover:bg-emerald-600 ${
-                isSelectedHomeOffice()
-                  ? 'ring-4 ring-emerald-300 ring-offset-2 dark:ring-emerald-400 dark:ring-offset-gray-900'
-                  : ''
-              }`}
-            >
-              {isSelectedHomeOffice() && (
-                <div className="absolute top-3 right-3 rounded-full bg-white p-1">
-                  <Check className="h-4 w-4 text-emerald-600" strokeWidth={3} />
-                </div>
-              )}
-              <Home className="mb-3 h-12 w-12" />
-              <span className="text-lg font-semibold">Home Office</span>
-            </button>
+          <button
+            onClick={() => logAttendance('home', null, null)}
+            disabled={isLoading}
+            className={`${baseButtonClasses} bg-emerald-500 hover:bg-emerald-600 ${
+              isSelectedHomeOffice()
+                ? 'ring-4 ring-emerald-300 ring-offset-2 dark:ring-emerald-400 dark:ring-offset-gray-900'
+                : ''
+            }`}
+          >
+            {isSelectedHomeOffice() && (
+              <div className="absolute top-3 right-3 rounded-full bg-white p-1">
+                <Check className="h-4 w-4 text-emerald-600" strokeWidth={3} />
+              </div>
+            )}
+            <Home className="mb-3 h-12 w-12" />
+            <span className="text-lg font-semibold">Home Office</span>
+          </button>
 
-            <button
-              onClick={() => logAttendance('off', null, null)}
-              disabled={isLoading}
-              className={`${baseButtonClasses} bg-amber-500 hover:bg-amber-600 ${
-                isSelectedType('off')
-                  ? 'ring-4 ring-amber-300 ring-offset-2 dark:ring-amber-400 dark:ring-offset-gray-900'
-                  : ''
-              }`}
-            >
-              {isSelectedType('off') && (
-                <div className="absolute top-3 right-3 rounded-full bg-white p-1">
-                  <Check className="h-4 w-4 text-amber-600" strokeWidth={3} />
-                </div>
-              )}
-              <Palmtree className="mb-3 h-12 w-12" />
-              <span className="text-lg font-semibold">Day Off</span>
-            </button>
+          <button
+            onClick={() => logAttendance('off', null, null)}
+            disabled={isLoading}
+            className={`${baseButtonClasses} bg-amber-500 hover:bg-amber-600 ${
+              isSelectedType('off')
+                ? 'ring-4 ring-amber-300 ring-offset-2 dark:ring-amber-400 dark:ring-offset-gray-900'
+                : ''
+            }`}
+          >
+            {isSelectedType('off') && (
+              <div className="absolute top-3 right-3 rounded-full bg-white p-1">
+                <Check className="h-4 w-4 text-amber-600" strokeWidth={3} />
+              </div>
+            )}
+            <Palmtree className="mb-3 h-12 w-12" />
+            <span className="text-lg font-semibold">Day Off</span>
+          </button>
 
-            <button
-              onClick={() => logAttendance('sick', null, null)}
-              disabled={isLoading}
-              className={`${baseButtonClasses} bg-red-500 hover:bg-red-600 ${
-                isSelectedType('sick')
-                  ? 'ring-4 ring-red-300 ring-offset-2 dark:ring-red-400 dark:ring-offset-gray-900'
-                  : ''
-              }`}
-            >
-              {isSelectedType('sick') && (
-                <div className="absolute top-3 right-3 rounded-full bg-white p-1">
-                  <Check className="h-4 w-4 text-red-600" strokeWidth={3} />
-                </div>
-              )}
-              <ThermometerSun className="mb-3 h-12 w-12" />
-              <span className="text-lg font-semibold">Sick</span>
-            </button>
-          </div>
+          <button
+            onClick={() => logAttendance('sick', null, null)}
+            disabled={isLoading}
+            className={`${baseButtonClasses} bg-red-500 hover:bg-red-600 ${
+              isSelectedType('sick')
+                ? 'ring-4 ring-red-300 ring-offset-2 dark:ring-red-400 dark:ring-offset-gray-900'
+                : ''
+            }`}
+          >
+            {isSelectedType('sick') && (
+              <div className="absolute top-3 right-3 rounded-full bg-white p-1">
+                <Check className="h-4 w-4 text-red-600" strokeWidth={3} />
+              </div>
+            )}
+            <ThermometerSun className="mb-3 h-12 w-12" />
+            <span className="text-lg font-semibold">Sick</span>
+          </button>
+        </div>
+
+        {locations.length === 0 && (
+          <p className="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
+            <a href="/settings" className="text-indigo-600 hover:underline dark:text-indigo-400">
+              Add office locations in Settings
+            </a>{' '}
+            to create quick-log shortcuts for your workplaces.
+          </p>
         )}
       </main>
     </div>
