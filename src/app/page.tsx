@@ -1,12 +1,5 @@
 import { redirect } from 'next/navigation'
-import { auth } from '@/lib/auth'
 
-export default async function Home() {
-  const session = await auth()
-
-  if (!session) {
-    redirect('/auth/signin')
-  }
-
+export default function Home() {
   redirect('/dashboard')
 }
