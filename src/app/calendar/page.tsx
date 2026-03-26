@@ -16,6 +16,8 @@ import {
   BarChart3
 } from 'lucide-react'
 import type { Location, Transport } from '@/types'
+import { Skeleton } from '@/components/ui/skeleton'
+import { minLoadingDelay } from '@/lib/loading'
 
 interface Attendance {
   id: string
@@ -41,19 +43,23 @@ export default function Calendar() {
   const [lastClickedDate, setLastClickedDate] = useState<Date | null>(null)
   const [locations, setLocations] = useState<Location[]>([])
   const [transports, setTransports] = useState<Transport[]>([])
+  const [isLoadingInitial, setIsLoadingInitial] = useState(true)
+  const [isLoadingMonth, setIsLoadingMonth] = useState(true)
   const [expandedLocationId, setExpandedLocationId] = useState<string | null>(null)
   const [selectedTransportId, setSelectedTransportId] = useState<string | null>(null)
   const { showToast } = useToast()
 
   useEffect(() => {
-    loadSettings()
-    loadLocations()
-    loadTransports()
+    Promise.all([loadSettings(), loadLocations(), loadTransports(), minLoadingDelay()]).finally(() => {
+      setIsLoadingInitial(false)
+    })
   }, [])
 
   useEffect(() => {
-    loadAttendances()
-    loadHolidays()
+    setIsLoadingMonth(true)
+    Promise.all([loadAttendances(), loadHolidays(), minLoadingDelay()]).finally(() => {
+      setIsLoadingMonth(false)
+    })
   }, [currentMonth])
 
   const loadSettings = async () => {
@@ -376,6 +382,14 @@ export default function Calendar() {
 
         {/* Monthly Summary */}
         <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          {isLoadingInitial ? (
+            <>
+              <Skeleton className="h-[72px] rounded-xl" />
+              <Skeleton className="h-[72px] rounded-xl" />
+              <Skeleton className="h-[72px] rounded-xl" />
+            </>
+          ) : (
+            <>
           {locations.map(loc => {
             const count = summary.locationCounts[loc.id] || 0
             if (count === 0) return null
@@ -429,6 +443,8 @@ export default function Calendar() {
               <div className="truncate text-xs text-gray-500 dark:text-gray-400">Total Days</div>
             </div>
           </div>
+            </>
+          )}
         </div>
 
         <div className="grid grid-cols-7 gap-2 select-none">
@@ -442,34 +458,40 @@ export default function Calendar() {
             <div key={`empty-${i}`} />
           ))}
 
-          {days.map(day => {
-            const dateStr = format(day, 'yyyy-MM-dd')
-            const attendance = attendances[dateStr]
-            const selected = isDateSelected(day)
-            const isHoliday = holidays.has(dateStr)
+          {isLoadingMonth ? (
+            days.map((_, i) => (
+              <Skeleton key={`skel-${i}`} className="min-h-20 rounded-lg" />
+            ))
+          ) : (
+            days.map(day => {
+              const dateStr = format(day, 'yyyy-MM-dd')
+              const attendance = attendances[dateStr]
+              const selected = isDateSelected(day)
+              const isHoliday = holidays.has(dateStr)
 
-            return (
-              <button
-                key={dateStr}
-                onMouseDown={(e) => handleMouseDown(day, e)}
-                onMouseEnter={() => handleMouseEnter(day)}
-                className={`
-                  min-h-20 rounded-lg p-2 text-left transition-all
-                  ${getDayColor(day)}
-                  ${isToday(day) ? 'ring-2 ring-indigo-600' : ''}
-                  ${selected ? 'ring-2 ring-indigo-500 ring-offset-2 dark:ring-offset-gray-900' : 'hover:ring-2 hover:ring-indigo-300'}
-                  ${isSelecting ? 'cursor-crosshair' : 'cursor-pointer'}
-                `}
-                style={getDayStyle(day)}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold">{format(day, 'd')}</span>
-                  {isHoliday && <Palmtree className="h-5 w-5 text-red-600 dark:text-red-400" />}
-                  {!isHoliday && attendance && getAttendanceIcon(attendance)}
-                </div>
-              </button>
-            )
-          })}
+              return (
+                <button
+                  key={dateStr}
+                  onMouseDown={(e) => handleMouseDown(day, e)}
+                  onMouseEnter={() => handleMouseEnter(day)}
+                  className={`
+                    min-h-20 rounded-lg p-2 text-left transition-all
+                    ${getDayColor(day)}
+                    ${isToday(day) ? 'ring-2 ring-indigo-600' : ''}
+                    ${selected ? 'ring-2 ring-indigo-500 ring-offset-2 dark:ring-offset-gray-900' : 'hover:ring-2 hover:ring-indigo-300'}
+                    ${isSelecting ? 'cursor-crosshair' : 'cursor-pointer'}
+                  `}
+                  style={getDayStyle(day)}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold">{format(day, 'd')}</span>
+                    {isHoliday && <Palmtree className="h-5 w-5 text-red-600 dark:text-red-400" />}
+                    {!isHoliday && attendance && getAttendanceIcon(attendance)}
+                  </div>
+                </button>
+              )
+            })
+          )}
         </div>
       </main>
 
