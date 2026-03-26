@@ -51,17 +51,21 @@ spec:
           mountPath: {{ .Values.persistence.mountPath }}
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
+        startupProbe:
+          httpGet:
+            path: /api/health
+            port: http
+          failureThreshold: 30
+          periodSeconds: 2
         livenessProbe:
           httpGet:
-            path: /
+            path: /api/health
             port: http
-          initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
-            path: /
+            path: /api/health
             port: http
-          initialDelaySeconds: 10
           periodSeconds: 5
       volumes:
       - name: data
