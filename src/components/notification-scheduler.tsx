@@ -93,15 +93,21 @@ export function NotificationScheduler() {
     }
   }, [])
 
-  const showNotification = useCallback(() => {
+  const showNotification = useCallback(async () => {
     if (Notification.permission !== 'granted') return
 
-    new Notification('Daydesk Reminder', {
+    const options = {
       body: "Don't forget to log your attendance for today!",
       icon: '/icon-192.png',
       tag: 'daydesk-attendance-reminder',
-      requireInteraction: false,
-    })
+    }
+
+    const registration = await navigator.serviceWorker?.getRegistration()
+    if (registration?.active) {
+      await registration.showNotification('Daydesk Reminder', options)
+    } else {
+      new Notification('Daydesk Reminder', options)
+    }
   }, [])
 
   const checkAndNotify = useCallback(async () => {
@@ -154,7 +160,7 @@ export function NotificationScheduler() {
     }
 
     // Show notification
-    showNotification()
+    await showNotification()
     markAsShown(currentTime)
   }, [getSettings, getWorkDays, checkTodayAttendance, wasAlreadyShown, markAsShown, showNotification])
 
