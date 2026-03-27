@@ -4,6 +4,7 @@ import { AuthProvider } from "@/components/auth-provider";
 import { ToastProvider } from "@/components/ui/toast";
 import { ServiceWorkerRegister } from "@/components/service-worker-register";
 import { NotificationScheduler } from "@/components/notification-scheduler";
+import { ErrorBoundary } from "@/components/error-boundary";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -55,7 +56,9 @@ export default function RootLayout({
         <ServiceWorkerRegister />
         <NotificationScheduler />
         <AuthProvider>
-          <ToastProvider>{children}</ToastProvider>
+          <ToastProvider>
+            <ErrorBoundary>{children}</ErrorBoundary>
+          </ToastProvider>
         </AuthProvider>
       </body>
     </html>
