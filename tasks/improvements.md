@@ -5,25 +5,25 @@
 | # | Item | Effort | Status |
 |---|------|--------|--------|
 | 1 | Add Zod input validation to API routes | Medium | Pending |
-| 2 | Add security headers middleware | Low | Pending |
+| 2 | Add security headers middleware | Low | Done |
 | 3 | Add test framework + critical path tests | High | Pending |
 
 ## Priority 1 — Important
 
 | # | Item | Effort | Status |
 |---|------|--------|--------|
-| 4 | Add lint/test to CI pipeline | Low | Pending |
+| 4 | Add lint/test to CI pipeline | Low | Done |
 | 5 | Add pagination to attendance queries | Medium | Pending |
 | 6 | Split large page components | Medium | Pending |
-| 7 | Fix accessibility (viewport, keyboard, focus traps) | Medium | Pending |
+| 7 | Fix accessibility (viewport, keyboard, focus traps) | Medium | Partial (viewport fixed) |
 
 ## Priority 2 — Moderate
 
 | # | Item | Effort | Status |
 |---|------|--------|--------|
 | 8 | Adopt SWR/React Query for data fetching | Medium | Pending |
-| 9 | Add error boundaries | Low | Pending |
-| 10 | Replace `any` types with proper types in export | Low | Pending |
+| 9 | Add error boundaries | Low | Done |
+| 10 | Replace `any` types with proper types in export | Low | Done |
 | 11 | Add i18n (EN/DE) | Medium | Pending |
 
 ## Priority 3 — Nice to Have
