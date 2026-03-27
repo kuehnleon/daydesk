@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, getDay, isBefore, isAfter } from 'date-fns'
 import { useToast } from '@/components/ui/toast'
 import { Navbar } from '@/components/navbar'
@@ -41,7 +41,6 @@ export default function Calendar() {
   const [workDays, setWorkDays] = useState<number[]>([1, 2, 3, 4, 5])
   const [isSelecting, setIsSelecting] = useState(false)
   const [selectionStart, setSelectionStart] = useState<Date | null>(null)
-  const [lastClickedDate, setLastClickedDate] = useState<Date | null>(null)
   const [locations, setLocations] = useState<Location[]>([])
   const [transports, setTransports] = useState<Transport[]>([])
   const [isLoadingInitial, setIsLoadingInitial] = useState(true)
@@ -49,6 +48,21 @@ export default function Calendar() {
   const [expandedLocationId, setExpandedLocationId] = useState<string | null>(null)
   const [selectedTransportId, setSelectedTransportId] = useState<string | null>(null)
   const { showToast } = useToast()
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const longPressTriggered = useRef(false)
+  const isMultiSelecting = useRef(false)
+  const [selectionHint, setSelectionHint] = useState('')
+
+  useEffect(() => {
+    const isTouchDevice = window.matchMedia('(pointer: coarse)').matches
+    if (isTouchDevice) {
+      setSelectionHint('Tap a day to edit, drag to select a range, or long-press to pick individual days.')
+    } else {
+      const isMac = navigator.platform.toUpperCase().includes('MAC')
+      const modifier = isMac ? '⌘' : 'Ctrl'
+      setSelectionHint(`Click a day to edit, drag to select a range, or ${modifier}-click to pick individual days.`)
+    }
+  }, [])
 
   useEffect(() => {
     Promise.all([loadSettings(), loadLocations(), loadTransports(), minLoadingDelay()]).finally(() => {
@@ -179,21 +193,31 @@ export default function Calendar() {
     return !isNonWorkingDay(date) || !!attendances[format(date, 'yyyy-MM-dd')]
   }
 
+  const toggleDateInSelection = (day: Date) => {
+    const dateStr = format(day, 'yyyy-MM-dd')
+    const next = new Set(selectedDates)
+    if (next.has(dateStr)) {
+      next.delete(dateStr)
+    } else {
+      next.add(dateStr)
+    }
+    setSelectedDates(next)
+    if (next.size === 0) {
+      setShowModal(false)
+    }
+  }
+
   const handleMouseDown = (day: Date, e: React.MouseEvent) => {
     e.preventDefault()
 
-    if (e.shiftKey && lastClickedDate) {
-      const range = getDateRange(lastClickedDate, day)
-      const selectable = range.filter(isDaySelectable)
-      const newSelection = new Set(selectable.map(d => format(d, 'yyyy-MM-dd')))
-      setSelectedDates(newSelection)
-      if (newSelection.size > 0) setShowModal(true)
+    if (e.metaKey || e.ctrlKey) {
+      isMultiSelecting.current = true
+      toggleDateInSelection(day)
     } else {
       setIsSelecting(true)
       setSelectionStart(day)
       setSelectedDates(new Set([format(day, 'yyyy-MM-dd')]))
     }
-    setLastClickedDate(day)
   }
 
   const handleMouseEnter = (day: Date) => {
@@ -220,6 +244,39 @@ export default function Calendar() {
     window.addEventListener('mouseup', handleGlobalMouseUp)
     return () => window.removeEventListener('mouseup', handleGlobalMouseUp)
   }, [isSelecting, handleMouseUp])
+
+  useEffect(() => {
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if ((e.key === 'Meta' || e.key === 'Control') && isMultiSelecting.current) {
+        isMultiSelecting.current = false
+        if (selectedDates.size > 0) {
+          setShowModal(true)
+        }
+      }
+    }
+    window.addEventListener('keyup', handleKeyUp)
+    return () => window.removeEventListener('keyup', handleKeyUp)
+  }, [selectedDates])
+
+  const handleTouchStart = (day: Date) => {
+    longPressTriggered.current = false
+    longPressTimer.current = setTimeout(() => {
+      longPressTriggered.current = true
+      toggleDateInSelection(day)
+      setShowModal(true)
+    }, 500)
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current)
+      longPressTimer.current = null
+    }
+    if (longPressTriggered.current) {
+      e.preventDefault()
+      longPressTriggered.current = false
+    }
+  }
 
   const closeModal = () => {
     setShowModal(false)
@@ -390,7 +447,7 @@ export default function Calendar() {
         </div>
 
         <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
-          Click a day to edit, or drag to select multiple days. Shift-click to select a range.
+          {selectionHint}
         </p>
 
         {/* Monthly Summary */}
@@ -488,6 +545,8 @@ export default function Calendar() {
                   key={dateStr}
                   onMouseDown={(e) => !isDayDisabled && handleMouseDown(day, e)}
                   onMouseEnter={() => handleMouseEnter(day)}
+                  onTouchStart={() => !isDayDisabled && handleTouchStart(day)}
+                  onTouchEnd={(e) => handleTouchEnd(e)}
                   disabled={isDayDisabled}
                   className={`
                     min-h-20 rounded-lg p-2 text-left transition-all
