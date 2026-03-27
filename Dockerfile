@@ -36,9 +36,6 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Create data directory for SQLite
-RUN mkdir -p /data && chown -R node:node /data
-
 # Copy production node_modules (includes prisma CLI and all deps)
 COPY --from=deps /app/node_modules ./node_modules
 
