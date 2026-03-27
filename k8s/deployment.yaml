@@ -13,18 +13,7 @@ stringData:
   AUTH0_SECRET: "CHANGE_ME_GENERATE_WITH_openssl_rand_hex_32"
   AUTH0_CLIENT_ID: "CHANGE_ME"
   AUTH0_CLIENT_SECRET: "CHANGE_ME"
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: daydesk-pvc
-  namespace: daydesk
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
+  DATABASE_URL: "postgresql://daydesk:CHANGE_ME@postgres-host:5432/daydesk"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -51,21 +40,13 @@ spec:
       terminationGracePeriodSeconds: 30
       imagePullSecrets:
         - name: ghcr-secret
-      securityContext:
-        fsGroup: 1000
       initContainers:
         - name: init-db
           image: ghcr.io/kuehnleon/daydesk:latest
           command: ['node', 'node_modules/prisma/build/index.js', 'migrate', 'deploy']
-          env:
-            - name: DATABASE_URL
-              value: "file:/data/daydesk.db"
-          volumeMounts:
-            - name: data
-              mountPath: /data
-          securityContext:
-            runAsUser: 1000
-            runAsGroup: 1000
+          envFrom:
+            - secretRef:
+                name: daydesk-secret
       containers:
         - name: daydesk
           image: ghcr.io/kuehnleon/daydesk:latest
@@ -75,8 +56,6 @@ spec:
               containerPort: 3000
               protocol: TCP
           env:
-            - name: DATABASE_URL
-              value: "file:/data/daydesk.db"
             - name: APP_BASE_URL
               value: "https://daydesk.mydomain.de"
             - name: NEXTAUTH_URL
@@ -86,9 +65,6 @@ spec:
           envFrom:
             - secretRef:
                 name: daydesk-secret
-          volumeMounts:
-            - name: data
-              mountPath: /data
           resources:
             limits:
               cpu: 500m
@@ -112,10 +88,6 @@ spec:
               path: /api/health
               port: http
             periodSeconds: 5
-      volumes:
-        - name: data
-          persistentVolumeClaim:
-            claimName: daydesk-pvc
 ---
 apiVersion: v1
 kind: Service

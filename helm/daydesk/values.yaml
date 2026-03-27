@@ -20,15 +20,8 @@ ingress:
     enabled: false
     secretName: daydesk-tls
 
-persistence:
-  enabled: true
-  storageClass: ""
-  accessMode: ReadWriteOnce
-  size: 1Gi
-  mountPath: /data
-
 env:
-  DATABASE_URL: "file:/data/daydesk.db"
+  DATABASE_URL: "postgresql://daydesk:password@postgres:5432/daydesk"
   APP_BASE_URL: "http://localhost:3000"
   NEXTAUTH_URL: "http://localhost:3000"
   AUTH0_DOMAIN: ""

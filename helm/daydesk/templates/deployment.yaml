@@ -20,6 +20,14 @@ spec:
         app: {{ .Release.Name }}
     spec:
       terminationGracePeriodSeconds: 30
+      initContainers:
+      - name: init-db
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command: ['node', 'node_modules/prisma/build/index.js', 'migrate', 'deploy']
+        env:
+        - name: DATABASE_URL
+          value: {{ .Values.env.DATABASE_URL | quote }}
       containers:
       - name: daydesk
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -52,9 +60,6 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-secret
               key: auth0-client-secret
-        volumeMounts:
-        - name: data
-          mountPath: {{ .Values.persistence.mountPath }}
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
         startupProbe:
@@ -73,11 +78,3 @@ spec:
             path: /api/health
             port: http
           periodSeconds: 5
-      volumes:
-      - name: data
-        {{- if .Values.persistence.enabled }}
-        persistentVolumeClaim:
-          claimName: {{ .Release.Name }}-pvc
-        {{- else }}
-        emptyDir: {}
-        {{- end }}
