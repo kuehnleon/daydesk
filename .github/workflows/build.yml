@@ -31,9 +31,29 @@ jobs:
       - name: Run ESLint
         run: npm run lint
 
+  test:
+    name: Test
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
   build-docker:
     name: Build Docker Image
-    needs: lint
+    needs: [lint, test]
     runs-on: ubuntu-24.04-arm
     permissions:
       contents: read
