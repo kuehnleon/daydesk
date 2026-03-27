@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { format } from 'date-fns'
 import { useToast } from '@/components/ui/toast'
 import { Navbar } from '@/components/navbar'
 
@@ -37,7 +36,7 @@ export default function Export() {
       } else {
         showToast('Export failed', 'error')
       }
-    } catch (error) {
+    } catch {
       showToast('Error exporting data', 'error')
     } finally {
       setIsExporting(false)

@@ -24,7 +24,7 @@ export function useNotificationReminders() {
 
     // Check notification support
     if (!('Notification' in window)) {
-      setPermission('unsupported')
+      setPermission('unsupported') // eslint-disable-line react-hooks/set-state-in-effect -- initializing from browser API
     } else {
       setPermission(Notification.permission)
     }

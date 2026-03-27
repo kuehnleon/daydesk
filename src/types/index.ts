@@ -45,6 +45,17 @@ export interface UserSettings {
   weekStartDay: number
 }
 
+export interface AttendanceWithRelations {
+  id: string
+  date: Date
+  type: string
+  transportId: string | null
+  transport: Transport | null
+  locationId: string | null
+  location: (Location & { transport: Transport | null }) | null
+  notes: string | null
+}
+
 export interface ExportParams {
   startDate: string
   endDate: string

@@ -27,8 +27,6 @@ export default function Statistics() {
   const [endDate, setEndDate] = useState('')
   const [attendances, setAttendances] = useState<Attendance[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [locations, setLocations] = useState<Location[]>([])
-  const [transports, setTransports] = useState<Transport[]>([])
 
   // Initialize dates based on preset
   useEffect(() => {
@@ -59,31 +57,11 @@ export default function Statistics() {
   }, [preset])
 
   useEffect(() => {
-    loadLocations()
-    loadTransports()
-  }, [])
-
-  useEffect(() => {
     if (startDate && endDate) {
       loadAttendances()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startDate, endDate])
-
-  const loadLocations = async () => {
-    const response = await fetch('/api/locations')
-    if (response.ok) {
-      const data = await response.json()
-      setLocations(data)
-    }
-  }
-
-  const loadTransports = async () => {
-    const response = await fetch('/api/transports')
-    if (response.ok) {
-      const data = await response.json()
-      setTransports(data)
-    }
-  }
 
   const loadAttendances = async () => {
     setIsLoading(true)

@@ -75,6 +75,7 @@ export default function Calendar() {
     Promise.all([loadAttendances(), loadHolidays(), minLoadingDelay()]).finally(() => {
       setIsLoadingMonth(false)
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentMonth])
 
   const loadSettings = async () => {

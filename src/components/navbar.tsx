@@ -11,7 +11,7 @@ export function Navbar() {
 
   // Close sidebar on route change
   useEffect(() => {
-    setIsMenuOpen(false)
+    setIsMenuOpen(false) // eslint-disable-line react-hooks/set-state-in-effect -- intentional: close menu on navigation
   }, [pathname])
 
   // Prevent body scroll when sidebar is open
