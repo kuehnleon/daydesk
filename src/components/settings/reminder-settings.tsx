@@ -42,9 +42,13 @@ export function ReminderSettings() {
     removeReminderTime(time)
   }
 
-  const handleTest = () => {
-    sendTestNotification()
-    showToast('Test notification sent!', 'info')
+  const handleTest = async () => {
+    const success = await sendTestNotification()
+    if (success) {
+      showToast('Test notification sent!', 'info')
+    } else {
+      showToast('Failed to send notification. Check browser and system notification settings.', 'error')
+    }
   }
 
   if (!isLoaded) {

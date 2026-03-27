@@ -99,15 +99,28 @@ export function useNotificationReminders() {
     })
   }, [])
 
-  // Send a test notification
-  const sendTestNotification = useCallback(() => {
-    if (permission !== 'granted') return
+  // Send a test notification via service worker, with fallback for dev
+  const sendTestNotification = useCallback(async (): Promise<boolean> => {
+    if (permission !== 'granted') return false
 
-    new Notification('Daydesk Reminder', {
+    const options = {
       body: "This is a test notification. Don't forget to log your attendance!",
       icon: '/icon-192.png',
-      tag: 'daydesk-test',
-    })
+      tag: `daydesk-test-${Date.now()}`,
+    }
+
+    try {
+      const registration = await navigator.serviceWorker?.getRegistration()
+      if (registration?.active) {
+        await registration.showNotification('Daydesk Reminder', options)
+      } else {
+        new Notification('Daydesk Reminder', options)
+      }
+      return true
+    } catch (error) {
+      console.error('Failed to send notification:', error)
+      return false
+    }
   }, [permission])
 
   return {
