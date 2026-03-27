@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
+import { createLocationSchema } from '@/lib/validations'
 
 export async function GET() {
   const session = await auth()
@@ -33,12 +34,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const body = await request.json()
-  const { name, transportId, distance, color } = body
-
-  if (!name || !color) {
-    return NextResponse.json({ error: 'Name and color are required' }, { status: 400 })
+  let body
+  try { body = await request.json() } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
+  const parsed = createLocationSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: 'Validation failed', details: parsed.error.flatten() },
+      { status: 400 }
+    )
+  }
+  const { name, transportId, distance, color } = parsed.data
 
   const user = await prisma.user.findUnique({
     where: { email: session.user.email },
@@ -58,7 +65,7 @@ export async function POST(request: Request) {
       userId: user.id,
       name,
       transportId: transportId || null,
-      distance: distance ? parseInt(distance) : null,
+      distance: distance ?? null,
       color,
       sortOrder: (maxSortOrder._max.sortOrder ?? -1) + 1,
     },
