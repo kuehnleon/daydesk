@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { startOfMonth, endOfMonth, parseISO } from 'date-fns'
+import { getAttendanceQuerySchema, createAttendanceSchema } from '@/lib/validations'
 
 export async function GET(request: Request) {
   const session = await auth()
@@ -11,9 +12,15 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url)
-  const month = searchParams.get('month') // YYYY-MM format
-  const startDate = searchParams.get('startDate')
-  const endDate = searchParams.get('endDate')
+  const query = Object.fromEntries(searchParams.entries())
+  const parsed = getAttendanceQuerySchema.safeParse(query)
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: 'Validation failed', details: parsed.error.flatten() },
+      { status: 400 }
+    )
+  }
+  const { month, startDate, endDate } = parsed.data
 
   const user = await prisma.user.findUnique({
     where: { email: session.user.email },
@@ -63,8 +70,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const body = await request.json()
-  const { date, type, transportId, locationId, notes } = body
+  let body
+  try { body = await request.json() } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
+  const parsed = createAttendanceSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: 'Validation failed', details: parsed.error.flatten() },
+      { status: 400 }
+    )
+  }
+  const { date, type, transportId, locationId, notes } = parsed.data
 
   const user = await prisma.user.findUnique({
     where: { email: session.user.email },

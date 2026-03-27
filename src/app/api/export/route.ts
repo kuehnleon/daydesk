@@ -5,6 +5,7 @@ import { format, parseISO } from 'date-fns'
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import type { AttendanceWithRelations } from '@/types'
+import { exportQuerySchema } from '@/lib/validations'
 
 interface jsPDFWithAutoTable extends jsPDF {
   lastAutoTable: { finalY: number }
@@ -18,16 +19,15 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url)
-  const startDate = searchParams.get('startDate')
-  const endDate = searchParams.get('endDate')
-  const exportFormat = searchParams.get('format') || 'csv'
-
-  if (!startDate || !endDate) {
+  const query = Object.fromEntries(searchParams.entries())
+  const parsed = exportQuerySchema.safeParse(query)
+  if (!parsed.success) {
     return NextResponse.json(
-      { error: 'startDate and endDate are required' },
+      { error: 'Validation failed', details: parsed.error.flatten() },
       { status: 400 }
     )
   }
+  const { startDate, endDate, format: exportFormat } = parsed.data
 
   const user = await prisma.user.findUnique({
     where: { email: session.user.email },

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { holidaysQuerySchema } from '@/lib/validations'
 
 interface Holiday {
   date: string
@@ -37,8 +38,16 @@ async function fetchHolidaysForYear(year: string): Promise<Holiday[]> {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const year = searchParams.get('year') || new Date().getFullYear().toString()
-  const stateCode = searchParams.get('state') || 'BW'
+  const query = Object.fromEntries(searchParams.entries())
+  const parsed = holidaysQuerySchema.safeParse(query)
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: 'Validation failed', details: parsed.error.flatten() },
+      { status: 400 }
+    )
+  }
+  const year = parsed.data.year || new Date().getFullYear().toString()
+  const stateCode = parsed.data.state || 'BW'
 
   try {
     const allHolidays = await fetchHolidaysForYear(year)

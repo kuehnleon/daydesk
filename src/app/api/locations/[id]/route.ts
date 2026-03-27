@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
+import { updateLocationSchema } from '@/lib/validations'
 
 export async function PATCH(
   request: Request,
@@ -13,8 +14,18 @@ export async function PATCH(
   }
 
   const { id } = await params
-  const body = await request.json()
-  const { name, transportId, distance, color, sortOrder } = body
+  let body
+  try { body = await request.json() } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
+  const parsed = updateLocationSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: 'Validation failed', details: parsed.error.flatten() },
+      { status: 400 }
+    )
+  }
+  const { name, transportId, distance, color, sortOrder } = parsed.data
 
   const user = await prisma.user.findUnique({
     where: { email: session.user.email },
@@ -38,7 +49,7 @@ export async function PATCH(
     data: {
       ...(name !== undefined && { name }),
       ...(transportId !== undefined && { transportId: transportId || null }),
-      ...(distance !== undefined && { distance: distance ? parseInt(distance) : null }),
+      ...(distance !== undefined && { distance: distance ?? null }),
       ...(color !== undefined && { color }),
       ...(sortOrder !== undefined && { sortOrder }),
     },
