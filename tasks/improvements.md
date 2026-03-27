@@ -4,9 +4,9 @@
 
 | # | Item | Effort | Status |
 |---|------|--------|--------|
-| 1 | Add Zod input validation to API routes | Medium | Pending |
+| 1 | Add Zod input validation to API routes | Medium | Done |
 | 2 | Add security headers middleware | Low | Done |
-| 3 | Add test framework + critical path tests | High | Pending |
+| 3 | Add test framework + critical path tests | High | Done |
 
 ## Priority 1 — Important
 
