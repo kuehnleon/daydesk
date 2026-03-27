@@ -9,13 +9,15 @@ const STATIC_ASSETS = [
 // so the proxy redirect to /auth/signin is always respected
 const PROTECTED_PATHS = ['/dashboard', '/calendar', '/settings', '/export', '/statistics'];
 
-// Install event - cache static assets
+// Install event - cache static assets (production only)
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
-    })
-  );
+  if (self.location.hostname !== 'localhost' && self.location.hostname !== '127.0.0.1') {
+    event.waitUntil(
+      caches.open(CACHE_NAME).then((cache) => {
+        return cache.addAll(STATIC_ASSETS);
+      })
+    );
+  }
   self.skipWaiting();
 });
 
@@ -37,6 +39,9 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
+
+  // Skip caching entirely in dev (localhost) — SW is only needed for notifications
+  if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') return;
 
   // Skip non-GET requests
   if (request.method !== 'GET') return;
