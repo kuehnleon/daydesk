@@ -199,8 +199,7 @@ export default function Calendar() {
   const handleMouseEnter = (day: Date) => {
     if (isSelecting && selectionStart) {
       const range = getDateRange(selectionStart, day)
-      const selectable = range.filter(isDaySelectable)
-      setSelectedDates(new Set(selectable.map(d => format(d, 'yyyy-MM-dd'))))
+      setSelectedDates(new Set(range.filter(isDaySelectable).map(d => format(d, 'yyyy-MM-dd'))))
     }
   }
 
@@ -488,7 +487,7 @@ export default function Calendar() {
                 <button
                   key={dateStr}
                   onMouseDown={(e) => !isDayDisabled && handleMouseDown(day, e)}
-                  onMouseEnter={() => !isDayDisabled && handleMouseEnter(day)}
+                  onMouseEnter={() => handleMouseEnter(day)}
                   disabled={isDayDisabled}
                   className={`
                     min-h-20 rounded-lg p-2 text-left transition-all
