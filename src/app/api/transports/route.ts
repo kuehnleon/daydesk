@@ -60,5 +60,5 @@ export async function POST(request: Request) {
     },
   })
 
-  return NextResponse.json(transport)
+  return NextResponse.json(transport, { status: 201 })
 }
