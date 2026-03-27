@@ -38,6 +38,7 @@ export default function Calendar() {
   const [isLoading, setIsLoading] = useState(false)
   const [holidays, setHolidays] = useState<Set<string>>(new Set())
   const [weekStartDay, setWeekStartDay] = useState(1)
+  const [workDays, setWorkDays] = useState<number[]>([1, 2, 3, 4, 5])
   const [isSelecting, setIsSelecting] = useState(false)
   const [selectionStart, setSelectionStart] = useState<Date | null>(null)
   const [lastClickedDate, setLastClickedDate] = useState<Date | null>(null)
@@ -67,6 +68,9 @@ export default function Calendar() {
     if (response.ok) {
       const data = await response.json()
       setWeekStartDay(data.weekStartDay ?? 1)
+      if (data.workDays) {
+        setWorkDays(data.workDays.split(',').map(Number))
+      }
     }
   }
 
@@ -128,11 +132,15 @@ export default function Calendar() {
     return dayOfWeek
   }
 
+  const isNonWorkingDay = (date: Date) => {
+    const dow = getDay(date)
+    const adjusted = dow === 0 ? 7 : dow
+    return !workDays.includes(adjusted)
+  }
+
   const getDayColor = (date: Date) => {
     const dateStr = format(date, 'yyyy-MM-dd')
     const attendance = attendances[dateStr]
-    const dayOfWeek = getDay(date)
-    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6
 
     if (holidays.has(dateStr)) return 'bg-red-100 dark:bg-red-900'
 
@@ -144,7 +152,7 @@ export default function Calendar() {
     if (attendance?.type === 'home') return 'bg-emerald-200 dark:bg-emerald-800'
     if (attendance?.type === 'off') return 'bg-amber-100 dark:bg-amber-900'
     if (attendance?.type === 'sick') return 'bg-red-100 dark:bg-red-900'
-    if (isWeekend) return 'bg-gray-100 dark:bg-gray-800'
+    if (isNonWorkingDay(date)) return 'bg-gray-100 dark:bg-gray-800'
     return 'bg-white dark:bg-gray-700'
   }
 
@@ -167,14 +175,19 @@ export default function Calendar() {
     return eachDayOfInterval({ start: rangeStart, end: rangeEnd })
   }
 
+  const isDaySelectable = (date: Date) => {
+    return !isNonWorkingDay(date) || !!attendances[format(date, 'yyyy-MM-dd')]
+  }
+
   const handleMouseDown = (day: Date, e: React.MouseEvent) => {
     e.preventDefault()
 
     if (e.shiftKey && lastClickedDate) {
       const range = getDateRange(lastClickedDate, day)
-      const newSelection = new Set(range.map(d => format(d, 'yyyy-MM-dd')))
+      const selectable = range.filter(isDaySelectable)
+      const newSelection = new Set(selectable.map(d => format(d, 'yyyy-MM-dd')))
       setSelectedDates(newSelection)
-      setShowModal(true)
+      if (newSelection.size > 0) setShowModal(true)
     } else {
       setIsSelecting(true)
       setSelectionStart(day)
@@ -186,7 +199,8 @@ export default function Calendar() {
   const handleMouseEnter = (day: Date) => {
     if (isSelecting && selectionStart) {
       const range = getDateRange(selectionStart, day)
-      setSelectedDates(new Set(range.map(d => format(d, 'yyyy-MM-dd'))))
+      const selectable = range.filter(isDaySelectable)
+      setSelectedDates(new Set(selectable.map(d => format(d, 'yyyy-MM-dd'))))
     }
   }
 
@@ -468,18 +482,23 @@ export default function Calendar() {
               const attendance = attendances[dateStr]
               const selected = isDateSelected(day)
               const isHoliday = holidays.has(dateStr)
+              const isDayDisabled = isNonWorkingDay(day) && !attendance
 
               return (
                 <button
                   key={dateStr}
-                  onMouseDown={(e) => handleMouseDown(day, e)}
-                  onMouseEnter={() => handleMouseEnter(day)}
+                  onMouseDown={(e) => !isDayDisabled && handleMouseDown(day, e)}
+                  onMouseEnter={() => !isDayDisabled && handleMouseEnter(day)}
+                  disabled={isDayDisabled}
                   className={`
                     min-h-20 rounded-lg p-2 text-left transition-all
                     ${getDayColor(day)}
                     ${isToday(day) ? 'ring-2 ring-indigo-600' : ''}
-                    ${selected ? 'ring-2 ring-indigo-500 ring-offset-2 dark:ring-offset-gray-900' : 'hover:ring-2 hover:ring-indigo-300'}
-                    ${isSelecting ? 'cursor-crosshair' : 'cursor-pointer'}
+                    ${isDayDisabled
+                      ? 'cursor-default opacity-50'
+                      : `${selected ? 'ring-2 ring-indigo-500 ring-offset-2 dark:ring-offset-gray-900' : 'hover:ring-2 hover:ring-indigo-300'}
+                         ${isSelecting ? 'cursor-crosshair' : 'cursor-pointer'}`
+                    }
                   `}
                   style={getDayStyle(day)}
                 >
