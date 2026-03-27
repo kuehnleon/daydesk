@@ -4,6 +4,11 @@ import { prisma } from '@/lib/db'
 import { format, parseISO } from 'date-fns'
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import type { AttendanceWithRelations } from '@/types'
+
+interface jsPDFWithAutoTable extends jsPDF {
+  lastAutoTable: { finalY: number }
+}
 
 export async function GET(request: Request) {
   const session = await auth()
@@ -70,7 +75,7 @@ export async function GET(request: Request) {
   return NextResponse.json({ error: 'Invalid format' }, { status: 400 })
 }
 
-function generateCSV(attendances: any[]): string {
+function generateCSV(attendances: AttendanceWithRelations[]): string {
   const headers = ['Date', 'Type', 'Location', 'Transport', 'Distance (km)', 'Notes']
   const rows = attendances.map(a => [
     format(new Date(a.date), 'yyyy-MM-dd'),
@@ -89,7 +94,7 @@ function generateCSV(attendances: any[]): string {
   return csvContent
 }
 
-async function generatePDF(attendances: any[], startDate: string, endDate: string): Promise<Buffer> {
+async function generatePDF(attendances: AttendanceWithRelations[], startDate: string, endDate: string): Promise<Buffer> {
   const doc = new jsPDF()
 
   // Header
@@ -132,7 +137,7 @@ async function generatePDF(attendances: any[], startDate: string, endDate: strin
   })
 
   // Group attendances by month
-  const byMonth = new Map<string, any[]>()
+  const byMonth = new Map<string, AttendanceWithRelations[]>()
   for (const a of attendances) {
     const monthKey = format(new Date(a.date), 'yyyy-MM')
     if (!byMonth.has(monthKey)) byMonth.set(monthKey, [])
@@ -185,11 +190,11 @@ async function generatePDF(attendances: any[], startDate: string, endDate: strin
     })
 
     // Month summary
-    const monthDistance = monthData.reduce((sum: number, a: any) => sum + (a.location?.distance || 0), 0)
-    const monthOffice = monthData.filter((a: any) => a.type === 'office').length
+    const monthDistance = monthData.reduce((sum: number, a) => sum + (a.location?.distance || 0), 0)
+    const monthOffice = monthData.filter((a) => a.type === 'office').length
 
     // Get the final Y position after the table
-    yPos = (doc as any).lastAutoTable.finalY + 5
+    yPos = (doc as jsPDFWithAutoTable).lastAutoTable.finalY + 5
     doc.setFontSize(8)
     doc.setFont('helvetica', 'italic')
     doc.text(`Month total: ${monthOffice} office days, ${monthDistance} km`, 14, yPos)
