@@ -1,18 +1,34 @@
 services:
+  postgres:
+    image: postgres:17-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=daydesk
+      - POSTGRES_PASSWORD=daydesk
+      - POSTGRES_DB=daydesk
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
   app:
     image: node:20-alpine
     working_dir: /app
     volumes:
       - .:/app
       - /app/node_modules
-    command: sh -c "npm install && npx prisma generate && npx prisma db push && npm run dev"
+    command: sh -c "npm install && npx prisma generate && npx prisma migrate dev && npm run dev"
     ports:
       - "3000:3000"
+    depends_on:
+      - postgres
     environment:
-      - DATABASE_URL=file:./dev.db
+      - DATABASE_URL=postgresql://daydesk:daydesk@postgres:5432/daydesk
       - APP_BASE_URL=http://localhost:3000
       - NEXTAUTH_URL=http://localhost:3000
       - AUTH0_DOMAIN=${AUTH0_DOMAIN}
       - AUTH0_CLIENT_ID=${AUTH0_CLIENT_ID}
       - AUTH0_CLIENT_SECRET=${AUTH0_CLIENT_SECRET}
       - AUTH0_SECRET=${AUTH0_SECRET}
+
+volumes:
+  pgdata:
