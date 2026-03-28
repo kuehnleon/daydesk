@@ -43,6 +43,9 @@ export interface UserSettings {
   defaultState: string
   workDays: string // "1,2,3,4,5" for Mon-Fri
   weekStartDay: number
+  reminderEnabled: boolean
+  reminderTimes: string // "09:00,14:00" comma-separated HH:mm
+  reminderWorkDaysOnly: boolean
 }
 
 export interface AttendanceWithRelations {
