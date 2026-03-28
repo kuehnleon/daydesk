@@ -8,6 +8,17 @@
 | 2 | Add security headers middleware | Low | Done |
 | 3 | Add test framework + critical path tests | High | Done |
 
+## Priority 0.5 — Performance (K8s Resource Optimization)
+
+| # | Item | Effort | Status |
+|---|------|--------|--------|
+| P1 | Use session user ID directly — eliminate redundant DB lookups | Low | Done |
+| P2 | Fix holiday cache memory leak — bound the Map | Low | Done |
+| P3 | Add DB connectivity check to health endpoint | Low | Done |
+| P4 | Cache Prisma singleton in all environments | Low | Done |
+| P5 | Add Cache-Control headers to read-only API responses | Low | Done |
+| P6 | Add query limit to export endpoint to prevent OOM | Low | Done |
+
 ## Priority 1 — Important
 
 | # | Item | Effort | Status |
@@ -49,6 +60,24 @@ Zero test files, no testing framework configured. Add Vitest + Testing Library f
 
 ### 4. Add Lint/Test to CI Pipeline
 ESLint configured but not run in CI. GitHub Actions only builds Docker/Helm. Add lint step to workflow.
+
+### P1. Use Session User ID Directly
+JWT callback already puts user.id in session. Every API route was doing an extra DB lookup via findUnique just to get the user ID. Removed all redundant queries — ~50% fewer DB calls per request.
+
+### P2. Fix Holiday Cache Memory Leak
+In-memory Map for holiday data grew unbounded. Added TTL-based eviction and size cap (10 entries) to prevent memory growth in long-running K8s pods.
+
+### P3. Add DB Connectivity Check to Health Endpoint
+K8s liveness/readiness probes were passing even when Postgres was down. Health endpoint now does `SELECT 1` and returns 503 if unreachable.
+
+### P4. Cache Prisma Singleton in All Environments
+PrismaClient was only cached on globalThis in development. Now cached unconditionally per Prisma's recommendation.
+
+### P5. Add Cache-Control Headers to Read-Only API Responses
+No caching headers on any responses. Added appropriate Cache-Control: public 24h for holidays, private 60s for locations/transports/settings, private no-cache for attendance.
+
+### P6. Add Query Limit to Export Endpoint
+Export fetched all attendances with no limit. Added `take: 3660` safety cap to prevent OOM in the 512Mi container.
 
 ### 5. Add Pagination to Attendance Queries
 All attendance queries return unbounded results. Will degrade with years of data. Add cursor or offset-based pagination.
