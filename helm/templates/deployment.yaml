@@ -50,6 +50,14 @@ spec:
                 secretKeyRef:
                   name: {{ include "daydesk.postgresSecretName" . }}
                   key: database-url
+            - name: DIRECT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "daydesk.postgresSecretName" . }}
+                  key: {{ if or .Values.postgres.directUrl .Values.postgres.existingSecret }}direct-url{{ else }}database-url{{ end }}
+                  {{- if .Values.postgres.existingSecret }}
+                  optional: true
+                  {{- end }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
@@ -69,6 +77,14 @@ spec:
                 secretKeyRef:
                   name: {{ include "daydesk.postgresSecretName" . }}
                   key: database-url
+            - name: DIRECT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "daydesk.postgresSecretName" . }}
+                  key: {{ if or .Values.postgres.directUrl .Values.postgres.existingSecret }}direct-url{{ else }}database-url{{ end }}
+                  {{- if .Values.postgres.existingSecret }}
+                  optional: true
+                  {{- end }}
             - name: APP_BASE_URL
               value: {{ .Values.appUrl | quote }}
             - name: NEXTAUTH_URL
