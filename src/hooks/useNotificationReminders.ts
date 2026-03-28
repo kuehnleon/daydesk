@@ -18,6 +18,54 @@ export function useNotificationReminders() {
   const [isLoaded, setIsLoaded] = useState(false)
   const vapidKeyRef = useRef<string | null>(null)
 
+  // Subscribe to push notifications
+  const subscribeToPush = useCallback(async () => {
+    if (!vapidKeyRef.current) return
+
+    try {
+      const registration = await navigator.serviceWorker?.getRegistration()
+      if (!registration) return
+
+      const existing = await registration.pushManager.getSubscription()
+      if (existing) {
+        // Already subscribed, ensure server knows
+        const json = existing.toJSON()
+        await fetch('/api/push/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            endpoint: json.endpoint,
+            keys: {
+              p256dh: json.keys!.p256dh,
+              auth: json.keys!.auth,
+            },
+          }),
+        })
+        return
+      }
+
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapidKeyRef.current) as BufferSource,
+      })
+
+      const subJson = subscription.toJSON()
+      await fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          endpoint: subJson.endpoint,
+          keys: {
+            p256dh: subJson.keys!.p256dh,
+            auth: subJson.keys!.auth,
+          },
+        }),
+      })
+    } catch {
+      // Push subscription failed — notifications will only work in-browser
+    }
+  }, [])
+
   // Load settings from server and check push state
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -49,6 +97,12 @@ export function useNotificationReminders() {
         if (vapidRes.ok) {
           const data = await vapidRes.json()
           vapidKeyRef.current = data.publicKey
+
+          // If permission was already granted (e.g. from before the migration),
+          // ensure the push subscription is registered on the server
+          if (Notification.permission === 'granted') {
+            await subscribeToPush()
+          }
         }
       } catch {
         // Use defaults on error
@@ -57,7 +111,7 @@ export function useNotificationReminders() {
     }
 
     load()
-  }, [])
+  }, [subscribeToPush])
 
   // Persist settings to server
   const patchSettings = useCallback(async (reminderEnabled: boolean, reminderTimes: string, reminderWorkDaysOnly: boolean) => {
@@ -79,52 +133,6 @@ export function useNotificationReminders() {
       return newSettings
     })
   }, [patchSettings])
-
-  // Subscribe to push notifications
-  const subscribeToPush = useCallback(async () => {
-    if (!vapidKeyRef.current) return
-
-    try {
-      const registration = await navigator.serviceWorker?.getRegistration()
-      if (!registration) return
-
-      const existing = await registration.pushManager.getSubscription()
-      if (existing) {
-        // Already subscribed, ensure server knows
-        await fetch('/api/push/subscribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            endpoint: existing.endpoint,
-            keys: {
-              p256dh: btoa(String.fromCharCode(...new Uint8Array(existing.getKey('p256dh')!))),
-              auth: btoa(String.fromCharCode(...new Uint8Array(existing.getKey('auth')!))),
-            },
-          }),
-        })
-        return
-      }
-
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(vapidKeyRef.current) as BufferSource,
-      })
-
-      await fetch('/api/push/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          endpoint: subscription.endpoint,
-          keys: {
-            p256dh: btoa(String.fromCharCode(...new Uint8Array(subscription.getKey('p256dh')!))),
-            auth: btoa(String.fromCharCode(...new Uint8Array(subscription.getKey('auth')!))),
-          },
-        }),
-      })
-    } catch {
-      // Push subscription failed — notifications will only work in-browser
-    }
-  }, [])
 
   const requestPermission = useCallback(async (): Promise<boolean> => {
     if (!('Notification' in window)) {
