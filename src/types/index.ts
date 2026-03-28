@@ -67,3 +67,12 @@ export interface ReminderSettings {
   times: string[] // ["09:00", "14:00"]
   workDaysOnly: boolean
 }
+
+export interface ImportRow {
+  date: string
+  type: string
+  location: string
+  transport: string
+  distance: string
+  notes: string
+}
