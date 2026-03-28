@@ -19,6 +19,9 @@ export async function GET() {
       defaultState: true,
       workDays: true,
       weekStartDay: true,
+      reminderEnabled: true,
+      reminderTimes: true,
+      reminderWorkDaysOnly: true,
     },
   })
 
@@ -49,7 +52,7 @@ export async function PATCH(request: Request) {
       { status: 400 }
     )
   }
-  const { defaultState, workDays, weekStartDay } = parsed.data
+  const { defaultState, workDays, weekStartDay, reminderEnabled, reminderTimes, reminderWorkDaysOnly } = parsed.data
 
   const user = await prisma.user.update({
     where: { id: session.user.id },
@@ -57,6 +60,9 @@ export async function PATCH(request: Request) {
       ...(defaultState && { defaultState }),
       ...(workDays && { workDays }),
       ...(weekStartDay !== undefined && { weekStartDay }),
+      ...(reminderEnabled !== undefined && { reminderEnabled }),
+      ...(reminderTimes !== undefined && { reminderTimes }),
+      ...(reminderWorkDaysOnly !== undefined && { reminderWorkDaysOnly }),
     },
   })
 

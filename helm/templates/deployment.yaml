@@ -109,6 +109,28 @@ spec:
                 secretKeyRef:
                   name: {{ include "daydesk.auth0SecretName" . }}
                   key: auth0-client-secret
+            {{- if .Values.pushNotifications.enabled }}
+            - name: VAPID_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "daydesk.vapidSecretName" . }}
+                  key: vapid-public-key
+            - name: VAPID_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "daydesk.vapidSecretName" . }}
+                  key: vapid-private-key
+            - name: VAPID_SUBJECT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "daydesk.vapidSecretName" . }}
+                  key: vapid-subject
+            - name: PUSH_API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "daydesk.vapidSecretName" . }}
+                  key: push-api-secret
+            {{- end }}
           {{- with .Values.startupProbe }}
           startupProbe:
             {{- toYaml . | nindent 12 }}

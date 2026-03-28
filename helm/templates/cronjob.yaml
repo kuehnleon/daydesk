@@ -1,0 +1,39 @@
+{{- if .Values.pushNotifications.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "daydesk.fullname" . }}-push-notify
+  labels:
+    {{- include "daydesk.labels" . | nindent 4 }}
+spec:
+  schedule: "* * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 55
+      template:
+        metadata:
+          labels:
+            {{- include "daydesk.selectorLabels" . | nindent 12 }}
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: push-notify
+              image: curlimages/curl:latest
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  curl -sf -X POST \
+                    -H "Authorization: Bearer $(PUSH_API_SECRET)" \
+                    -H "Content-Type: application/json" \
+                    "http://{{ include "daydesk.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}/api/push/send"
+              env:
+                - name: PUSH_API_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "daydesk.vapidSecretName" . }}
+                      key: push-api-secret
+{{- end }}
