@@ -78,3 +78,18 @@ export const holidaysQuerySchema = z.object({
   year: z.string().regex(/^\d{4}$/, 'Must be a 4-digit year').optional(),
   state: germanStateCodeSchema.optional(),
 })
+
+// --- Import schemas ---
+
+export const importRowSchema = z.object({
+  date: dateStringSchema,
+  type: attendanceTypeSchema,
+  location: z.string().max(100).optional().default(''),
+  transport: z.string().max(100).optional().default(''),
+  distance: z.string().max(20).optional().default(''),
+  notes: z.string().max(500).optional().default(''),
+})
+
+export const importBatchSchema = z.object({
+  rows: z.array(importRowSchema).min(1, 'At least one row is required').max(3660),
+})
