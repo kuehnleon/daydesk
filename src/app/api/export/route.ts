@@ -42,6 +42,7 @@ export async function GET(request: Request) {
       transport: true,
     },
     orderBy: { date: 'asc' },
+    take: 3660,
   })
 
   if (exportFormat === 'csv') {
