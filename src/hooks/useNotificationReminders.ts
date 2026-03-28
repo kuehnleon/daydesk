@@ -18,68 +18,6 @@ export function useNotificationReminders() {
   const [isLoaded, setIsLoaded] = useState(false)
   const vapidKeyRef = useRef<string | null>(null)
 
-  // Load settings from server and check push state
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-
-    if (!('Notification' in window)) {
-      setPermission('unsupported') // eslint-disable-line react-hooks/set-state-in-effect -- initializing from browser API
-      setIsLoaded(true)
-      return
-    }
-
-    setPermission(Notification.permission)
-
-    const load = async () => {
-      try {
-        const [settingsRes, vapidRes] = await Promise.all([
-          fetch('/api/settings'),
-          fetch('/api/push/vapid-key'),
-        ])
-
-        if (settingsRes.ok) {
-          const data = await settingsRes.json()
-          setSettings({
-            enabled: data.reminderEnabled ?? false,
-            times: data.reminderTimes ? data.reminderTimes.split(',').filter(Boolean) : [],
-            workDaysOnly: data.reminderWorkDaysOnly ?? true,
-          })
-        }
-
-        if (vapidRes.ok) {
-          const data = await vapidRes.json()
-          vapidKeyRef.current = data.publicKey
-        }
-      } catch {
-        // Use defaults on error
-      }
-      setIsLoaded(true)
-    }
-
-    load()
-  }, [])
-
-  // Persist settings to server
-  const patchSettings = useCallback(async (reminderEnabled: boolean, reminderTimes: string, reminderWorkDaysOnly: boolean) => {
-    try {
-      await fetch('/api/settings', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reminderEnabled, reminderTimes, reminderWorkDaysOnly }),
-      })
-    } catch {
-      // Silently fail — local state already updated
-    }
-  }, [])
-
-  const updateSettings = useCallback((updates: Partial<ReminderSettings>) => {
-    setSettings((prev) => {
-      const newSettings = { ...prev, ...updates }
-      patchSettings(newSettings.enabled, newSettings.times.join(','), newSettings.workDaysOnly)
-      return newSettings
-    })
-  }, [patchSettings])
-
   // Subscribe to push notifications
   const subscribeToPush = useCallback(async () => {
     if (!vapidKeyRef.current) return
@@ -125,6 +63,74 @@ export function useNotificationReminders() {
       // Push subscription failed — notifications will only work in-browser
     }
   }, [])
+
+  // Load settings from server and check push state
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    if (!('Notification' in window)) {
+      setPermission('unsupported') // eslint-disable-line react-hooks/set-state-in-effect -- initializing from browser API
+      setIsLoaded(true)
+      return
+    }
+
+    setPermission(Notification.permission)
+
+    const load = async () => {
+      try {
+        const [settingsRes, vapidRes] = await Promise.all([
+          fetch('/api/settings'),
+          fetch('/api/push/vapid-key'),
+        ])
+
+        if (settingsRes.ok) {
+          const data = await settingsRes.json()
+          setSettings({
+            enabled: data.reminderEnabled ?? false,
+            times: data.reminderTimes ? data.reminderTimes.split(',').filter(Boolean) : [],
+            workDaysOnly: data.reminderWorkDaysOnly ?? true,
+          })
+        }
+
+        if (vapidRes.ok) {
+          const data = await vapidRes.json()
+          vapidKeyRef.current = data.publicKey
+
+          // If permission was already granted (e.g. from before the migration),
+          // ensure the push subscription is registered on the server
+          if (Notification.permission === 'granted') {
+            await subscribeToPush()
+          }
+        }
+      } catch {
+        // Use defaults on error
+      }
+      setIsLoaded(true)
+    }
+
+    load()
+  }, [subscribeToPush])
+
+  // Persist settings to server
+  const patchSettings = useCallback(async (reminderEnabled: boolean, reminderTimes: string, reminderWorkDaysOnly: boolean) => {
+    try {
+      await fetch('/api/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reminderEnabled, reminderTimes, reminderWorkDaysOnly }),
+      })
+    } catch {
+      // Silently fail — local state already updated
+    }
+  }, [])
+
+  const updateSettings = useCallback((updates: Partial<ReminderSettings>) => {
+    setSettings((prev) => {
+      const newSettings = { ...prev, ...updates }
+      patchSettings(newSettings.enabled, newSettings.times.join(','), newSettings.workDaysOnly)
+      return newSettings
+    })
+  }, [patchSettings])
 
   const requestPermission = useCallback(async (): Promise<boolean> => {
     if (!('Notification' in window)) {
