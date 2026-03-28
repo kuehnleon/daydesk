@@ -128,3 +128,44 @@ jobs:
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
           helm push daydesk-${VERSION}.tgz oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/charts
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build-helm
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Get version from tag
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+
+          gh release create "v${VERSION}" \
+            --title "v${VERSION}" \
+            --generate-notes \
+            --latest \
+            --verify-tag
+
+          EXISTING=$(gh release view "v${VERSION}" --json body -q .body)
+          printf '%s\n\n## Artifacts\n\n**Docker image:**\n```\ndocker pull %s/%s:%s\n```\n\n**Helm chart:**\n```\nhelm pull oci://%s/%s/charts/daydesk --version %s\n```\n' \
+            "$EXISTING" \
+            "${{ env.REGISTRY }}" "${{ env.IMAGE_NAME }}" "$VERSION" \
+            "${{ env.REGISTRY }}" "${{ github.repository_owner }}" "$VERSION" \
+            > notes.md
+
+          gh release edit "v${VERSION}" --notes-file notes.md
