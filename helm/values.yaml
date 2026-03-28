@@ -3,7 +3,7 @@
 replicaCount: 1
 
 image:
-  repository: daydesk
+  repository: ghcr.io/kuehnleon/daydesk
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
