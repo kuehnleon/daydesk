@@ -6,7 +6,6 @@ vi.mock('@/lib/auth', () => ({
 
 vi.mock('@/lib/db', () => ({
   prisma: {
-    user: { findUnique: vi.fn() },
     location: { findFirst: vi.fn(), update: vi.fn(), delete: vi.fn() },
   },
 }))
@@ -42,7 +41,7 @@ describe('PATCH /api/locations/[id]', () => {
   })
 
   it('returns 400 for invalid color', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     const res = await PATCH(
       makeRequest('http://localhost/api/locations/loc1', {
         method: 'PATCH',
@@ -54,8 +53,7 @@ describe('PATCH /api/locations/[id]', () => {
   })
 
   it('returns 404 for non-owned location', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
-    mockPrisma.user.findUnique.mockResolvedValue({ id: 'user1' } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     mockPrisma.location.findFirst.mockResolvedValue(null as never)
 
     const res = await PATCH(
@@ -69,8 +67,7 @@ describe('PATCH /api/locations/[id]', () => {
   })
 
   it('updates location with valid data', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
-    mockPrisma.user.findUnique.mockResolvedValue({ id: 'user1' } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     mockPrisma.location.findFirst.mockResolvedValue({ id: 'loc1' } as never)
     mockPrisma.location.update.mockResolvedValue({ id: 'loc1', name: 'New' } as never)
 
@@ -89,8 +86,7 @@ describe('DELETE /api/locations/[id]', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('returns 404 for non-owned location', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
-    mockPrisma.user.findUnique.mockResolvedValue({ id: 'user1' } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     mockPrisma.location.findFirst.mockResolvedValue(null as never)
 
     const res = await DELETE(
@@ -101,8 +97,7 @@ describe('DELETE /api/locations/[id]', () => {
   })
 
   it('deletes own location', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
-    mockPrisma.user.findUnique.mockResolvedValue({ id: 'user1' } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     mockPrisma.location.findFirst.mockResolvedValue({ id: 'loc1' } as never)
     mockPrisma.location.delete.mockResolvedValue({ id: 'loc1' } as never)
 

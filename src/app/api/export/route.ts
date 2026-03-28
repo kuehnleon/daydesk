@@ -14,7 +14,7 @@ interface jsPDFWithAutoTable extends jsPDF {
 export async function GET(request: Request) {
   const session = await auth()
 
-  if (!session?.user?.email) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -29,17 +29,9 @@ export async function GET(request: Request) {
   }
   const { startDate, endDate, format: exportFormat } = parsed.data
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  })
-
-  if (!user) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 })
-  }
-
   const attendances = await prisma.attendance.findMany({
     where: {
-      userId: user.id,
+      userId: session.user.id,
       date: {
         gte: parseISO(startDate),
         lte: parseISO(endDate),
