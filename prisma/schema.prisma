@@ -16,14 +16,18 @@ model User {
   image         String?
   defaultState  String       @default("BW")
   workDays      String       @default("1,2,3,4,5")
-  weekStartDay  Int          @default(1)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  attendances  Attendance[]
-  accounts     Account[]
-  sessions     Session[]
-  locations    Location[]
-  transports   Transport[]
+  weekStartDay         Int          @default(1)
+  reminderEnabled      Boolean      @default(false)
+  reminderTimes        String       @default("")
+  reminderWorkDaysOnly Boolean      @default(true)
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  attendances          Attendance[]
+  accounts             Account[]
+  sessions             Session[]
+  locations            Location[]
+  transports           Transport[]
+  pushSubscriptions    PushSubscription[]
 
   @@map("users")
 }
@@ -117,4 +121,18 @@ model Transport {
 
   @@index([userId])
   @@map("transports")
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, endpoint])
+  @@index([userId])
+  @@map("push_subscriptions")
 }

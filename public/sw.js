@@ -1,4 +1,4 @@
-const CACHE_NAME = 'daydesk-v5';
+const CACHE_NAME = 'daydesk-v6';
 
 const STATIC_ASSETS = [
   '/icon-192.png',
@@ -112,6 +112,33 @@ self.addEventListener('fetch', (event) => {
 
       // Return cached response immediately, update cache in background
       return cachedResponse || fetchPromise;
+    })
+  );
+});
+
+// Handle push notifications from server
+self.addEventListener('push', (event) => {
+  let data = {
+    title: 'Daydesk Reminder',
+    body: "Don't forget to log your attendance!",
+    url: '/dashboard',
+  };
+
+  if (event.data) {
+    try {
+      data = { ...data, ...event.data.json() };
+    } catch {
+      // Use defaults
+    }
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: '/icon-192.png',
+      badge: '/icon-192.png',
+      tag: 'daydesk-attendance-reminder',
+      data: { url: data.url },
     })
   );
 });

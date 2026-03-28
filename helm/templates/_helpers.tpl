@@ -74,3 +74,10 @@ Create the name of the Postgres secret to use
 {{- define "daydesk.postgresSecretName" -}}
 {{- default (printf "%s-postgres" (include "daydesk.fullname" .)) .Values.postgres.existingSecret }}
 {{- end }}
+
+{{/*
+Create the name of the VAPID secret to use
+*/}}
+{{- define "daydesk.vapidSecretName" -}}
+{{- default (printf "%s-vapid" (include "daydesk.fullname" .)) .Values.vapid.existingSecret }}
+{{- end }}

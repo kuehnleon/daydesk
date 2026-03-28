@@ -123,3 +123,17 @@ postgres:
 # -- Prisma database migration init container
 initContainer:
   enabled: true
+
+# -- VAPID configuration for Web Push notifications
+# If existingSecret is set, no VAPID Secret resource is created.
+# The existing secret must contain keys: vapid-public-key, vapid-private-key, vapid-subject, push-api-secret
+vapid:
+  existingSecret: ""
+  publicKey: ""
+  privateKey: ""
+  subject: ""              # mailto:admin@example.com
+  pushApiSecret: ""
+
+# -- Push notification CronJob (requires vapid keys to be configured)
+pushNotifications:
+  enabled: false

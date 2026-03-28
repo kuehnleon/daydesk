@@ -66,6 +66,9 @@ export const updateSettingsSchema = z.object({
   defaultState: germanStateCodeSchema.optional(),
   workDays: z.string().regex(/^[0-6](,[0-6])*$/, 'Must be comma-separated days 0-6').optional(),
   weekStartDay: z.number().int().min(0).max(6).optional(),
+  reminderEnabled: z.boolean().optional(),
+  reminderTimes: z.string().regex(/^(\d{2}:\d{2}(,\d{2}:\d{2})*)?$/, 'Must be comma-separated HH:mm times').optional(),
+  reminderWorkDaysOnly: z.boolean().optional(),
 })
 
 export const exportQuerySchema = z.object({
@@ -92,4 +95,18 @@ export const importRowSchema = z.object({
 
 export const importBatchSchema = z.object({
   rows: z.array(importRowSchema).min(1, 'At least one row is required').max(3660),
+})
+
+// --- Push notification schemas ---
+
+export const pushSubscribeSchema = z.object({
+  endpoint: z.string().url(),
+  keys: z.object({
+    p256dh: z.string().min(1),
+    auth: z.string().min(1),
+  }),
+})
+
+export const pushUnsubscribeSchema = z.object({
+  endpoint: z.string().url(),
 })
