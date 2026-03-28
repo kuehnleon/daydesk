@@ -6,7 +6,6 @@ vi.mock('@/lib/auth', () => ({
 
 vi.mock('@/lib/db', () => ({
   prisma: {
-    user: { findUnique: vi.fn() },
     location: { findMany: vi.fn(), create: vi.fn(), aggregate: vi.fn() },
   },
 }))
@@ -34,8 +33,7 @@ describe('GET /api/locations', () => {
   })
 
   it('returns locations for authenticated user', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
-    mockPrisma.user.findUnique.mockResolvedValue({ id: 'user1' } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     mockPrisma.location.findMany.mockResolvedValue([{ id: 'loc1', name: 'HQ' }] as never)
 
     const res = await GET()
@@ -47,7 +45,7 @@ describe('POST /api/locations', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('returns 400 for missing name', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     const res = await POST(makeRequest('http://localhost/api/locations', {
       method: 'POST',
       body: JSON.stringify({ color: '#ff0000' }),
@@ -56,7 +54,7 @@ describe('POST /api/locations', () => {
   })
 
   it('returns 400 for invalid hex color', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     const res = await POST(makeRequest('http://localhost/api/locations', {
       method: 'POST',
       body: JSON.stringify({ name: 'Office', color: 'red' }),
@@ -65,8 +63,7 @@ describe('POST /api/locations', () => {
   })
 
   it('creates location with valid data', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
-    mockPrisma.user.findUnique.mockResolvedValue({ id: 'user1' } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     mockPrisma.location.aggregate.mockResolvedValue({ _max: { sortOrder: 0 } } as never)
     mockPrisma.location.create.mockResolvedValue({ id: 'loc1', name: 'Office' } as never)
 

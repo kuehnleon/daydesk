@@ -7,7 +7,7 @@ import { getAttendanceQuerySchema, createAttendanceSchema } from '@/lib/validati
 export async function GET(request: Request) {
   const session = await auth()
 
-  if (!session?.user?.email) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -21,14 +21,6 @@ export async function GET(request: Request) {
     )
   }
   const { month, startDate, endDate } = parsed.data
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  })
-
-  if (!user) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 })
-  }
 
   let dateFilter = {}
   if (month) {
@@ -50,7 +42,7 @@ export async function GET(request: Request) {
 
   const attendances = await prisma.attendance.findMany({
     where: {
-      userId: user.id,
+      userId: session.user.id,
       ...dateFilter,
     },
     include: {
@@ -66,7 +58,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const session = await auth()
 
-  if (!session?.user?.email) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -83,18 +75,10 @@ export async function POST(request: Request) {
   }
   const { date, type, transportId, locationId, notes } = parsed.data
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  })
-
-  if (!user) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 })
-  }
-
   const attendance = await prisma.attendance.upsert({
     where: {
       userId_date: {
-        userId: user.id,
+        userId: session.user.id,
         date: new Date(date),
       },
     },
@@ -105,7 +89,7 @@ export async function POST(request: Request) {
       notes,
     },
     create: {
-      userId: user.id,
+      userId: session.user.id,
       date: new Date(date),
       type,
       transportId: transportId || null,

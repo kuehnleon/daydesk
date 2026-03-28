@@ -6,7 +6,6 @@ vi.mock('@/lib/auth', () => ({
 
 vi.mock('@/lib/db', () => ({
   prisma: {
-    user: { findUnique: vi.fn() },
     transport: { findFirst: vi.fn(), update: vi.fn(), delete: vi.fn() },
   },
 }))
@@ -42,7 +41,7 @@ describe('PATCH /api/transports/[id]', () => {
   })
 
   it('returns 400 for invalid sortOrder', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     const res = await PATCH(
       makeRequest('http://localhost/api/transports/t1', {
         method: 'PATCH',
@@ -54,8 +53,7 @@ describe('PATCH /api/transports/[id]', () => {
   })
 
   it('updates transport with valid data', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
-    mockPrisma.user.findUnique.mockResolvedValue({ id: 'user1' } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     mockPrisma.transport.findFirst.mockResolvedValue({ id: 't1' } as never)
     mockPrisma.transport.update.mockResolvedValue({ id: 't1', name: 'Bus' } as never)
 
@@ -74,8 +72,7 @@ describe('DELETE /api/transports/[id]', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('returns 404 for non-owned transport', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
-    mockPrisma.user.findUnique.mockResolvedValue({ id: 'user1' } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     mockPrisma.transport.findFirst.mockResolvedValue(null as never)
 
     const res = await DELETE(
@@ -86,8 +83,7 @@ describe('DELETE /api/transports/[id]', () => {
   })
 
   it('deletes own transport', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
-    mockPrisma.user.findUnique.mockResolvedValue({ id: 'user1' } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     mockPrisma.transport.findFirst.mockResolvedValue({ id: 't1' } as never)
     mockPrisma.transport.delete.mockResolvedValue({ id: 't1' } as never)
 

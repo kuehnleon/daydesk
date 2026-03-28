@@ -33,7 +33,7 @@ describe('GET /api/settings', () => {
   })
 
   it('returns user settings', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     mockPrisma.user.findUnique.mockResolvedValue({
       id: 'user1',
       email: 'test@test.com',
@@ -51,7 +51,7 @@ describe('PATCH /api/settings', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('returns 400 for invalid state code', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     const res = await PATCH(makeRequest('http://localhost/api/settings', {
       method: 'PATCH',
       body: JSON.stringify({ defaultState: 'XX' }),
@@ -60,7 +60,7 @@ describe('PATCH /api/settings', () => {
   })
 
   it('returns 400 for invalid workDays', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     const res = await PATCH(makeRequest('http://localhost/api/settings', {
       method: 'PATCH',
       body: JSON.stringify({ workDays: 'abc' }),
@@ -69,7 +69,7 @@ describe('PATCH /api/settings', () => {
   })
 
   it('returns 400 for weekStartDay out of range', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     const res = await PATCH(makeRequest('http://localhost/api/settings', {
       method: 'PATCH',
       body: JSON.stringify({ weekStartDay: 7 }),
@@ -78,7 +78,7 @@ describe('PATCH /api/settings', () => {
   })
 
   it('updates settings with valid data', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     mockPrisma.user.update.mockResolvedValue({
       id: 'user1',
       defaultState: 'BY',

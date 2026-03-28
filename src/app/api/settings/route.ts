@@ -6,12 +6,12 @@ import { updateSettingsSchema } from '@/lib/validations'
 export async function GET() {
   const session = await auth()
 
-  if (!session?.user?.email) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
+    where: { id: session.user.id },
     select: {
       id: true,
       email: true,
@@ -32,7 +32,7 @@ export async function GET() {
 export async function PATCH(request: Request) {
   const session = await auth()
 
-  if (!session?.user?.email) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -50,7 +50,7 @@ export async function PATCH(request: Request) {
   const { defaultState, workDays, weekStartDay } = parsed.data
 
   const user = await prisma.user.update({
-    where: { email: session.user.email },
+    where: { id: session.user.id },
     data: {
       ...(defaultState && { defaultState }),
       ...(workDays && { workDays }),

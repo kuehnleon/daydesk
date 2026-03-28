@@ -6,20 +6,12 @@ import { createLocationSchema } from '@/lib/validations'
 export async function GET() {
   const session = await auth()
 
-  if (!session?.user?.email) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  })
-
-  if (!user) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 })
-  }
-
   const locations = await prisma.location.findMany({
-    where: { userId: user.id },
+    where: { userId: session.user.id },
     include: { transport: true },
     orderBy: { sortOrder: 'asc' },
   })
@@ -30,7 +22,7 @@ export async function GET() {
 export async function POST(request: Request) {
   const session = await auth()
 
-  if (!session?.user?.email) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -47,22 +39,14 @@ export async function POST(request: Request) {
   }
   const { name, transportId, distance, color } = parsed.data
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  })
-
-  if (!user) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 })
-  }
-
   const maxSortOrder = await prisma.location.aggregate({
-    where: { userId: user.id },
+    where: { userId: session.user.id },
     _max: { sortOrder: true },
   })
 
   const location = await prisma.location.create({
     data: {
-      userId: user.id,
+      userId: session.user.id,
       name,
       transportId: transportId || null,
       distance: distance ?? null,

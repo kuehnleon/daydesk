@@ -6,7 +6,6 @@ vi.mock('@/lib/auth', () => ({
 
 vi.mock('@/lib/db', () => ({
   prisma: {
-    user: { findUnique: vi.fn() },
     attendance: { findMany: vi.fn(), upsert: vi.fn() },
   },
 }))
@@ -33,28 +32,20 @@ describe('GET /api/attendance', () => {
     expect(res.status).toBe(401)
   })
 
-  it('returns 404 when user not found', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
-    mockPrisma.user.findUnique.mockResolvedValue(null as never)
-    const res = await GET(makeRequest('http://localhost/api/attendance'))
-    expect(res.status).toBe(404)
-  })
-
   it('returns 400 for invalid month format', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     const res = await GET(makeRequest('http://localhost/api/attendance?month=2024'))
     expect(res.status).toBe(400)
   })
 
   it('returns 400 for startDate without endDate', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     const res = await GET(makeRequest('http://localhost/api/attendance?startDate=2024-01-01'))
     expect(res.status).toBe(400)
   })
 
   it('returns attendances for valid month', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
-    mockPrisma.user.findUnique.mockResolvedValue({ id: 'user1', email: 'test@test.com' } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     mockPrisma.attendance.findMany.mockResolvedValue([{ id: 'att1' }] as never)
 
     const res = await GET(makeRequest('http://localhost/api/attendance?month=2024-01'))
@@ -77,7 +68,7 @@ describe('POST /api/attendance', () => {
   })
 
   it('returns 400 for missing required fields', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     const res = await POST(makeRequest('http://localhost/api/attendance', {
       method: 'POST',
       body: JSON.stringify({}),
@@ -86,7 +77,7 @@ describe('POST /api/attendance', () => {
   })
 
   it('returns 400 for invalid attendance type', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     const res = await POST(makeRequest('http://localhost/api/attendance', {
       method: 'POST',
       body: JSON.stringify({ date: '2024-01-15', type: 'working' }),
@@ -95,8 +86,7 @@ describe('POST /api/attendance', () => {
   })
 
   it('creates attendance with valid data', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
-    mockPrisma.user.findUnique.mockResolvedValue({ id: 'user1', email: 'test@test.com' } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     mockPrisma.attendance.upsert.mockResolvedValue({ id: 'att1', type: 'office' } as never)
 
     const res = await POST(makeRequest('http://localhost/api/attendance', {

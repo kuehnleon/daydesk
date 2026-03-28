@@ -9,7 +9,7 @@ export async function PATCH(
 ) {
   const session = await auth()
 
-  if (!session?.user?.email) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -27,17 +27,9 @@ export async function PATCH(
   }
   const { name, transportId, distance, color, sortOrder } = parsed.data
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  })
-
-  if (!user) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 })
-  }
-
   // Verify location belongs to user
   const existing = await prisma.location.findFirst({
-    where: { id, userId: user.id },
+    where: { id, userId: session.user.id },
   })
 
   if (!existing) {
@@ -65,23 +57,15 @@ export async function DELETE(
 ) {
   const session = await auth()
 
-  if (!session?.user?.email) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const { id } = await params
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  })
-
-  if (!user) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 })
-  }
-
   // Verify location belongs to user
   const existing = await prisma.location.findFirst({
-    where: { id, userId: user.id },
+    where: { id, userId: session.user.id },
   })
 
   if (!existing) {
