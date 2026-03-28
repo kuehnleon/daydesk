@@ -52,7 +52,9 @@ export async function GET(request: Request) {
     orderBy: { date: 'asc' },
   })
 
-  return NextResponse.json(attendances)
+  return NextResponse.json(attendances, {
+    headers: { 'Cache-Control': 'private, no-cache' },
+  })
 }
 
 export async function POST(request: Request) {
