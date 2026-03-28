@@ -112,10 +112,13 @@ auth0:
 
 # -- Postgres secret configuration
 # Provide databaseUrl to create a managed secret, or set existingSecret to reference a pre-created one.
-# The existing secret must contain the key: database-url
+# The existing secret must contain the key: database-url (and optionally: direct-url)
+# directUrl is for connection poolers (e.g. Supabase/PgBouncer) where Prisma needs a
+# direct connection for migrations while the app uses the pooled connection.
 postgres:
   existingSecret: ""
   databaseUrl: ""
+  directUrl: ""
 
 # -- Prisma database migration init container
 initContainer:
