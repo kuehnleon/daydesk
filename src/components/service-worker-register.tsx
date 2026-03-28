@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { syncPendingEntries } from '@/lib/offline-sync'
 
 export function ServiceWorkerRegister() {
   useEffect(() => {
@@ -13,6 +14,16 @@ export function ServiceWorkerRegister() {
         .catch((error) => {
           console.error('SW registration failed:', error)
         })
+    }
+
+    // Sync offline entries when coming back online
+    const handleOnline = () => {
+      syncPendingEntries().catch(() => {})
+    }
+    window.addEventListener('online', handleOnline)
+
+    return () => {
+      window.removeEventListener('online', handleOnline)
     }
   }, [])
 

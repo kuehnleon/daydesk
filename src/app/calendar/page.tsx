@@ -18,6 +18,7 @@ import {
 import type { Location, Transport } from '@/types'
 import { Skeleton } from '@/components/ui/skeleton'
 import { minLoadingDelay } from '@/lib/loading'
+import { enqueue } from '@/lib/offline-queue'
 
 interface Attendance {
   id: string
@@ -323,7 +324,15 @@ export default function Calendar() {
         showToast('Failed to save some entries', 'error')
       }
     } catch {
-      showToast('Error saving attendance', 'error')
+      if (!navigator.onLine) {
+        for (const dateStr of dates) {
+          await enqueue({ date: dateStr, type, transportId, locationId })
+        }
+        showToast(`Saved ${dates.length} entr${dates.length === 1 ? 'y' : 'ies'} offline. Will sync when you reconnect.`, 'success')
+        closeModal()
+      } else {
+        showToast('Error saving attendance', 'error')
+      }
     } finally {
       setIsLoading(false)
     }

@@ -7,6 +7,7 @@ import { Navbar } from '@/components/navbar'
 import { Building2, Home, Check, Palmtree, ThermometerSun } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { minLoadingDelay } from '@/lib/loading'
+import { enqueue } from '@/lib/offline-queue'
 import type { Location } from '@/types'
 
 interface TodayAttendance {
@@ -94,7 +95,13 @@ export default function Dashboard() {
         showToast('Failed to log attendance', 'error')
       }
     } catch {
-      showToast('Error logging attendance', 'error')
+      if (!navigator.onLine) {
+        await enqueue({ date: today, type, transportId, locationId })
+        setTodayAttendance({ type, transportId, locationId })
+        showToast('Saved offline. Will sync when you reconnect.', 'success')
+      } else {
+        showToast('Error logging attendance', 'error')
+      }
     } finally {
       setIsLoading(false)
     }
