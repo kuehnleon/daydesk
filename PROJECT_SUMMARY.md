@@ -106,7 +106,7 @@ daydesk/
 │   └── types/            TypeScript types
 ├── prisma/
 │   └── schema.prisma     Database schema
-├── helm/daydesk/         Kubernetes deployment
+├── helm/                  Kubernetes Helm chart
 ├── Dockerfile            Production build
 └── README.md             Documentation
 ```
@@ -137,7 +137,7 @@ All 16 states with correct public holidays via Nager.Date API:
 docker build -t daydesk:1.0.0 .
 
 # Deploy
-helm upgrade --install daydesk ./helm/daydesk -f values.local.yaml
+helm upgrade --install daydesk ./helm -f values.local.yaml
 ```
 
 See README.md for full deployment instructions.

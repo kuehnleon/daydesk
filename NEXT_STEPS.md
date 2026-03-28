@@ -154,7 +154,7 @@ See README.md for full Helm deployment instructions.
 docker build -t daydesk:1.0.0 .
 
 # Deploy
-helm upgrade --install daydesk ./helm/daydesk -f values.local.yaml
+helm upgrade --install daydesk ./helm -f values.local.yaml
 ```
 
 Don't forget to update Auth0 callbacks for production domain!
