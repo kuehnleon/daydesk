@@ -8,26 +8,18 @@ export async function DELETE(
 ) {
   const session = await auth()
 
-  if (!session?.user?.email) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const { id } = await params
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  })
-
-  if (!user) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 })
-  }
-
   // Verify ownership
-  const attendance = await prisma.attendance.findUnique({
-    where: { id },
+  const attendance = await prisma.attendance.findFirst({
+    where: { id, userId: session.user.id },
   })
 
-  if (!attendance || attendance.userId !== user.id) {
+  if (!attendance) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 

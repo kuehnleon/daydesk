@@ -6,7 +6,6 @@ vi.mock('@/lib/auth', () => ({
 
 vi.mock('@/lib/db', () => ({
   prisma: {
-    user: { findUnique: vi.fn() },
     attendance: { findMany: vi.fn() },
   },
 }))
@@ -50,20 +49,19 @@ describe('GET /api/export', () => {
   })
 
   it('returns 400 for missing startDate', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     const res = await GET(makeRequest('http://localhost/api/export?endDate=2024-12-31'))
     expect(res.status).toBe(400)
   })
 
   it('returns 400 for invalid format', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     const res = await GET(makeRequest('http://localhost/api/export?startDate=2024-01-01&endDate=2024-12-31&format=xlsx'))
     expect(res.status).toBe(400)
   })
 
   it('exports CSV with valid params', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
-    mockPrisma.user.findUnique.mockResolvedValue({ id: 'user1' } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     mockPrisma.attendance.findMany.mockResolvedValue([
       {
         id: 'att1',

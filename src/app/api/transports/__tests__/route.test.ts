@@ -6,7 +6,6 @@ vi.mock('@/lib/auth', () => ({
 
 vi.mock('@/lib/db', () => ({
   prisma: {
-    user: { findUnique: vi.fn() },
     transport: { findMany: vi.fn(), create: vi.fn(), aggregate: vi.fn() },
   },
 }))
@@ -34,8 +33,7 @@ describe('GET /api/transports', () => {
   })
 
   it('returns transports for authenticated user', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
-    mockPrisma.user.findUnique.mockResolvedValue({ id: 'user1' } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     mockPrisma.transport.findMany.mockResolvedValue([{ id: 't1', name: 'Car' }] as never)
 
     const res = await GET()
@@ -47,7 +45,7 @@ describe('POST /api/transports', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('returns 400 for empty name', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     const res = await POST(makeRequest('http://localhost/api/transports', {
       method: 'POST',
       body: JSON.stringify({ name: '' }),
@@ -56,7 +54,7 @@ describe('POST /api/transports', () => {
   })
 
   it('returns 400 for missing name', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     const res = await POST(makeRequest('http://localhost/api/transports', {
       method: 'POST',
       body: JSON.stringify({}),
@@ -65,8 +63,7 @@ describe('POST /api/transports', () => {
   })
 
   it('creates transport with valid data', async () => {
-    mockAuth.mockResolvedValue({ user: { email: 'test@test.com' } } as never)
-    mockPrisma.user.findUnique.mockResolvedValue({ id: 'user1' } as never)
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     mockPrisma.transport.aggregate.mockResolvedValue({ _max: { sortOrder: 0 } } as never)
     mockPrisma.transport.create.mockResolvedValue({ id: 't1', name: 'Car' } as never)
 
