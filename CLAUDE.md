@@ -47,3 +47,27 @@
 - **Simplicity First**: Make every change as simple as possible. Impact minimal code.
 - **No Laziness**: Find root causes. No temporary fixes. Expert developer standards.
 - **Minimal Impact**: Changes should only touch what's necessary. Avoid introducing bugs.
+
+## Commit Convention
+Use **Conventional Commits** format. This is required — release notes are auto-generated from commit messages.
+
+Format: `<type>: <description>`
+
+Types:
+- `feat`: new feature or functionality
+- `fix`: bug fix
+- `refactor`: code change that neither fixes a bug nor adds a feature
+- `chore`: maintenance (deps, CI, config)
+- `docs`: documentation only
+- `test`: adding or updating tests
+- `perf`: performance improvement
+
+Examples:
+- `feat: add dark mode toggle to settings`
+- `fix: correct timezone offset in attendance export`
+- `chore: update dependencies to latest versions`
+
+Rules:
+- Use lowercase, no period at the end
+- Keep the description concise (under 72 chars)
+- Use imperative mood ("add" not "added")
