@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      type:
+        description: 'Release type'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Bump Version and Tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump version in package.json
+        id: version
+        run: |
+          npm version ${{ inputs.type }} --no-git-tag-version
+          VERSION=$(jq -r '.version' package.json)
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Update package-lock.json
+        run: npm install --package-lock-only
+
+      - name: Update Helm chart version
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          sed -i "s/^version:.*/version: ${VERSION}/" helm/Chart.yaml
+          sed -i "s/^appVersion:.*/appVersion: \"${VERSION}\"/" helm/Chart.yaml
+
+      - name: Commit and tag
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          git add package.json package-lock.json helm/Chart.yaml
+          git commit -m "release: v${VERSION}"
+          git tag "v${VERSION}"
+
+      - name: Push changes and tag
+        run: |
+          git push origin master
+          git push origin "v${{ steps.version.outputs.version }}"
