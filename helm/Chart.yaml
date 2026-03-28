@@ -2,8 +2,8 @@ apiVersion: v2
 name: daydesk
 description: Office attendance tracker for German tax reporting
 type: application
-version: 0.2.0
-appVersion: "0.2.0"
+version: 0.2.1
+appVersion: "0.2.1"
 home: https://github.com/kuehnleon/daydesk
 sources:
   - https://github.com/kuehnleon/daydesk
