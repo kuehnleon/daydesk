@@ -122,12 +122,12 @@ jobs:
       - name: Update Chart version
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
-          sed -i "s/^version:.*/version: $VERSION/" helm/daydesk/Chart.yaml
-          sed -i "s/^appVersion:.*/appVersion: \"$VERSION\"/" helm/daydesk/Chart.yaml
+          sed -i "s/^version:.*/version: $VERSION/" helm/Chart.yaml
+          sed -i "s/^appVersion:.*/appVersion: \"$VERSION\"/" helm/Chart.yaml
 
       - name: Package Helm chart
         run: |
-          helm package helm/daydesk
+          helm package helm
 
       - name: Push Helm chart to OCI Registry
         run: |

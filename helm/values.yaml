@@ -1,0 +1,122 @@
+# Default values for daydesk.
+
+replicaCount: 1
+
+image:
+  repository: daydesk
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+ingress:
+  enabled: false
+  className: "nginx"
+  annotations: {}
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: daydesk.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  #  - secretName: daydesk-tls
+  #    hosts:
+  #      - daydesk.example.com
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+startupProbe:
+  httpGet:
+    path: /api/health
+    port: http
+  failureThreshold: 30
+  periodSeconds: 2
+
+livenessProbe:
+  httpGet:
+    path: /api/health
+    port: http
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /api/health
+    port: http
+  periodSeconds: 5
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# -- Public URL of the application (used for APP_BASE_URL and NEXTAUTH_URL)
+appUrl: "http://localhost:3000"
+
+# -- Auth0 secret configuration
+# If existingSecret is set, no Auth0 Secret resource is created.
+# The existing secret must contain keys: auth0-domain, auth0-secret, auth0-client-id, auth0-client-secret
+auth0:
+  existingSecret: ""
+  domain: ""
+  clientId: ""
+  clientSecret: ""
+  secret: ""
+
+# -- Postgres secret configuration
+# Provide databaseUrl to create a managed secret, or set existingSecret to reference a pre-created one.
+# The existing secret must contain the key: database-url
+postgres:
+  existingSecret: ""
+  databaseUrl: ""
+
+# -- Prisma database migration init container
+initContainer:
+  enabled: true

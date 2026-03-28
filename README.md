@@ -142,7 +142,7 @@ docker build -t daydesk:latest .
 ### Deploy with Helm
 
 ```bash
-cd helm/daydesk
+cd helm
 
 # Create values override file
 cat > values.local.yaml <<EOF
