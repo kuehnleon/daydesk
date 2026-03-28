@@ -29,14 +29,15 @@ export function useNotificationReminders() {
       const existing = await registration.pushManager.getSubscription()
       if (existing) {
         // Already subscribed, ensure server knows
+        const json = existing.toJSON()
         await fetch('/api/push/subscribe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            endpoint: existing.endpoint,
+            endpoint: json.endpoint,
             keys: {
-              p256dh: btoa(String.fromCharCode(...new Uint8Array(existing.getKey('p256dh')!))),
-              auth: btoa(String.fromCharCode(...new Uint8Array(existing.getKey('auth')!))),
+              p256dh: json.keys!.p256dh,
+              auth: json.keys!.auth,
             },
           }),
         })
@@ -48,14 +49,15 @@ export function useNotificationReminders() {
         applicationServerKey: urlBase64ToUint8Array(vapidKeyRef.current) as BufferSource,
       })
 
+      const subJson = subscription.toJSON()
       await fetch('/api/push/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          endpoint: subscription.endpoint,
+          endpoint: subJson.endpoint,
           keys: {
-            p256dh: btoa(String.fromCharCode(...new Uint8Array(subscription.getKey('p256dh')!))),
-            auth: btoa(String.fromCharCode(...new Uint8Array(subscription.getKey('auth')!))),
+            p256dh: subJson.keys!.p256dh,
+            auth: subJson.keys!.auth,
           },
         }),
       })
