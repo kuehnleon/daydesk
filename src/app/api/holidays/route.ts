@@ -16,7 +16,17 @@ interface CacheEntry {
 }
 
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours
+const CACHE_MAX_SIZE = 10
 const holidayCache = new Map<string, CacheEntry>()
+
+function evictExpiredEntries() {
+  const now = Date.now()
+  for (const [key, entry] of holidayCache) {
+    if (now >= entry.expiresAt) {
+      holidayCache.delete(key)
+    }
+  }
+}
 
 async function fetchHolidaysForYear(year: string): Promise<Holiday[]> {
   const cached = holidayCache.get(year)
@@ -32,6 +42,13 @@ async function fetchHolidaysForYear(year: string): Promise<Holiday[]> {
   }
 
   const data: Holiday[] = await response.json()
+
+  evictExpiredEntries()
+  if (holidayCache.size >= CACHE_MAX_SIZE) {
+    const oldestKey = holidayCache.keys().next().value
+    if (oldestKey !== undefined) holidayCache.delete(oldestKey)
+  }
+
   holidayCache.set(year, { data, expiresAt: Date.now() + CACHE_TTL_MS })
   return data
 }
