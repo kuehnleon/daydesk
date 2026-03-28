@@ -41,9 +41,9 @@
 
 | # | Item | Effort | Status |
 |---|------|--------|--------|
-| 12 | Offline support / background sync | High | Pending |
-| 13 | CSV import | Medium | Pending |
-| 14 | Team/manager view | High | Pending |
+| 12 | Offline support / background sync | High | Done |
+| 13 | CSV import | Medium | Done |
+| 14 | Team/manager view | High | Skipped |
 
 ---
 
