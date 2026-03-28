@@ -26,7 +26,9 @@ export async function GET() {
     return NextResponse.json({ error: 'User not found' }, { status: 404 })
   }
 
-  return NextResponse.json(user)
+  return NextResponse.json(user, {
+    headers: { 'Cache-Control': 'private, max-age=60' },
+  })
 }
 
 export async function PATCH(request: Request) {

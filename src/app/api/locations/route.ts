@@ -16,7 +16,9 @@ export async function GET() {
     orderBy: { sortOrder: 'asc' },
   })
 
-  return NextResponse.json(locations)
+  return NextResponse.json(locations, {
+    headers: { 'Cache-Control': 'private, max-age=60' },
+  })
 }
 
 export async function POST(request: Request) {
