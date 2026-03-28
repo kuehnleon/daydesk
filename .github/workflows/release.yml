@@ -55,7 +55,7 @@ jobs:
         run: |
           VERSION=${{ steps.version.outputs.version }}
           git add package.json package-lock.json helm/Chart.yaml
-          git commit -m "release: v${VERSION}"
+          git commit -m "release: v${VERSION} [skip ci]"
           git tag "v${VERSION}"
 
       - name: Push changes and tag
