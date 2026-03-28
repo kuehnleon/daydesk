@@ -127,4 +127,4 @@ jobs:
       - name: Push Helm chart to OCI Registry
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
-          helm push daydesk-${VERSION}.tgz oci://${{ env.REGISTRY }}/${{ github.repository }}/charts
+          helm push daydesk-${VERSION}.tgz oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/charts
