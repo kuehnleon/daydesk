@@ -5,6 +5,7 @@ import { ToastProvider } from "@/components/ui/toast";
 import { ServiceWorkerRegister } from "@/components/service-worker-register";
 import { NotificationScheduler } from "@/components/notification-scheduler";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { OfflineBanner } from "@/components/offline-banner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -55,6 +56,7 @@ export default function RootLayout({
         <NotificationScheduler />
         <AuthProvider>
           <ToastProvider>
+            <OfflineBanner />
             <ErrorBoundary>{children}</ErrorBoundary>
           </ToastProvider>
         </AuthProvider>

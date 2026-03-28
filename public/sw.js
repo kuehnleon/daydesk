@@ -1,4 +1,4 @@
-const CACHE_NAME = 'daydesk-v4';
+const CACHE_NAME = 'daydesk-v5';
 
 const STATIC_ASSETS = [
   '/icon-192.png',
