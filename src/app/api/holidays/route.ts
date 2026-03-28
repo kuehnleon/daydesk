@@ -77,7 +77,9 @@ export async function GET(request: Request) {
       return false
     })
 
-    return NextResponse.json(filteredHolidays)
+    return NextResponse.json(filteredHolidays, {
+      headers: { 'Cache-Control': 'public, max-age=86400' },
+    })
   } catch {
     return NextResponse.json(
       { error: 'Failed to fetch holidays' },
