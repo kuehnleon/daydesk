@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { urlBase64ToUint8Array } from '@/lib/push-utils'
-import type { ReminderSettings } from '@/types'
+import type { ReminderSettings, ReminderTimeEntry } from '@/types'
 
 const DEFAULT_SETTINGS: ReminderSettings = {
   enabled: false,
@@ -89,7 +89,7 @@ export function useNotificationReminders() {
           const data = await settingsRes.json()
           setSettings({
             enabled: data.reminderEnabled ?? false,
-            times: data.reminderTimes ? data.reminderTimes.split(',').filter(Boolean) : [],
+            times: data.reminders ?? [],
             workDaysOnly: data.reminderWorkDaysOnly ?? true,
           })
         }
@@ -113,13 +113,13 @@ export function useNotificationReminders() {
     load()
   }, [subscribeToPush])
 
-  // Persist settings to server
-  const patchSettings = useCallback(async (reminderEnabled: boolean, reminderTimes: string, reminderWorkDaysOnly: boolean) => {
+  // Persist toggle settings to server (enabled / workDaysOnly only)
+  const patchSettings = useCallback(async (reminderEnabled: boolean, reminderWorkDaysOnly: boolean) => {
     try {
       await fetch('/api/settings', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reminderEnabled, reminderTimes, reminderWorkDaysOnly }),
+        body: JSON.stringify({ reminderEnabled, reminderWorkDaysOnly }),
       })
     } catch {
       // Silently fail — local state already updated
@@ -129,7 +129,7 @@ export function useNotificationReminders() {
   const updateSettings = useCallback((updates: Partial<ReminderSettings>) => {
     setSettings((prev) => {
       const newSettings = { ...prev, ...updates }
-      patchSettings(newSettings.enabled, newSettings.times.join(','), newSettings.workDaysOnly)
+      patchSettings(newSettings.enabled, newSettings.workDaysOnly)
       return newSettings
     })
   }, [patchSettings])
@@ -153,24 +153,38 @@ export function useNotificationReminders() {
     }
   }, [subscribeToPush])
 
-  const addReminderTime = useCallback((time: string) => {
-    setSettings((prev) => {
-      if (prev.times.includes(time)) return prev
-      const newTimes = [...prev.times, time].sort()
-      const newSettings = { ...prev, times: newTimes }
-      patchSettings(newSettings.enabled, newSettings.times.join(','), newSettings.workDaysOnly)
-      return newSettings
-    })
-  }, [patchSettings])
+  const addReminderTime = useCallback(async (time: string) => {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
-  const removeReminderTime = useCallback((time: string) => {
-    setSettings((prev) => {
-      const newTimes = prev.times.filter((t) => t !== time)
-      const newSettings = { ...prev, times: newTimes }
-      patchSettings(newSettings.enabled, newSettings.times.join(','), newSettings.workDaysOnly)
-      return newSettings
-    })
-  }, [patchSettings])
+    try {
+      const res = await fetch('/api/reminders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ time, timezone }),
+      })
+      if (!res.ok) return
+
+      const entry: ReminderTimeEntry = await res.json()
+      setSettings((prev) => ({
+        ...prev,
+        times: [...prev.times, entry].sort((a, b) => a.time.localeCompare(b.time)),
+      }))
+    } catch {
+      // Failed to add reminder
+    }
+  }, [])
+
+  const removeReminderTime = useCallback(async (id: string) => {
+    try {
+      await fetch(`/api/reminders/${id}`, { method: 'DELETE' })
+      setSettings((prev) => ({
+        ...prev,
+        times: prev.times.filter((t) => t.id !== id),
+      }))
+    } catch {
+      // Failed to remove reminder
+    }
+  }, [])
 
   const sendTestNotification = useCallback(async (): Promise<boolean> => {
     if (permission !== 'granted') return false
