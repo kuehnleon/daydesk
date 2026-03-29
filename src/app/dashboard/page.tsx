@@ -123,7 +123,7 @@ export default function Dashboard() {
   }
 
   const baseButtonClasses =
-    'relative flex flex-col items-center justify-center rounded-2xl p-6 text-white shadow-lg transition-all hover:scale-105 disabled:opacity-50'
+    'relative flex flex-col items-center justify-center rounded-xl p-6 text-white shadow-card transition-all duration-150 hover:shadow-elevated hover:scale-[1.02] disabled:opacity-50'
 
   const darkenColor = (hex: string): string => {
     const num = parseInt(hex.slice(1), 16)
@@ -134,14 +134,14 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-background">
       <Navbar />
 
-      <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Quick Log</h2>
+      <main className="mx-auto max-w-7xl px-4 py-6 pb-[calc(1.5rem+var(--sai-bottom))] sm:py-12 sm:px-6 lg:px-8">
+        <div className="mb-4 sm:mb-8">
+          <h2 className="text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">Quick Log</h2>
           <p
-            className="mt-2 text-sm text-gray-600 dark:text-gray-400"
+            className="mt-2 text-sm text-text-secondary"
             suppressHydrationWarning
           >
             {`Log your attendance for today: ${format(new Date(), 'EEEE, MMMM d, yyyy')}`}
@@ -151,12 +151,12 @@ export default function Dashboard() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {isLoadingInitial ? (
             <>
-              <Skeleton className="h-[140px] rounded-2xl" />
-              <Skeleton className="h-[140px] rounded-2xl" />
-              <Skeleton className="h-[140px] rounded-2xl" />
-              <Skeleton className="h-[140px] rounded-2xl" />
-              <Skeleton className="h-[140px] rounded-2xl" />
-              <Skeleton className="h-[140px] rounded-2xl" />
+              <Skeleton className="h-[140px] rounded-xl" />
+              <Skeleton className="h-[140px] rounded-xl" />
+              <Skeleton className="h-[140px] rounded-xl" />
+              <Skeleton className="h-[140px] rounded-xl" />
+              <Skeleton className="h-[140px] rounded-xl" />
+              <Skeleton className="h-[140px] rounded-xl" />
             </>
           ) : (
             <>
@@ -205,7 +205,7 @@ export default function Dashboard() {
                 disabled={isLoading}
                 className={`${baseButtonClasses} bg-emerald-500 hover:bg-emerald-600 ${
                   isSelectedHomeOffice()
-                    ? 'ring-4 ring-emerald-300 ring-offset-2 dark:ring-emerald-400 dark:ring-offset-gray-900'
+                    ? 'ring-4 ring-emerald-300 ring-offset-2 dark:ring-emerald-400 dark:ring-offset-background'
                     : ''
                 }`}
               >
@@ -223,7 +223,7 @@ export default function Dashboard() {
                 disabled={isLoading}
                 className={`${baseButtonClasses} bg-amber-500 hover:bg-amber-600 ${
                   isSelectedType('off')
-                    ? 'ring-4 ring-amber-300 ring-offset-2 dark:ring-amber-400 dark:ring-offset-gray-900'
+                    ? 'ring-4 ring-amber-300 ring-offset-2 dark:ring-amber-400 dark:ring-offset-background'
                     : ''
                 }`}
               >
@@ -241,7 +241,7 @@ export default function Dashboard() {
                 disabled={isLoading}
                 className={`${baseButtonClasses} bg-red-500 hover:bg-red-600 ${
                   isSelectedType('sick')
-                    ? 'ring-4 ring-red-300 ring-offset-2 dark:ring-red-400 dark:ring-offset-gray-900'
+                    ? 'ring-4 ring-red-300 ring-offset-2 dark:ring-red-400 dark:ring-offset-background'
                     : ''
                 }`}
               >
@@ -258,8 +258,8 @@ export default function Dashboard() {
         </div>
 
         {!isLoadingInitial && locations.length === 0 && (
-          <p className="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
-            <a href="/settings" className="text-indigo-600 hover:underline dark:text-indigo-400">
+          <p className="mt-4 text-center text-sm text-text-secondary">
+            <a href="/settings" className="text-accent hover:underline">
               Add office locations in Settings
             </a>{' '}
             to create quick-log shortcuts for your workplaces.

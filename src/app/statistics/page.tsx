@@ -163,23 +163,23 @@ export default function Statistics() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-background">
       <Navbar />
 
-      <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <h2 className="mb-8 text-3xl font-bold text-gray-900 dark:text-white">Statistics</h2>
+      <main className="mx-auto max-w-7xl px-4 py-6 pb-[calc(1.5rem+var(--sai-bottom))] sm:py-12 sm:px-6 lg:px-8">
+        <h2 className="mb-4 text-2xl font-semibold tracking-tight text-text-primary sm:mb-8 sm:text-3xl">Statistics</h2>
 
         {/* Date Range Selector */}
-        <div className="mb-8 rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-800">
+        <div className="mb-8 card p-6">
           <div className="flex flex-wrap items-end gap-4">
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="mb-2 block text-sm font-medium text-text-secondary">
                 Time Period
               </label>
               <select
                 value={preset}
                 onChange={(e) => setPreset(e.target.value as DatePreset)}
-                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className="rounded-lg border border-border bg-surface px-4 py-2 text-foreground focus:border-accent focus:ring-accent"
               >
                 <option value="this-month">This Month</option>
                 <option value="last-month">Last Month</option>
@@ -191,32 +191,32 @@ export default function Statistics() {
             {preset === 'custom' && (
               <>
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label className="mb-2 block text-sm font-medium text-text-secondary">
                     Start Date
                   </label>
                   <input
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    className="rounded-lg border border-border bg-surface px-4 py-2 text-foreground focus:border-accent focus:ring-accent"
                   />
                 </div>
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label className="mb-2 block text-sm font-medium text-text-secondary">
                     End Date
                   </label>
                   <input
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    className="rounded-lg border border-border bg-surface px-4 py-2 text-foreground focus:border-accent focus:ring-accent"
                   />
                 </div>
               </>
             )}
 
             {startDate && endDate && (
-              <div className="flex h-[42px] items-center text-sm text-gray-500 dark:text-gray-400">
+              <div className="flex h-[42px] items-center text-sm text-text-secondary">
                 Showing: {format(new Date(startDate), 'MMM d, yyyy')} - {format(new Date(endDate), 'MMM d, yyyy')}
               </div>
             )}
@@ -236,9 +236,9 @@ export default function Statistics() {
           <>
             {/* Attendance Overview */}
             <div className="mb-8">
-              <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className="mb-4 text-lg font-semibold text-text-primary">
                 Attendance Overview
-                <span className="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
+                <span className="ml-2 text-sm font-normal text-text-secondary">
                   ({totalDays} days total)
                 </span>
               </h3>
@@ -250,7 +250,7 @@ export default function Statistics() {
                   return (
                     <div
                       key={key}
-                      className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm dark:bg-gray-800"
+                      className="flex items-center gap-3 card p-4"
                     >
                       <div
                         className="rounded-lg p-2"
@@ -259,10 +259,10 @@ export default function Statistics() {
                         <Icon className="h-5 w-5" style={{ color }} />
                       </div>
                       <div>
-                        <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                        <div className="text-2xl font-bold text-text-primary">
                           {count}
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                        <div className="text-xs text-text-secondary">
                           {label} ({percentage}%)
                         </div>
                       </div>
@@ -275,14 +275,14 @@ export default function Statistics() {
             {/* Location Breakdown */}
             {locationStats.length > 0 && (
               <div className="mb-8">
-                <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="mb-4 text-lg font-semibold text-text-primary">
                   Office Locations
                 </h3>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
                   {locationStats.map(({ count, location }) => (
                     <div
                       key={location.id}
-                      className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm dark:bg-gray-800"
+                      className="flex items-center gap-3 card p-4"
                     >
                       <div
                         className="rounded-lg p-2"
@@ -291,10 +291,10 @@ export default function Statistics() {
                         <Building2 className="h-5 w-5" style={{ color: location.color }} />
                       </div>
                       <div>
-                        <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                        <div className="text-2xl font-bold text-text-primary">
                           {count}
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                        <div className="text-xs text-text-secondary">
                           {location.name}
                         </div>
                       </div>
@@ -307,23 +307,23 @@ export default function Statistics() {
             {/* Transport Methods */}
             {transportStats.length > 0 && (
               <div className="mb-8">
-                <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="mb-4 text-lg font-semibold text-text-primary">
                   Transport Methods
                 </h3>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
                   {transportStats.map(({ count, transport }) => (
                     <div
                       key={transport.id}
-                      className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm dark:bg-gray-800"
+                      className="flex items-center gap-3 card p-4"
                     >
-                      <div className="rounded-lg bg-indigo-100 p-2 dark:bg-indigo-900/30">
-                        <Car className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                      <div className="rounded-lg bg-accent-soft p-2">
+                        <Car className="h-5 w-5 text-accent" />
                       </div>
                       <div>
-                        <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                        <div className="text-2xl font-bold text-text-primary">
                           {count}
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                        <div className="text-xs text-text-secondary">
                           {transport.name}
                         </div>
                       </div>
@@ -336,20 +336,20 @@ export default function Statistics() {
             {/* Distance Summary */}
             {distanceStats.total > 0 && (
               <div className="mb-8">
-                <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="mb-4 text-lg font-semibold text-text-primary">
                   Distance Summary
                 </h3>
-                <div className="rounded-xl bg-white p-6 shadow-sm dark:bg-gray-800">
+                <div className="card p-6">
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
                     <div className="flex items-center gap-4">
                       <div className="rounded-lg bg-emerald-100 p-3 dark:bg-emerald-900/30">
                         <MapPin className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
                       </div>
                       <div>
-                        <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                        <div className="text-3xl font-bold text-text-primary">
                           {distanceStats.total.toLocaleString()} km
                         </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                        <div className="text-sm text-text-secondary">
                           Total distance (round trip)
                         </div>
                       </div>
@@ -359,10 +359,10 @@ export default function Statistics() {
                         <TrendingUp className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                       </div>
                       <div>
-                        <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                        <div className="text-3xl font-bold text-text-primary">
                           {distanceStats.average} km
                         </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                        <div className="text-sm text-text-secondary">
                           Average per commute day
                         </div>
                       </div>
@@ -372,10 +372,10 @@ export default function Statistics() {
                         <Calendar className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                       </div>
                       <div>
-                        <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                        <div className="text-3xl font-bold text-text-primary">
                           {distanceStats.days}
                         </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                        <div className="text-sm text-text-secondary">
                           Days with commute
                         </div>
                       </div>
@@ -387,12 +387,12 @@ export default function Statistics() {
 
             {/* Empty State */}
             {totalDays === 0 && (
-              <div className="rounded-2xl bg-white p-12 text-center shadow-lg dark:bg-gray-800">
-                <Calendar className="mx-auto mb-4 h-12 w-12 text-gray-400" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+              <div className="card p-12 text-center">
+                <Calendar className="mx-auto mb-4 h-12 w-12 text-text-tertiary" />
+                <h3 className="text-lg font-medium text-text-primary">
                   No data for this period
                 </h3>
-                <p className="mt-2 text-gray-500 dark:text-gray-400">
+                <p className="mt-2 text-text-secondary">
                   Try selecting a different time period or log some attendance first.
                 </p>
               </div>

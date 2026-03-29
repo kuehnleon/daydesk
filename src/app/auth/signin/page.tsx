@@ -10,14 +10,14 @@ export default async function SignIn() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="w-full max-w-md space-y-8 rounded-2xl bg-white p-10 shadow-xl dark:bg-gray-800">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+    <div className="flex min-h-screen items-center justify-center bg-background px-[var(--sai-left)] pr-[var(--sai-right)] pt-[var(--sai-top)] pb-[var(--sai-bottom)]">
+      <div className="mx-4 w-full max-w-sm space-y-8 text-center">
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight text-text-primary">
             Daydesk
           </h1>
-          <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">
-            Office Attendance Tracker
+          <p className="mt-3 text-sm text-text-secondary">
+            Track your office attendance, commute, and work location
           </p>
         </div>
 

@@ -168,8 +168,8 @@ export default function Calendar() {
     if (attendance?.type === 'home') return 'bg-emerald-200 dark:bg-emerald-800'
     if (attendance?.type === 'off') return 'bg-amber-100 dark:bg-amber-900'
     if (attendance?.type === 'sick') return 'bg-red-100 dark:bg-red-900'
-    if (isNonWorkingDay(date)) return 'bg-gray-100 dark:bg-gray-800'
-    return 'bg-white dark:bg-gray-700'
+    if (isNonWorkingDay(date)) return 'bg-surface-secondary'
+    return 'bg-surface'
   }
 
   const getDayStyle = (date: Date) => {
@@ -424,31 +424,31 @@ export default function Calendar() {
   const summary = getMonthlySummary()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-background">
       <Navbar />
 
-      <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mb-8 flex items-center justify-between">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+      <main className="mx-auto max-w-7xl px-4 py-6 pb-[calc(1.5rem+var(--sai-bottom))] sm:py-12 sm:px-6 lg:px-8">
+        <div className="mb-4 flex items-center justify-between sm:mb-8">
+          <h2 className="text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">
             {format(currentMonth, 'MMMM yyyy')}
           </h2>
           <div className="flex gap-2">
             <button
               onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}
-              className="rounded-lg bg-indigo-600 p-2 text-white hover:bg-indigo-700"
+              className="rounded-lg bg-accent p-2 text-white transition-colors hover:bg-accent-hover"
               aria-label="Previous month"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
             <button
               onClick={() => setCurrentMonth(new Date())}
-              className="rounded-lg bg-gray-600 px-4 py-2 text-white hover:bg-gray-700"
+              className="rounded-lg border border-border bg-surface px-4 py-2 text-text-primary transition-colors hover:bg-surface-secondary"
             >
               Today
             </button>
             <button
               onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}
-              className="rounded-lg bg-indigo-600 p-2 text-white hover:bg-indigo-700"
+              className="rounded-lg bg-accent p-2 text-white transition-colors hover:bg-accent-hover"
               aria-label="Next month"
             >
               <ChevronRight className="h-5 w-5" />
@@ -456,12 +456,12 @@ export default function Calendar() {
           </div>
         </div>
 
-        <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+        <p className="mb-4 text-sm text-text-secondary">
           {selectionHint}
         </p>
 
         {/* Monthly Summary */}
-        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-6 sm:gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {isLoadingInitial ? (
             <>
               <Skeleton className="h-[72px] rounded-xl" />
@@ -476,7 +476,7 @@ export default function Calendar() {
             return (
               <div
                 key={loc.id}
-                className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm dark:bg-gray-800"
+                className="flex items-center gap-3 card p-4"
               >
                 <div
                   className="rounded-lg p-2"
@@ -485,51 +485,51 @@ export default function Calendar() {
                   <Building2 className="h-5 w-5" style={{ color: loc.color }} />
                 </div>
                 <div className="min-w-0">
-                  <div className="text-2xl font-bold text-gray-900 dark:text-white">{count}</div>
-                  <div className="truncate text-xs text-gray-500 dark:text-gray-400">{loc.name}</div>
+                  <div className="text-2xl font-bold text-text-primary">{count}</div>
+                  <div className="truncate text-xs text-text-secondary">{loc.name}</div>
                 </div>
               </div>
             )
           })}
 
           {summary.officeNoLocation > 0 && (
-            <div className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm dark:bg-gray-800">
+            <div className="flex items-center gap-3 card p-4">
               <div className="rounded-lg bg-blue-200 p-2 dark:bg-blue-800">
                 <Building2 className="h-5 w-5 text-blue-700 dark:text-blue-300" />
               </div>
               <div className="min-w-0">
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">{summary.officeNoLocation}</div>
-                <div className="truncate text-xs text-gray-500 dark:text-gray-400">Office (Legacy)</div>
+                <div className="text-2xl font-bold text-text-primary">{summary.officeNoLocation}</div>
+                <div className="truncate text-xs text-text-secondary">Office (Legacy)</div>
               </div>
             </div>
           )}
 
-          <div className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm dark:bg-gray-800">
+          <div className="flex items-center gap-3 card p-4">
             <div className="rounded-lg bg-emerald-200 p-2 dark:bg-emerald-800">
               <Home className="h-5 w-5 text-emerald-700 dark:text-emerald-300" />
             </div>
             <div className="min-w-0">
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">{summary.homeOffice}</div>
-              <div className="truncate text-xs text-gray-500 dark:text-gray-400">Home Office</div>
+              <div className="text-2xl font-bold text-text-primary">{summary.homeOffice}</div>
+              <div className="truncate text-xs text-text-secondary">Home Office</div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm dark:bg-gray-800">
-            <div className="rounded-lg bg-gray-200 p-2 dark:bg-gray-700">
-              <BarChart3 className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+          <div className="flex items-center gap-3 card p-4">
+            <div className="rounded-lg bg-surface-secondary p-2">
+              <BarChart3 className="h-5 w-5 text-text-secondary" />
             </div>
             <div className="min-w-0">
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">{summary.total}</div>
-              <div className="truncate text-xs text-gray-500 dark:text-gray-400">Total Days</div>
+              <div className="text-2xl font-bold text-text-primary">{summary.total}</div>
+              <div className="truncate text-xs text-text-secondary">Total Days</div>
             </div>
           </div>
             </>
           )}
         </div>
 
-        <div className="grid grid-cols-7 gap-2 select-none">
+        <div className="grid grid-cols-7 gap-1 select-none sm:gap-2">
           {getDayNames().map(day => (
-            <div key={day} className="p-2 text-center text-sm font-semibold text-gray-700 dark:text-gray-300">
+            <div key={day} className="p-2 text-center text-sm font-semibold text-text-secondary">
               {day}
             </div>
           ))}
@@ -540,7 +540,7 @@ export default function Calendar() {
 
           {isLoadingMonth ? (
             days.map((_, i) => (
-              <Skeleton key={`skel-${i}`} className="min-h-20 rounded-lg" />
+              <Skeleton key={`skel-${i}`} className="min-h-14 rounded-lg sm:min-h-20" />
             ))
           ) : (
             days.map(day => {
@@ -559,12 +559,12 @@ export default function Calendar() {
                   onTouchEnd={(e) => handleTouchEnd(e)}
                   disabled={isDayDisabled}
                   className={`
-                    min-h-20 rounded-lg p-2 text-left transition-all
+                    min-h-14 rounded-lg p-1.5 text-left transition-all sm:min-h-20 sm:p-2
                     ${getDayColor(day)}
-                    ${isToday(day) ? 'ring-2 ring-indigo-600' : ''}
+                    ${isToday(day) ? 'ring-2 ring-accent' : ''}
                     ${isDayDisabled
                       ? 'cursor-default opacity-50'
-                      : `${selected ? 'ring-2 ring-indigo-500 ring-offset-2 dark:ring-offset-gray-900' : 'hover:ring-2 hover:ring-indigo-300'}
+                      : `${selected ? 'ring-2 ring-accent ring-offset-2 dark:ring-offset-background' : 'hover:ring-2 hover:ring-accent/40'}
                          ${isSelecting ? 'cursor-crosshair' : 'cursor-pointer'}`
                     }
                   `}
@@ -585,14 +585,14 @@ export default function Calendar() {
       {/* Attendance Edit Modal */}
       {showModal && selectedDates.size > 0 && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={closeModal}>
-          <div className="mx-4 w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800" onClick={(e) => e.stopPropagation()}>
+          <div className="mx-4 my-[calc(1rem+var(--sai-top))] max-h-[calc(100dvh-2rem-var(--sai-top)-var(--sai-bottom))] w-full max-w-lg overflow-y-auto rounded-xl border border-border bg-surface p-6 shadow-overlay" onClick={(e) => e.stopPropagation()}>
             <div className="mb-6 flex items-center justify-between">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+              <h3 className="text-xl font-semibold tracking-tight text-text-primary">
                 {getModalTitle()}
               </h3>
               <button
                 onClick={closeModal}
-                className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+                className="rounded-lg p-2 text-text-tertiary hover:bg-surface-secondary hover:text-foreground transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>

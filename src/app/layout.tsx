@@ -21,7 +21,8 @@ const geistMono = Geist_Mono({
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#4f46e5',
+  viewportFit: 'cover',
+  themeColor: '#3B5BDB',
 };
 
 export const metadata: Metadata = {
@@ -29,7 +30,7 @@ export const metadata: Metadata = {
   description: "Track office and home office attendance for German tax reporting",
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'default',
+    statusBarStyle: 'black-translucent',
     title: 'Daydesk',
   },
   icons: {

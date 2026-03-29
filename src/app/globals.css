@@ -1,26 +1,113 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Core surfaces */
+  --background: #fafafa;
+  --foreground: #1a1a1a;
+  --surface-primary: #ffffff;
+  --surface-secondary: #f5f5f4;
+  --surface-inset: #f0efed;
+
+  /* Borders */
+  --border-default: #e8e5e1;
+  --border-subtle: #f0efed;
+
+  /* Accent */
+  --accent: #3B5BDB;
+  --accent-hover: #364fc7;
+  --accent-soft: rgba(59, 91, 219, 0.08);
+  --accent-soft-hover: rgba(59, 91, 219, 0.12);
+
+  /* Text hierarchy */
+  --text-primary: #1a1a1a;
+  --text-secondary: #6b6b6b;
+  --text-tertiary: #9b9b9b;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-overlay: 0 8px 30px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+
+  /* Safe area (PWA) */
+  --sai-top: env(safe-area-inset-top, 0px);
+  --sai-right: env(safe-area-inset-right, 0px);
+  --sai-bottom: env(safe-area-inset-bottom, 0px);
+  --sai-left: env(safe-area-inset-left, 0px);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #161618;
+    --foreground: #ececec;
+    --surface-primary: #1e1e20;
+    --surface-secondary: #252528;
+    --surface-inset: #2a2a2d;
+
+    --border-default: #2e2e32;
+    --border-subtle: #252528;
+
+    --accent: #5c7cfa;
+    --accent-hover: #748ffc;
+    --accent-soft: rgba(92, 124, 250, 0.10);
+    --accent-soft-hover: rgba(92, 124, 250, 0.16);
+
+    --text-primary: #ececec;
+    --text-secondary: #a0a0a0;
+    --text-tertiary: #6b6b6b;
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+    --shadow-overlay: 0 8px 30px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface-primary);
+  --color-surface-secondary: var(--surface-secondary);
+  --color-surface-inset: var(--surface-inset);
+  --color-border: var(--border-default);
+  --color-border-subtle: var(--border-subtle);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-soft-hover: var(--accent-soft-hover);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-primary: var(--accent);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--surface-secondary);
+  --color-secondary-foreground: var(--text-primary);
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+  --color-input: var(--border-default);
+  --color-ring: var(--accent);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-card: var(--shadow-sm);
+  --shadow-elevated: var(--shadow-md);
+  --shadow-overlay: var(--shadow-overlay);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+button,
+[role="button"] {
+  cursor: pointer;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Card utility */
+.card {
+  background: var(--surface-primary);
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
 }
