@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'Track office and home office attendance for German tax reporting',
     start_url: '/',
     display: 'standalone',
-    background_color: '#ffffff',
-    theme_color: '#4f46e5',
+    background_color: '#fafafa',
+    theme_color: '#3B5BDB',
     orientation: 'portrait',
     icons: [
       {
