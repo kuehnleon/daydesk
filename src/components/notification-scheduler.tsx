@@ -22,19 +22,34 @@ export function NotificationScheduler() {
 
     try {
       const parsed = JSON.parse(stored) as { enabled?: boolean; times?: string[]; workDaysOnly?: boolean }
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
-      fetch('/api/settings', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          reminderEnabled: parsed.enabled ?? false,
-          reminderTimes: (parsed.times ?? []).join(','),
-          reminderWorkDaysOnly: parsed.workDaysOnly ?? true,
-        }),
-      }).then(() => {
+      const migrate = async () => {
+        // Migrate individual reminder times to the new table
+        const times = parsed.times ?? []
+        for (const time of times) {
+          await fetch('/api/reminders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ time, timezone }),
+          })
+        }
+
+        // Migrate toggle settings
+        await fetch('/api/settings', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            reminderEnabled: parsed.enabled ?? false,
+            reminderWorkDaysOnly: parsed.workDaysOnly ?? true,
+          }),
+        })
+
         localStorage.removeItem(OLD_SETTINGS_KEY)
         localStorage.removeItem(OLD_LAST_SHOWN_KEY)
-      }).catch(() => {
+      }
+
+      migrate().catch(() => {
         // Retry on next page load
       })
     } catch {
