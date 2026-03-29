@@ -460,6 +460,30 @@ export default function Calendar() {
           {selectionHint}
         </p>
 
+        {/* Color legend — mobile only */}
+        {!isLoadingInitial && (
+          <div className="mb-4 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-text-secondary sm:hidden">
+            {locations.map(loc => (
+              <span key={loc.id} className="flex items-center gap-1.5">
+                <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: loc.color }} />
+                {loc.name}
+              </span>
+            ))}
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2.5 w-2.5 rounded-full bg-emerald-400" />
+              Home
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2.5 w-2.5 rounded-full bg-amber-400" />
+              Off
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-2.5 w-2.5 rounded-full bg-red-400" />
+              Sick / Holiday
+            </span>
+          </div>
+        )}
+
         {/* Monthly Summary */}
         <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-6 sm:gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {isLoadingInitial ? (
@@ -572,8 +596,10 @@ export default function Calendar() {
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold">{format(day, 'd')}</span>
-                    {isHoliday && <Palmtree className="h-5 w-5 text-red-600 dark:text-red-400" />}
-                    {!isHoliday && attendance && getAttendanceIcon(attendance)}
+                    <span className="hidden sm:block">
+                      {isHoliday && <Palmtree className="h-5 w-5 text-red-600 dark:text-red-400" />}
+                      {!isHoliday && attendance && getAttendanceIcon(attendance)}
+                    </span>
                   </div>
                 </button>
               )
