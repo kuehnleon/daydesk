@@ -17,7 +17,7 @@ export async function GET() {
   })
 
   return NextResponse.json(locations, {
-    headers: { 'Cache-Control': 'private, max-age=60' },
+    headers: { 'Cache-Control': 'private, no-cache' },
   })
 }
 

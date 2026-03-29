@@ -33,7 +33,7 @@ export async function GET() {
   }
 
   return NextResponse.json(user, {
-    headers: { 'Cache-Control': 'private, max-age=60' },
+    headers: { 'Cache-Control': 'private, no-cache' },
   })
 }
 
