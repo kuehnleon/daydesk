@@ -52,7 +52,7 @@ export function OfflineBanner() {
   if (isOnline && pendingCount === 0) return null
 
   return (
-    <div className={`px-4 py-2 text-center text-sm font-medium ${
+    <div className={`px-[calc(1rem+var(--sai-left))] pr-[calc(1rem+var(--sai-right))] py-2 text-center text-sm font-medium ${
       isOnline
         ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200'
         : 'bg-amber-200 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200'

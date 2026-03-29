@@ -427,9 +427,9 @@ export default function Calendar() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       <Navbar />
 
-      <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mb-8 flex items-center justify-between">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+      <main className="mx-auto max-w-7xl px-4 py-6 pb-[calc(1.5rem+var(--sai-bottom))] sm:py-12 sm:px-6 lg:px-8">
+        <div className="mb-4 flex items-center justify-between sm:mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl dark:text-white">
             {format(currentMonth, 'MMMM yyyy')}
           </h2>
           <div className="flex gap-2">
@@ -461,7 +461,7 @@ export default function Calendar() {
         </p>
 
         {/* Monthly Summary */}
-        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-6 sm:gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {isLoadingInitial ? (
             <>
               <Skeleton className="h-[72px] rounded-xl" />
@@ -527,7 +527,7 @@ export default function Calendar() {
           )}
         </div>
 
-        <div className="grid grid-cols-7 gap-2 select-none">
+        <div className="grid grid-cols-7 gap-1 select-none sm:gap-2">
           {getDayNames().map(day => (
             <div key={day} className="p-2 text-center text-sm font-semibold text-gray-700 dark:text-gray-300">
               {day}
@@ -540,7 +540,7 @@ export default function Calendar() {
 
           {isLoadingMonth ? (
             days.map((_, i) => (
-              <Skeleton key={`skel-${i}`} className="min-h-20 rounded-lg" />
+              <Skeleton key={`skel-${i}`} className="min-h-14 rounded-lg sm:min-h-20" />
             ))
           ) : (
             days.map(day => {
@@ -559,7 +559,7 @@ export default function Calendar() {
                   onTouchEnd={(e) => handleTouchEnd(e)}
                   disabled={isDayDisabled}
                   className={`
-                    min-h-20 rounded-lg p-2 text-left transition-all
+                    min-h-14 rounded-lg p-1.5 text-left transition-all sm:min-h-20 sm:p-2
                     ${getDayColor(day)}
                     ${isToday(day) ? 'ring-2 ring-indigo-600' : ''}
                     ${isDayDisabled
@@ -585,7 +585,7 @@ export default function Calendar() {
       {/* Attendance Edit Modal */}
       {showModal && selectedDates.size > 0 && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={closeModal}>
-          <div className="mx-4 w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800" onClick={(e) => e.stopPropagation()}>
+          <div className="mx-4 my-[calc(1rem+var(--sai-top))] max-h-[calc(100dvh-2rem-var(--sai-top)-var(--sai-bottom))] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800" onClick={(e) => e.stopPropagation()}>
             <div className="mb-6 flex items-center justify-between">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                 {getModalTitle()}

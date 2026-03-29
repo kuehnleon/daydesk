@@ -178,11 +178,11 @@ export default function ExportImport() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       <Navbar />
 
-      <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
-        <h2 className="mb-8 text-3xl font-bold text-gray-900 dark:text-white">Export & Import</h2>
+      <main className="mx-auto max-w-3xl px-4 py-6 pb-[calc(1.5rem+var(--sai-bottom))] sm:py-12 sm:px-6 lg:px-8">
+        <h2 className="mb-4 text-2xl font-bold text-gray-900 sm:mb-8 sm:text-3xl dark:text-white">Export & Import</h2>
 
         {/* Export Section */}
-        <div className="space-y-6 rounded-2xl bg-white p-8 shadow-lg dark:bg-gray-800">
+        <div className="space-y-6 rounded-2xl bg-white p-4 shadow-lg sm:p-8 dark:bg-gray-800">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Export Report</h3>
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -236,7 +236,7 @@ export default function ExportImport() {
         </div>
 
         {/* Import Section */}
-        <div className="mt-8 space-y-6 rounded-2xl bg-white p-8 shadow-lg dark:bg-gray-800">
+        <div className="mt-8 space-y-6 rounded-2xl bg-white p-4 shadow-lg sm:p-8 dark:bg-gray-800">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Import CSV</h3>
 
           {/* Drop zone */}

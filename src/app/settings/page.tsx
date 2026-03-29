@@ -291,11 +291,11 @@ export default function Settings() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       <Navbar />
 
-      <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
-        <h2 className="mb-8 text-3xl font-bold text-gray-900 dark:text-white">Settings</h2>
+      <main className="mx-auto max-w-3xl px-4 py-6 pb-[calc(1.5rem+var(--sai-bottom))] sm:py-12 sm:px-6 lg:px-8">
+        <h2 className="mb-4 text-2xl font-bold text-gray-900 sm:mb-8 sm:text-3xl dark:text-white">Settings</h2>
 
         {/* Transport Methods Section */}
-        <div className="mb-6 rounded-2xl bg-white p-8 shadow-lg dark:bg-gray-800">
+        <div className="mb-6 rounded-2xl bg-white p-4 shadow-lg sm:p-8 dark:bg-gray-800">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Transport Methods</h3>
             <button
@@ -346,7 +346,7 @@ export default function Settings() {
         </div>
 
         {/* Locations Section */}
-        <div className="mb-6 rounded-2xl bg-white p-8 shadow-lg dark:bg-gray-800">
+        <div className="mb-6 rounded-2xl bg-white p-4 shadow-lg sm:p-8 dark:bg-gray-800">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Your Locations</h3>
             <button
@@ -423,7 +423,7 @@ export default function Settings() {
         </div>
 
         {/* Other Settings */}
-        <div className="space-y-6 rounded-2xl bg-white p-8 shadow-lg dark:bg-gray-800">
+        <div className="space-y-6 rounded-2xl bg-white p-4 shadow-lg sm:p-8 dark:bg-gray-800">
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
               German State (Bundesland)
@@ -498,7 +498,7 @@ export default function Settings() {
       {/* Transport Modal */}
       {showTransportModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800">
+          <div className="mx-4 my-[calc(1rem+var(--sai-top))] max-h-[calc(100dvh-2rem-var(--sai-top)-var(--sai-bottom))] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800">
             <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
               {editingTransport ? 'Edit Transport' : 'Add Transport'}
             </h3>
@@ -539,7 +539,7 @@ export default function Settings() {
       {/* Location Modal */}
       {showLocationModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800">
+          <div className="mx-4 my-[calc(1rem+var(--sai-top))] max-h-[calc(100dvh-2rem-var(--sai-top)-var(--sai-bottom))] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800">
             <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
               {editingLocation ? 'Edit Location' : 'Add Location'}
             </h3>

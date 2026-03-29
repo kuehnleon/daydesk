@@ -53,7 +53,7 @@ export function ReminderSettings() {
 
   if (!isLoaded) {
     return (
-      <div className="rounded-2xl bg-white p-8 shadow-lg dark:bg-gray-800">
+      <div className="rounded-2xl bg-white p-4 shadow-lg sm:p-8 dark:bg-gray-800">
         <p className="text-sm text-gray-500 dark:text-gray-400">Loading...</p>
       </div>
     )
@@ -61,7 +61,7 @@ export function ReminderSettings() {
 
   if (permission === 'unsupported') {
     return (
-      <div className="rounded-2xl bg-white p-8 shadow-lg dark:bg-gray-800">
+      <div className="rounded-2xl bg-white p-4 shadow-lg sm:p-8 dark:bg-gray-800">
         <div className="flex items-center gap-2">
           <BellOff className="h-5 w-5 text-gray-400" />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -76,7 +76,7 @@ export function ReminderSettings() {
   }
 
   return (
-    <div className="rounded-2xl bg-white p-8 shadow-lg dark:bg-gray-800">
+    <div className="rounded-2xl bg-white p-4 shadow-lg sm:p-8 dark:bg-gray-800">
       <div className="mb-4 flex items-center gap-2">
         <Bell className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">

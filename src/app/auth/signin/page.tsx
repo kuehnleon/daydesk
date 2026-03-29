@@ -10,8 +10,8 @@ export default async function SignIn() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="w-full max-w-md space-y-8 rounded-2xl bg-white p-10 shadow-xl dark:bg-gray-800">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-[var(--sai-left)] pr-[var(--sai-right)] pt-[var(--sai-top)] pb-[var(--sai-bottom)] dark:from-gray-900 dark:to-gray-800">
+      <div className="mx-4 w-full max-w-md space-y-8 rounded-2xl bg-white p-6 shadow-xl sm:p-10 dark:bg-gray-800">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
             Daydesk

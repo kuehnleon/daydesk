@@ -137,9 +137,9 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       <Navbar />
 
-      <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Quick Log</h2>
+      <main className="mx-auto max-w-7xl px-4 py-6 pb-[calc(1.5rem+var(--sai-bottom))] sm:py-12 sm:px-6 lg:px-8">
+        <div className="mb-4 sm:mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl dark:text-white">Quick Log</h2>
           <p
             className="mt-2 text-sm text-gray-600 dark:text-gray-400"
             suppressHydrationWarning

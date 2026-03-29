@@ -37,7 +37,7 @@ export function Navbar() {
 
   return (
     <>
-      <nav className="bg-white shadow-sm dark:bg-gray-800">
+      <nav className="bg-white pt-[var(--sai-top)] shadow-sm dark:bg-gray-800">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 justify-between">
             <div className="flex items-center gap-3">
@@ -95,7 +95,7 @@ export function Navbar() {
 
         {/* Sidebar panel */}
         <div
-          className={`absolute inset-y-0 left-0 flex w-72 flex-col bg-white shadow-xl transition-transform duration-300 ease-in-out dark:bg-gray-800 ${
+          className={`absolute inset-y-0 left-0 flex w-72 flex-col bg-white pt-[var(--sai-top)] pl-[var(--sai-left)] shadow-xl transition-transform duration-300 ease-in-out dark:bg-gray-800 ${
             isMenuOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
@@ -134,7 +134,7 @@ export function Navbar() {
           </div>
 
           {/* Sign out */}
-          <div className="border-t border-gray-200 p-3 dark:border-gray-700">
+          <div className="border-t border-gray-200 p-3 pb-[calc(0.75rem+var(--sai-bottom))] dark:border-gray-700">
             <button
               onClick={handleSignOut}
               className="w-full rounded-lg bg-gray-200 px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
