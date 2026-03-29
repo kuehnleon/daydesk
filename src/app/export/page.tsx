@@ -175,36 +175,36 @@ export default function ExportImport() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-background">
       <Navbar />
 
       <main className="mx-auto max-w-3xl px-4 py-6 pb-[calc(1.5rem+var(--sai-bottom))] sm:py-12 sm:px-6 lg:px-8">
-        <h2 className="mb-4 text-2xl font-bold text-gray-900 sm:mb-8 sm:text-3xl dark:text-white">Export & Import</h2>
+        <h2 className="mb-4 text-2xl font-semibold tracking-tight text-text-primary sm:mb-8 sm:text-3xl">Export & Import</h2>
 
         {/* Export Section */}
-        <div className="space-y-6 rounded-2xl bg-white p-4 shadow-lg sm:p-8 dark:bg-gray-800">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Export Report</h3>
+        <div className="space-y-6 card p-4 sm:p-8">
+          <h3 className="text-lg font-semibold text-text-primary">Export Report</h3>
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="mb-2 block text-sm font-medium text-text-secondary">
               Start Date
             </label>
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              className="w-full rounded-lg border border-border bg-surface px-4 py-2 text-foreground focus:border-accent focus:ring-accent"
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="mb-2 block text-sm font-medium text-text-secondary">
               End Date
             </label>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              className="w-full rounded-lg border border-border bg-surface px-4 py-2 text-foreground focus:border-accent focus:ring-accent"
             />
           </div>
 
@@ -212,22 +212,22 @@ export default function ExportImport() {
             <button
               onClick={() => exportData('csv')}
               disabled={isExporting}
-              className="rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+              className="rounded-lg bg-accent px-4 py-3 text-sm font-semibold text-white hover:bg-accent-hover disabled:opacity-50"
             >
               Export CSV
             </button>
             <button
               onClick={() => exportData('pdf')}
               disabled={isExporting}
-              className="rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+              className="rounded-lg bg-accent px-4 py-3 text-sm font-semibold text-white hover:bg-accent-hover disabled:opacity-50"
             >
               Export PDF
             </button>
           </div>
 
-          <div className="mt-6 rounded-lg bg-blue-50 p-4 dark:bg-blue-900">
-            <h3 className="mb-2 text-sm font-semibold text-blue-900 dark:text-blue-100">Export Information</h3>
-            <ul className="space-y-1 text-xs text-blue-800 dark:text-blue-200">
+          <div className="mt-6 rounded-lg border border-border bg-surface-secondary p-4">
+            <h3 className="mb-2 text-sm font-semibold text-text-primary">Export Information</h3>
+            <ul className="space-y-1 text-xs text-text-secondary">
               <li>• CSV format: Date, Type, Transport, Notes</li>
               <li>• PDF format: Formatted table with monthly summaries</li>
               <li>• Use for German tax reporting (Anlage N, Entfernungspauschale)</li>
@@ -236,8 +236,8 @@ export default function ExportImport() {
         </div>
 
         {/* Import Section */}
-        <div className="mt-8 space-y-6 rounded-2xl bg-white p-4 shadow-lg sm:p-8 dark:bg-gray-800">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Import CSV</h3>
+        <div className="mt-8 space-y-6 card p-4 sm:p-8">
+          <h3 className="text-lg font-semibold text-text-primary">Import CSV</h3>
 
           {/* Drop zone */}
           <div
@@ -247,15 +247,15 @@ export default function ExportImport() {
             onClick={() => fileInputRef.current?.click()}
             className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-colors ${
               isDragOver
-                ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
-                : 'border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'
+                ? 'border-accent bg-accent-soft'
+                : 'border-border hover:border-text-tertiary'
             }`}
           >
-            <Upload className="mb-3 h-10 w-10 text-gray-400" />
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <Upload className="mb-3 h-10 w-10 text-text-tertiary" />
+            <p className="text-sm font-medium text-text-secondary">
               Drop a CSV file here or click to browse
             </p>
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p className="mt-1 text-xs text-text-tertiary">
               Use the same format as the exported CSV
             </p>
             <input
@@ -272,7 +272,7 @@ export default function ExportImport() {
 
           {/* Parse errors */}
           {parseErrors.length > 0 && (
-            <div className="rounded-lg bg-red-50 p-4 dark:bg-red-900/20">
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-900/20">
               <h4 className="mb-2 text-sm font-semibold text-red-800 dark:text-red-200">
                 Parsing Errors ({parseErrors.length})
               </h4>
@@ -288,31 +288,31 @@ export default function ExportImport() {
           {parsedRows.length > 0 && (
             <>
               <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-700 dark:text-gray-300">
+                <p className="text-sm text-text-secondary">
                   {parsedRows.length} row{parsedRows.length !== 1 ? 's' : ''} ready to import
                 </p>
                 <button
                   onClick={clearImport}
-                  className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                  className="text-sm text-text-tertiary hover:text-text-primary"
                 >
                   Clear
                 </button>
               </div>
 
-              <div className="max-h-64 overflow-auto rounded-lg border border-gray-200 dark:border-gray-700">
+              <div className="max-h-64 overflow-auto rounded-lg border border-border">
                 <table className="w-full text-left text-xs">
-                  <thead className="sticky top-0 bg-gray-50 dark:bg-gray-700">
+                  <thead className="sticky top-0 bg-surface-secondary">
                     <tr>
-                      <th className="px-3 py-2 font-medium text-gray-600 dark:text-gray-300">Date</th>
-                      <th className="px-3 py-2 font-medium text-gray-600 dark:text-gray-300">Type</th>
-                      <th className="px-3 py-2 font-medium text-gray-600 dark:text-gray-300">Location</th>
-                      <th className="px-3 py-2 font-medium text-gray-600 dark:text-gray-300">Transport</th>
-                      <th className="px-3 py-2 font-medium text-gray-600 dark:text-gray-300">Notes</th>
+                      <th className="px-3 py-2 font-medium text-text-secondary">Date</th>
+                      <th className="px-3 py-2 font-medium text-text-secondary">Type</th>
+                      <th className="px-3 py-2 font-medium text-text-secondary">Location</th>
+                      <th className="px-3 py-2 font-medium text-text-secondary">Transport</th>
+                      <th className="px-3 py-2 font-medium text-text-secondary">Notes</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                  <tbody className="divide-y divide-border-subtle">
                     {parsedRows.slice(0, 50).map((row, i) => (
-                      <tr key={i} className="text-gray-900 dark:text-gray-100">
+                      <tr key={i} className="text-text-primary">
                         <td className="whitespace-nowrap px-3 py-1.5">{row.date}</td>
                         <td className="px-3 py-1.5">{row.type}</td>
                         <td className="px-3 py-1.5">{row.location || '-'}</td>
@@ -323,7 +323,7 @@ export default function ExportImport() {
                   </tbody>
                 </table>
                 {parsedRows.length > 50 && (
-                  <p className="border-t border-gray-200 px-3 py-2 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                  <p className="border-t border-border px-3 py-2 text-xs text-text-tertiary">
                     Showing first 50 of {parsedRows.length} rows
                   </p>
                 )}
@@ -332,7 +332,7 @@ export default function ExportImport() {
               <button
                 onClick={handleImport}
                 disabled={isImporting}
-                className="w-full rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+                className="w-full rounded-lg bg-accent px-4 py-3 text-sm font-semibold text-white hover:bg-accent-hover disabled:opacity-50"
               >
                 {isImporting ? 'Importing...' : `Import ${parsedRows.length} Row${parsedRows.length !== 1 ? 's' : ''}`}
               </button>
@@ -341,16 +341,16 @@ export default function ExportImport() {
 
           {/* Import result */}
           {importResult && (
-            <div className="rounded-lg bg-green-50 p-4 dark:bg-green-900/20">
-              <p className="text-sm font-medium text-green-800 dark:text-green-200">
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-900/20">
+              <p className="text-sm font-medium text-emerald-800 dark:text-emerald-200">
                 Import complete: {importResult.imported} new entries, {importResult.updated} updated
               </p>
             </div>
           )}
 
-          <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900">
-            <h4 className="mb-2 text-sm font-semibold text-blue-900 dark:text-blue-100">Import Information</h4>
-            <ul className="space-y-1 text-xs text-blue-800 dark:text-blue-200">
+          <div className="rounded-lg border border-border bg-surface-secondary p-4">
+            <h4 className="mb-2 text-sm font-semibold text-text-primary">Import Information</h4>
+            <ul className="space-y-1 text-xs text-text-secondary">
               <li>• CSV must have headers: Date, Type, Location, Transport, Distance (km), Notes</li>
               <li>• Dates with existing entries will be updated (overwritten)</li>
               <li>• Location and transport names are matched to your existing entries</li>
