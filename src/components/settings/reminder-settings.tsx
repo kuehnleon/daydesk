@@ -53,22 +53,22 @@ export function ReminderSettings() {
 
   if (!isLoaded) {
     return (
-      <div className="rounded-2xl bg-white p-8 shadow-lg dark:bg-gray-800">
-        <p className="text-sm text-gray-500 dark:text-gray-400">Loading...</p>
+      <div className="card p-4 sm:p-8">
+        <p className="text-sm text-text-tertiary">Loading...</p>
       </div>
     )
   }
 
   if (permission === 'unsupported') {
     return (
-      <div className="rounded-2xl bg-white p-8 shadow-lg dark:bg-gray-800">
+      <div className="card p-4 sm:p-8">
         <div className="flex items-center gap-2">
-          <BellOff className="h-5 w-5 text-gray-400" />
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <BellOff className="h-5 w-5 text-text-tertiary" />
+          <h3 className="text-lg font-semibold text-text-primary">
             Reminder Notifications
           </h3>
         </div>
-        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+        <p className="mt-2 text-sm text-text-secondary">
           Notifications are not supported in this browser.
         </p>
       </div>
@@ -76,10 +76,10 @@ export function ReminderSettings() {
   }
 
   return (
-    <div className="rounded-2xl bg-white p-8 shadow-lg dark:bg-gray-800">
+    <div className="card p-4 sm:p-8">
       <div className="mb-4 flex items-center gap-2">
-        <Bell className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <Bell className="h-5 w-5 text-accent" />
+        <h3 className="text-lg font-semibold text-text-primary">
           Reminder Notifications
         </h3>
       </div>
@@ -134,9 +134,9 @@ export function ReminderSettings() {
             checked={settings.enabled}
             onChange={(e) => updateSettings({ enabled: e.target.checked })}
             disabled={permission !== 'granted'}
-            className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 disabled:opacity-50"
+            className="h-4 w-4 rounded border-border text-accent focus:ring-accent disabled:opacity-50"
           />
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <span className="text-sm font-medium text-text-secondary">
             Enable daily reminders
           </span>
         </label>
@@ -144,7 +144,7 @@ export function ReminderSettings() {
 
       {/* Reminder Times */}
       <div className="mb-4">
-        <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label className="mb-2 block text-sm font-medium text-text-secondary">
           Reminder Times
         </label>
 
@@ -153,14 +153,14 @@ export function ReminderSettings() {
             {settings.times.map((entry) => (
               <div
                 key={entry.id}
-                className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 dark:border-gray-700 dark:bg-gray-700/50"
+                className="flex items-center gap-2 rounded-lg border border-border bg-surface-secondary px-3 py-1.5"
               >
-                <span className="font-mono text-sm text-gray-900 dark:text-white">
+                <span className="font-mono text-sm text-text-primary">
                   {entry.time}
                 </span>
                 <button
                   onClick={() => handleRemoveTime(entry.id)}
-                  className="rounded p-0.5 text-gray-400 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
+                  className="rounded p-0.5 text-text-tertiary hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
@@ -168,7 +168,7 @@ export function ReminderSettings() {
             ))}
           </div>
         ) : (
-          <p className="mb-3 text-sm text-gray-500 dark:text-gray-400">
+          <p className="mb-3 text-sm text-text-tertiary">
             No reminder times configured
           </p>
         )}
@@ -178,12 +178,12 @@ export function ReminderSettings() {
             type="time"
             value={newTime}
             onChange={(e) => setNewTime(e.target.value)}
-            className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="rounded-lg border border-border bg-surface px-3 py-1.5 text-foreground focus:border-accent focus:ring-accent"
           />
           <button
             onClick={handleAddTime}
             disabled={permission !== 'granted'}
-            className="flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+            className="flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-accent-hover disabled:opacity-50"
           >
             <Plus className="h-4 w-4" />
             Add
@@ -199,13 +199,13 @@ export function ReminderSettings() {
             checked={settings.workDaysOnly}
             onChange={(e) => updateSettings({ workDaysOnly: e.target.checked })}
             disabled={permission !== 'granted'}
-            className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 disabled:opacity-50"
+            className="h-4 w-4 rounded border-border text-accent focus:ring-accent disabled:opacity-50"
           />
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <span className="text-sm font-medium text-text-secondary">
             Only on work days
           </span>
         </label>
-        <p className="ml-7 text-xs text-gray-500 dark:text-gray-400">
+        <p className="ml-7 text-xs text-text-tertiary">
           Respects your configured work days in settings below
         </p>
       </div>
@@ -214,7 +214,7 @@ export function ReminderSettings() {
       {permission === 'granted' && (
         <button
           onClick={handleTest}
-          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+          className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-surface-secondary hover:text-foreground"
         >
           Send Test Notification
         </button>
