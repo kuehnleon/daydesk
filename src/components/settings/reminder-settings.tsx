@@ -30,7 +30,7 @@ export function ReminderSettings() {
   }
 
   const handleAddTime = () => {
-    if (settings.times.includes(newTime)) {
+    if (settings.times.some(t => t.time === newTime)) {
       showToast('This time is already added', 'error')
       return
     }
@@ -38,8 +38,8 @@ export function ReminderSettings() {
     showToast(`Reminder added for ${newTime}`, 'success')
   }
 
-  const handleRemoveTime = (time: string) => {
-    removeReminderTime(time)
+  const handleRemoveTime = (id: string) => {
+    removeReminderTime(id)
   }
 
   const handleTest = async () => {
@@ -150,16 +150,16 @@ export function ReminderSettings() {
 
         {settings.times.length > 0 ? (
           <div className="mb-3 flex flex-wrap gap-2">
-            {settings.times.map((time) => (
+            {settings.times.map((entry) => (
               <div
-                key={time}
+                key={entry.id}
                 className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 dark:border-gray-700 dark:bg-gray-700/50"
               >
                 <span className="font-mono text-sm text-gray-900 dark:text-white">
-                  {time}
+                  {entry.time}
                 </span>
                 <button
-                  onClick={() => handleRemoveTime(time)}
+                  onClick={() => handleRemoveTime(entry.id)}
                   className="rounded p-0.5 text-gray-400 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
                 >
                   <Trash2 className="h-3.5 w-3.5" />

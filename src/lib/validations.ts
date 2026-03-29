@@ -67,7 +67,6 @@ export const updateSettingsSchema = z.object({
   workDays: z.string().regex(/^[0-6](,[0-6])*$/, 'Must be comma-separated days 0-6').optional(),
   weekStartDay: z.number().int().min(0).max(6).optional(),
   reminderEnabled: z.boolean().optional(),
-  reminderTimes: z.string().regex(/^(\d{2}:\d{2}(,\d{2}:\d{2})*)?$/, 'Must be comma-separated HH:mm times').optional(),
   reminderWorkDaysOnly: z.boolean().optional(),
 })
 
@@ -109,4 +108,15 @@ export const pushSubscribeSchema = z.object({
 
 export const pushUnsubscribeSchema = z.object({
   endpoint: z.string().url(),
+})
+
+// --- Reminder time schemas ---
+
+export const timeHHmmSchema = z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:mm format')
+
+export const ianaTimezoneSchema = z.string().min(1).max(64)
+
+export const createReminderTimeSchema = z.object({
+  time: timeHHmmSchema,
+  timezone: ianaTimezoneSchema,
 })

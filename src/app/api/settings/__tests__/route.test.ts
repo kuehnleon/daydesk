@@ -32,7 +32,7 @@ describe('GET /api/settings', () => {
     expect(res.status).toBe(401)
   })
 
-  it('returns user settings including reminder fields', async () => {
+  it('returns user settings including reminders relation', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     mockPrisma.user.findUnique.mockResolvedValue({
       id: 'user1',
@@ -41,15 +41,15 @@ describe('GET /api/settings', () => {
       workDays: '1,2,3,4,5',
       weekStartDay: 1,
       reminderEnabled: false,
-      reminderTimes: '',
       reminderWorkDaysOnly: true,
+      reminders: [{ id: 'r1', time: '09:00', timezone: 'Europe/Berlin' }],
     } as never)
 
     const res = await GET()
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data.reminderEnabled).toBe(false)
-    expect(data.reminderTimes).toBe('')
+    expect(data.reminders).toEqual([{ id: 'r1', time: '09:00', timezone: 'Europe/Berlin' }])
     expect(data.reminderWorkDaysOnly).toBe(true)
   })
 })
@@ -98,28 +98,18 @@ describe('PATCH /api/settings', () => {
     expect(res.status).toBe(200)
   })
 
-  it('updates reminder settings with valid data', async () => {
+  it('updates reminder toggle settings', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     mockPrisma.user.update.mockResolvedValue({
       id: 'user1',
       reminderEnabled: true,
-      reminderTimes: '09:00,14:00',
       reminderWorkDaysOnly: true,
     } as never)
 
     const res = await PATCH(makeRequest('http://localhost/api/settings', {
       method: 'PATCH',
-      body: JSON.stringify({ reminderEnabled: true, reminderTimes: '09:00,14:00' }),
+      body: JSON.stringify({ reminderEnabled: true, reminderWorkDaysOnly: true }),
     }))
     expect(res.status).toBe(200)
-  })
-
-  it('returns 400 for invalid reminderTimes format', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
-    const res = await PATCH(makeRequest('http://localhost/api/settings', {
-      method: 'PATCH',
-      body: JSON.stringify({ reminderTimes: '9am' }),
-    }))
-    expect(res.status).toBe(400)
   })
 })

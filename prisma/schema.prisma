@@ -18,7 +18,6 @@ model User {
   workDays      String       @default("1,2,3,4,5")
   weekStartDay         Int          @default(1)
   reminderEnabled      Boolean      @default(false)
-  reminderTimes        String       @default("")
   reminderWorkDaysOnly Boolean      @default(true)
   createdAt            DateTime     @default(now())
   updatedAt            DateTime     @updatedAt
@@ -28,6 +27,7 @@ model User {
   locations            Location[]
   transports           Transport[]
   pushSubscriptions    PushSubscription[]
+  reminders            ReminderTime[]
 
   @@map("users")
 }
@@ -135,4 +135,17 @@ model PushSubscription {
   @@unique([userId, endpoint])
   @@index([userId])
   @@map("push_subscriptions")
+}
+
+model ReminderTime {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  time      String
+  timezone  String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, time, timezone])
+  @@index([userId])
+  @@map("reminder_times")
 }
