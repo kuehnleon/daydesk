@@ -36,6 +36,12 @@ export interface AttendanceRecord {
   updatedAt: Date
 }
 
+export interface ReminderTimeEntry {
+  id: string
+  time: string
+  timezone: string
+}
+
 export interface UserSettings {
   id: string
   email: string
@@ -44,7 +50,7 @@ export interface UserSettings {
   workDays: string // "1,2,3,4,5" for Mon-Fri
   weekStartDay: number
   reminderEnabled: boolean
-  reminderTimes: string // "09:00,14:00" comma-separated HH:mm
+  reminders: ReminderTimeEntry[]
   reminderWorkDaysOnly: boolean
 }
 
@@ -67,7 +73,7 @@ export interface ExportParams {
 
 export interface ReminderSettings {
   enabled: boolean
-  times: string[] // ["09:00", "14:00"]
+  times: ReminderTimeEntry[]
   workDaysOnly: boolean
 }
 

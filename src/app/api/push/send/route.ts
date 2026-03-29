@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
-import { format, getDay, startOfDay } from 'date-fns'
 import { prisma } from '@/lib/db'
 import { sendPushNotification } from '@/lib/web-push'
+import { getCurrentTimeInTimezone, getDayOfWeekInTimezone, getTodayDateInTimezone } from '@/lib/timezone'
 
 export async function POST(request: Request) {
   const authHeader = request.headers.get('authorization')
@@ -11,43 +11,63 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const currentTime = format(new Date(), 'HH:mm')
+  const now = new Date()
 
-  const users = await prisma.user.findMany({
-    where: { reminderEnabled: true },
-    select: {
-      id: true,
-      reminderTimes: true,
-      reminderWorkDaysOnly: true,
-      workDays: true,
-      pushSubscriptions: true,
+  // Cache current time per timezone to avoid redundant Intl calls
+  const timeByTz = new Map<string, string>()
+  const getTime = (tz: string) => {
+    let t = timeByTz.get(tz)
+    if (!t) {
+      t = getCurrentTimeInTimezone(now, tz)
+      timeByTz.set(tz, t)
+    }
+    return t
+  }
+
+  // Find all reminders whose time matches the current time in their timezone
+  const reminders = await prisma.reminderTime.findMany({
+    include: {
+      user: {
+        select: {
+          id: true,
+          reminderEnabled: true,
+          reminderWorkDaysOnly: true,
+          workDays: true,
+          pushSubscriptions: true,
+        },
+      },
     },
   })
 
   let notified = 0
   let errors = 0
   let cleaned = 0
+  const notifiedUsers = new Set<string>()
 
-  for (const user of users) {
-    if (!user.reminderTimes) continue
+  for (const reminder of reminders) {
+    const { user } = reminder
 
-    const times = user.reminderTimes.split(',')
-    if (!times.includes(currentTime)) continue
+    if (!user.reminderEnabled) continue
+    if (notifiedUsers.has(user.id)) continue
+
+    const currentTimeInTz = getTime(reminder.timezone)
+    if (currentTimeInTz !== reminder.time) continue
 
     if (user.pushSubscriptions.length === 0) continue
 
     if (user.reminderWorkDaysOnly) {
-      const todayDow = getDay(new Date())
-      const adjustedDay = todayDow === 0 ? 7 : todayDow
+      const dayOfWeek = getDayOfWeekInTimezone(now, reminder.timezone)
       const workDays = user.workDays.split(',').map(Number)
-      if (!workDays.includes(adjustedDay)) continue
+      if (!workDays.includes(dayOfWeek)) continue
     }
 
-    const today = startOfDay(new Date())
+    const today = getTodayDateInTimezone(now, reminder.timezone)
     const existing = await prisma.attendance.findUnique({
       where: { userId_date: { userId: user.id, date: today } },
     })
     if (existing) continue
+
+    notifiedUsers.add(user.id)
 
     const payload = JSON.stringify({
       title: 'Daydesk Reminder',
