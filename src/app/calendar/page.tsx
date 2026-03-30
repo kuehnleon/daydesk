@@ -13,7 +13,8 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
-  BarChart3
+  BarChart3,
+  Check
 } from 'lucide-react'
 import type { Location, Transport } from '@/types'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -628,6 +629,9 @@ export default function Calendar() {
               {locations.map(location => {
                 const isExpanded = expandedLocationId === location.id
                 const hasTransports = transports.length > 0
+                const dates = getSelectedDatesArray()
+                const currentAttendance = dates.length === 1 ? attendances[dates[0]] : null
+                const isSelected = currentAttendance?.locationId === location.id
 
                 if (isExpanded) {
                   return (
@@ -808,42 +812,72 @@ export default function Calendar() {
                         <ChevronRight className="h-3.5 w-3.5" />
                       </button>
                     )}
-                  </div>
-                )
+                    {isSelected && (
+                      <div className="absolute -top-1.5 -right-1.5 rounded-full bg-white p-1 shadow-sm">
+                        <Check className="h-4 w-4" style={{ color: location.color }} strokeWidth={3} />
+                      </div>
+                    )}
+                  </div>                )
               })}
 
-              <button
-                onClick={() => saveAttendance('home', null)}
-                disabled={isLoading}
-                className="relative flex cursor-pointer items-center gap-4 rounded-xl bg-emerald-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <Home className="h-10 w-10" />
-                <div>
-                  <div className="font-semibold">Home Office</div>
-                </div>
-              </button>
+              {(() => {
+                const dates = getSelectedDatesArray()
+                const currentAttendance = dates.length === 1 ? attendances[dates[0]] : null
+                const isHome = currentAttendance?.type === 'home'
+                const isOff = currentAttendance?.type === 'off'
+                const isSick = currentAttendance?.type === 'sick'
+                return (
+                  <>
+                    <button
+                      onClick={() => saveAttendance('home', null)}
+                      disabled={isLoading}
+                      className="relative flex cursor-pointer items-center gap-4 rounded-xl bg-emerald-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Home className="h-10 w-10" />
+                      <div>
+                        <div className="font-semibold">Home Office</div>
+                      </div>
+                      {isHome && (
+                        <div className="absolute -top-1.5 -right-1.5 rounded-full bg-white p-1 shadow-sm">
+                          <Check className="h-4 w-4 text-emerald-600" strokeWidth={3} />
+                        </div>
+                      )}
+                    </button>
 
-              <button
-                onClick={() => saveAttendance('off', null)}
-                disabled={isLoading}
-                className="relative flex cursor-pointer items-center gap-4 rounded-xl bg-amber-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <Palmtree className="h-10 w-10" />
-                <div>
-                  <div className="font-semibold">Day Off</div>
-                </div>
-              </button>
+                    <button
+                      onClick={() => saveAttendance('off', null)}
+                      disabled={isLoading}
+                      className="relative flex cursor-pointer items-center gap-4 rounded-xl bg-amber-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Palmtree className="h-10 w-10" />
+                      <div>
+                        <div className="font-semibold">Day Off</div>
+                      </div>
+                      {isOff && (
+                        <div className="absolute -top-1.5 -right-1.5 rounded-full bg-white p-1 shadow-sm">
+                          <Check className="h-4 w-4 text-amber-600" strokeWidth={3} />
+                        </div>
+                      )}
+                    </button>
 
-              <button
-                onClick={() => saveAttendance('sick', null)}
-                disabled={isLoading}
-                className="relative flex cursor-pointer items-center gap-4 rounded-xl bg-red-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <ThermometerSun className="h-10 w-10" />
-                <div>
-                  <div className="font-semibold">Sick</div>
-                </div>
-              </button>
+                    <button
+                      onClick={() => saveAttendance('sick', null)}
+                      disabled={isLoading}
+                      className="relative flex cursor-pointer items-center gap-4 rounded-xl bg-red-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <ThermometerSun className="h-10 w-10" />
+                      <div>
+                        <div className="font-semibold">Sick</div>
+                      </div>
+                      {isSick && (
+                        <div className="absolute -top-1.5 -right-1.5 rounded-full bg-white p-1 shadow-sm">
+                          <Check className="h-4 w-4 text-red-600" strokeWidth={3} />
+                        </div>
+                      )}
+                    </button>
+                  </>
+                )
+              })()}
             </div>
 
             {hasExistingAttendance() && (
