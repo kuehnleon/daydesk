@@ -49,8 +49,20 @@ export function Navbar() {
               >
                 <Menu className="h-5 w-5" />
               </button>
-              <a href="/dashboard" className="text-lg font-semibold tracking-tight text-accent">
-                Daydesk
+              <a href="/dashboard" className="text-accent" aria-label="daydesk home">
+                <svg width="120" height="32" viewBox="0 0 440 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <rect x="4" y="20" width="80" height="76" rx="14" fill="currentColor"/>
+                  <rect x="14" y="40" width="60" height="46" rx="6" fill="var(--surface, #fff)"/>
+                  <rect x="24" y="8" width="12" height="24" rx="4" fill="currentColor"/>
+                  <rect x="52" y="8" width="12" height="24" rx="4" fill="currentColor"/>
+                  <circle cx="32" cy="55" r="4" fill="currentColor" opacity="0.2"/>
+                  <circle cx="52" cy="55" r="4" fill="currentColor" opacity="0.2"/>
+                  <circle cx="32" cy="72" r="4" fill="currentColor" opacity="0.2"/>
+                  <circle cx="52" cy="72" r="5.5" fill="currentColor"/>
+                  <text x="104" y="82" fontFamily="-apple-system, 'SF Pro Display', 'Inter', 'Helvetica Neue', Arial, sans-serif" fontSize="68" fontWeight="700" letterSpacing="-2.5">
+                    <tspan fill="var(--text-primary, #1a1a2e)">day</tspan><tspan fill="currentColor">desk</tspan>
+                  </text>
+                </svg>
               </a>
             </div>
 
@@ -104,9 +116,22 @@ export function Navbar() {
           <div className="flex h-14 items-center justify-between px-4">
             <a
               href="/dashboard"
-              className="text-lg font-semibold tracking-tight text-accent"
+              className="text-accent"
+              aria-label="daydesk home"
             >
-              Daydesk
+              <svg width="120" height="32" viewBox="0 0 440 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect x="4" y="20" width="80" height="76" rx="14" fill="currentColor"/>
+                <rect x="14" y="40" width="60" height="46" rx="6" fill="var(--surface, #fff)"/>
+                <rect x="24" y="8" width="12" height="24" rx="4" fill="currentColor"/>
+                <rect x="52" y="8" width="12" height="24" rx="4" fill="currentColor"/>
+                <circle cx="32" cy="55" r="4" fill="currentColor" opacity="0.2"/>
+                <circle cx="52" cy="55" r="4" fill="currentColor" opacity="0.2"/>
+                <circle cx="32" cy="72" r="4" fill="currentColor" opacity="0.2"/>
+                <circle cx="52" cy="72" r="5.5" fill="currentColor"/>
+                <text x="104" y="82" fontFamily="-apple-system, 'SF Pro Display', 'Inter', 'Helvetica Neue', Arial, sans-serif" fontSize="68" fontWeight="700" letterSpacing="-2.5">
+                  <tspan fill="var(--text-primary, #1a1a2e)">day</tspan><tspan fill="currentColor">desk</tspan>
+                </text>
+              </svg>
             </a>
             <button
               onClick={() => setIsMenuOpen(false)}

@@ -1,4 +1,4 @@
-# Daydesk Setup Guide
+# daydesk Setup Guide
 
 ## Quick Start (5 minutes)
 

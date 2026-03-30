@@ -1,4 +1,18 @@
-# Daydesk - Office Attendance Tracker
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="public/daydesk-logo-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="public/daydesk-logo-light.svg">
+    <img src="public/daydesk-logo-light.svg" alt="daydesk" width="400">
+  </picture>
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a>
+  <a href="https://github.com/kuehnleon/daydesk/actions/workflows/build.yml"><img src="https://github.com/kuehnleon/daydesk/actions/workflows/build.yml/badge.svg" alt="Build Status"></a>
+  <a href="https://github.com/kuehnleon/daydesk/releases/latest"><img src="https://img.shields.io/github/v/release/kuehnleon/daydesk" alt="Latest Release"></a>
+</p>
+
+# daydesk
 
 A lightweight multi-user application for tracking office and home office attendance for German tax reporting.
 
@@ -58,7 +72,7 @@ A lightweight multi-user application for tracking office and home office attenda
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/kuehnleon/daydesk.git
    cd daydesk
    ```
 
@@ -225,6 +239,12 @@ Uses [Nager.Date](https://date.nager.at) free API for German public holidays.
 - Automatically caches results
 - No API key required
 
+## Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+For security issues, see [SECURITY.md](SECURITY.md).
+
 ## License
 
-MIT
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.

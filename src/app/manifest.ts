@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Daydesk - Office Attendance Tracker',
-    short_name: 'Daydesk',
+    name: 'daydesk - Office Attendance Tracker',
+    short_name: 'daydesk',
     description: 'Track office and home office attendance for German tax reporting',
     start_url: '/',
     display: 'standalone',
@@ -34,6 +34,12 @@ export default function manifest(): MetadataRoute.Manifest {
         sizes: '512x512',
         type: 'image/png',
         purpose: 'maskable',
+      },
+      {
+        src: '/apple-touch-icon.png',
+        sizes: '180x180',
+        type: 'image/png',
+        purpose: 'any',
       },
     ],
   }

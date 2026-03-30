@@ -93,7 +93,7 @@ async function generatePDF(attendances: AttendanceWithRelations[], startDate: st
   // Header
   doc.setFontSize(20)
   doc.setFont('helvetica', 'bold')
-  doc.text('DAYDESK EXPORT', doc.internal.pageSize.width / 2, 20, { align: 'center' })
+  doc.text('daydesk export', doc.internal.pageSize.width / 2, 20, { align: 'center' })
 
   doc.setFontSize(12)
   doc.setFont('helvetica', 'normal')

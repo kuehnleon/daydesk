@@ -1,7 +1,17 @@
 {
   "name": "daydesk",
   "version": "0.5.3",
-  "private": true,
+  "description": "Office attendance tracker for German tax reporting",
+  "license": "MIT",
+  "author": "Leon Kuehn",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kuehnleon/daydesk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kuehnleon/daydesk/issues"
+  },
+  "homepage": "https://github.com/kuehnleon/daydesk#readme",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
