@@ -5,7 +5,7 @@ import { prisma } from "./db"
 
 const oidcProvider: OAuthConfig<Record<string, unknown>> = {
   id: "oidc",
-  name: process.env.OAUTH_PROVIDER_NAME || "SSO",
+  name: "SSO",
   type: "oauth",
   wellKnown: `${process.env.OAUTH_ISSUER}/.well-known/openid-configuration`,
   clientId: process.env.OAUTH_CLIENT_ID!,

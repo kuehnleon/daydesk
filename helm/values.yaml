@@ -109,7 +109,6 @@ oauth:
   clientId: ""
   clientSecret: ""
   nextauthSecret: ""    # random secret for NextAuth.js JWT signing
-  providerName: ""      # optional display name on the sign-in button (defaults to "SSO")
   logoutUrl: ""         # optional RP-initiated logout URL
 
 # -- Postgres secret configuration
