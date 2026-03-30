@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
 import { useToast } from '@/components/ui/toast'
 import { Navbar } from '@/components/navbar'
-import { Building2, Home, Check, Palmtree, ThermometerSun } from 'lucide-react'
+import { Building2, Home, Palmtree, ThermometerSun } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { minLoadingDelay } from '@/lib/loading'
 import { enqueue } from '@/lib/offline-queue'
@@ -183,11 +183,6 @@ export default function Dashboard() {
                       e.currentTarget.style.backgroundColor = location.color
                     }}
                   >
-                    {selected && (
-                      <div className="absolute top-3 right-3 rounded-full bg-white p-1">
-                        <Check className="h-4 w-4" style={{ color: location.color }} strokeWidth={3} />
-                      </div>
-                    )}
                     <Building2 className="mb-3 h-12 w-12" />
                     <span className="text-lg font-semibold">{location.name}</span>
                     {location.transport && (
@@ -209,11 +204,6 @@ export default function Dashboard() {
                     : ''
                 }`}
               >
-                {isSelectedHomeOffice() && (
-                  <div className="absolute top-3 right-3 rounded-full bg-white p-1">
-                    <Check className="h-4 w-4 text-emerald-600" strokeWidth={3} />
-                  </div>
-                )}
                 <Home className="mb-3 h-12 w-12" />
                 <span className="text-lg font-semibold">Home Office</span>
               </button>
@@ -227,11 +217,6 @@ export default function Dashboard() {
                     : ''
                 }`}
               >
-                {isSelectedType('off') && (
-                  <div className="absolute top-3 right-3 rounded-full bg-white p-1">
-                    <Check className="h-4 w-4 text-amber-600" strokeWidth={3} />
-                  </div>
-                )}
                 <Palmtree className="mb-3 h-12 w-12" />
                 <span className="text-lg font-semibold">Day Off</span>
               </button>
@@ -245,11 +230,6 @@ export default function Dashboard() {
                     : ''
                 }`}
               >
-                {isSelectedType('sick') && (
-                  <div className="absolute top-3 right-3 rounded-full bg-white p-1">
-                    <Check className="h-4 w-4 text-red-600" strokeWidth={3} />
-                  </div>
-                )}
                 <ThermometerSun className="mb-3 h-12 w-12" />
                 <span className="text-lg font-semibold">Sick</span>
               </button>
