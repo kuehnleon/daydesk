@@ -44,20 +44,9 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ['node', 'node_modules/prisma/build/index.js', 'migrate', 'deploy']
-          env:
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "daydesk.postgresSecretName" . }}
-                  key: database-url
-            - name: DIRECT_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "daydesk.postgresSecretName" . }}
-                  key: {{ if or .Values.postgres.directUrl .Values.postgres.existingSecret }}direct-url{{ else }}database-url{{ end }}
-                  {{- if .Values.postgres.existingSecret }}
-                  optional: true
-                  {{- end }}
+          envFrom:
+            - secretRef:
+                name: {{ include "daydesk.postgresSecretName" . }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
@@ -71,65 +60,16 @@ spec:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
-          env:
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "daydesk.postgresSecretName" . }}
-                  key: database-url
-            - name: DIRECT_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "daydesk.postgresSecretName" . }}
-                  key: {{ if or .Values.postgres.directUrl .Values.postgres.existingSecret }}direct-url{{ else }}database-url{{ end }}
-                  {{- if .Values.postgres.existingSecret }}
-                  optional: true
-                  {{- end }}
-            - name: APP_BASE_URL
-              value: {{ .Values.appUrl | quote }}
-            - name: NEXTAUTH_URL
-              value: {{ .Values.appUrl | quote }}
-            - name: AUTH0_DOMAIN
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "daydesk.auth0SecretName" . }}
-                  key: auth0-domain
-            - name: AUTH0_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "daydesk.auth0SecretName" . }}
-                  key: auth0-secret
-            - name: AUTH0_CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "daydesk.auth0SecretName" . }}
-                  key: auth0-client-id
-            - name: AUTH0_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "daydesk.auth0SecretName" . }}
-                  key: auth0-client-secret
+          envFrom:
+            - configMapRef:
+                name: {{ include "daydesk.fullname" . }}-config
+            - secretRef:
+                name: {{ include "daydesk.postgresSecretName" . }}
+            - secretRef:
+                name: {{ include "daydesk.oauthSecretName" . }}
             {{- if .Values.pushNotifications.enabled }}
-            - name: VAPID_PUBLIC_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "daydesk.vapidSecretName" . }}
-                  key: vapid-public-key
-            - name: VAPID_PRIVATE_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "daydesk.vapidSecretName" . }}
-                  key: vapid-private-key
-            - name: VAPID_SUBJECT
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "daydesk.vapidSecretName" . }}
-                  key: vapid-subject
-            - name: PUSH_API_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "daydesk.vapidSecretName" . }}
-                  key: push-api-secret
+            - secretRef:
+                name: {{ include "daydesk.vapidSecretName" . }}
             {{- end }}
           {{- with .Values.startupProbe }}
           startupProbe:

@@ -35,5 +35,5 @@ spec:
                   valueFrom:
                     secretKeyRef:
                       name: {{ include "daydesk.vapidSecretName" . }}
-                      key: push-api-secret
+                      key: PUSH_API_SECRET
 {{- end }}
