@@ -41,14 +41,20 @@ export const getAttendanceQuerySchema = z.object({
 export const createLocationSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
   transportId: z.string().nullable().optional(),
-  distance: z.coerce.number().int().nonnegative().nullable().optional(),
+  distance: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? null : val),
+    z.coerce.number().int().nonnegative().nullable().optional()
+  ),
   color: hexColorSchema,
 })
 
 export const updateLocationSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   transportId: z.string().nullable().optional(),
-  distance: z.coerce.number().int().nonnegative().nullable().optional(),
+  distance: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? null : val),
+    z.coerce.number().int().nonnegative().nullable().optional()
+  ),
   color: hexColorSchema.optional(),
   sortOrder: z.number().int().nonnegative().optional(),
 })
