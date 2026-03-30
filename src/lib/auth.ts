@@ -10,8 +10,10 @@ const oidcProvider: OAuthConfig<Record<string, unknown>> = {
   wellKnown: `${process.env.OAUTH_ISSUER}/.well-known/openid-configuration`,
   clientId: process.env.OAUTH_CLIENT_ID!,
   clientSecret: process.env.OAUTH_CLIENT_SECRET!,
+  authorization: { params: { scope: "openid email profile" } },
   idToken: true,
   checks: ["state"],
+  allowDangerousEmailAccountLinking: true,
   profile(profile) {
     return {
       id: profile.sub as string,

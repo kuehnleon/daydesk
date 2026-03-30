@@ -62,6 +62,8 @@ http://localhost:3000/api/auth/callback/oidc
 http://localhost:3000
 ```
 
+Your provider must support the `openid email profile` scopes so that the ID token includes the user's email, name, and picture.
+
 <details>
 <summary><strong>Auth0 Example</strong></summary>
 
