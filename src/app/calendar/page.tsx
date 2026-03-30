@@ -13,8 +13,7 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
-  BarChart3,
-  Check
+  BarChart3
 } from 'lucide-react'
 import type { Location, Transport } from '@/types'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -733,7 +732,12 @@ export default function Calendar() {
                   <div
                     key={location.id}
                     className="relative flex items-center rounded-xl text-white transition-all hover:scale-[1.02]"
-                    style={{ backgroundColor: location.color }}
+                    style={{
+                      backgroundColor: location.color,
+                      boxShadow: isSelected
+                        ? `0 0 0 3px white, 0 0 0 5px ${location.color}`
+                        : undefined,
+                    }}
                   >
                     <button
                       onClick={() => {
@@ -812,11 +816,6 @@ export default function Calendar() {
                         <ChevronRight className="h-3.5 w-3.5" />
                       </button>
                     )}
-                    {isSelected && (
-                      <div className="absolute -top-1.5 -right-1.5 rounded-full bg-white p-1 shadow-sm">
-                        <Check className="h-4 w-4" style={{ color: location.color }} strokeWidth={3} />
-                      </div>
-                    )}
                   </div>                )
               })}
 
@@ -831,49 +830,40 @@ export default function Calendar() {
                     <button
                       onClick={() => saveAttendance('home', null)}
                       disabled={isLoading}
-                      className="relative flex cursor-pointer items-center gap-4 rounded-xl bg-emerald-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+                      className={`relative flex cursor-pointer items-center gap-4 rounded-xl bg-emerald-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50 ${
+                        isHome ? 'ring-3 ring-emerald-300 ring-offset-2 dark:ring-emerald-400 dark:ring-offset-background' : ''
+                      }`}
                     >
                       <Home className="h-10 w-10" />
                       <div>
                         <div className="font-semibold">Home Office</div>
                       </div>
-                      {isHome && (
-                        <div className="absolute -top-1.5 -right-1.5 rounded-full bg-white p-1 shadow-sm">
-                          <Check className="h-4 w-4 text-emerald-600" strokeWidth={3} />
-                        </div>
-                      )}
                     </button>
 
                     <button
                       onClick={() => saveAttendance('off', null)}
                       disabled={isLoading}
-                      className="relative flex cursor-pointer items-center gap-4 rounded-xl bg-amber-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
+                      className={`relative flex cursor-pointer items-center gap-4 rounded-xl bg-amber-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50 ${
+                        isOff ? 'ring-3 ring-amber-300 ring-offset-2 dark:ring-amber-400 dark:ring-offset-background' : ''
+                      }`}
                     >
                       <Palmtree className="h-10 w-10" />
                       <div>
                         <div className="font-semibold">Day Off</div>
                       </div>
-                      {isOff && (
-                        <div className="absolute -top-1.5 -right-1.5 rounded-full bg-white p-1 shadow-sm">
-                          <Check className="h-4 w-4 text-amber-600" strokeWidth={3} />
-                        </div>
-                      )}
                     </button>
 
                     <button
                       onClick={() => saveAttendance('sick', null)}
                       disabled={isLoading}
-                      className="relative flex cursor-pointer items-center gap-4 rounded-xl bg-red-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+                      className={`relative flex cursor-pointer items-center gap-4 rounded-xl bg-red-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50 ${
+                        isSick ? 'ring-3 ring-red-300 ring-offset-2 dark:ring-red-400 dark:ring-offset-background' : ''
+                      }`}
                     >
                       <ThermometerSun className="h-10 w-10" />
                       <div>
                         <div className="font-semibold">Sick</div>
                       </div>
-                      {isSick && (
-                        <div className="absolute -top-1.5 -right-1.5 rounded-full bg-white p-1 shadow-sm">
-                          <Check className="h-4 w-4 text-red-600" strokeWidth={3} />
-                        </div>
-                      )}
                     </button>
                   </>
                 )
