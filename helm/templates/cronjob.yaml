@@ -26,7 +26,7 @@ spec:
                 - /bin/sh
                 - -c
                 - |
-                  curl -sf -X POST \
+                  curl -f -X POST \
                     -H "Authorization: Bearer $(PUSH_API_SECRET)" \
                     -H "Content-Type: application/json" \
                     "http://{{ include "daydesk.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}/api/push/send"
