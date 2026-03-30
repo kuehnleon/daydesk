@@ -13,7 +13,6 @@ const oidcProvider: OAuthConfig<Record<string, unknown>> = {
   authorization: { params: { scope: "openid email profile" } },
   idToken: true,
   checks: ["state"],
-  allowDangerousEmailAccountLinking: true,
   profile(profile) {
     return {
       id: profile.sub as string,
