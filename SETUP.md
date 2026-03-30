@@ -9,20 +9,34 @@ cd daydesk
 npm install
 ```
 
-### 2. Set Up Auth0
+### 2. Set Up an OIDC Provider
+
+daydesk works with any OIDC-compliant identity provider. Configure a "Web Application" in your provider with:
+
+- **Allowed Callback URL**: `http://localhost:3000/api/auth/callback/oidc`
+- **Allowed Logout URL**: `http://localhost:3000`
+
+You need these values from your provider:
+
+- **Issuer URL** (must expose `/.well-known/openid-configuration`)
+- **Client ID**
+- **Client Secret**
+
+<details>
+<summary><strong>Auth0 Example</strong></summary>
 
 1. Go to https://auth0.com and create a free account
 2. Create a new **Regular Web Application**
 3. In the application settings:
-   - **Allowed Callback URLs**: `http://localhost:3000/api/auth/callback/auth0`
+   - **Allowed Callback URLs**: `http://localhost:3000/api/auth/callback/oidc`
    - **Allowed Logout URLs**: `http://localhost:3000`
    - **Allowed Web Origins**: `http://localhost:3000`
    - Save changes
-
 4. Copy these values from the "Basic Information" section:
-   - Domain (e.g., `dev-abc123.us.auth0.com`)
-   - Client ID
-   - Client Secret
+   - Domain → use as `OAUTH_ISSUER` with `https://` prefix (e.g. `https://dev-abc123.us.auth0.com`)
+   - Client ID → `OAUTH_CLIENT_ID`
+   - Client Secret → `OAUTH_CLIENT_SECRET`
+</details>
 
 ### 3. Configure Environment
 
@@ -30,7 +44,7 @@ npm install
 # Copy the example environment file
 cp .env.example .env
 
-# Edit .env and add your Auth0 credentials
+# Edit .env and add your OIDC provider credentials
 ```
 
 Your `.env` should look like:
@@ -38,9 +52,9 @@ Your `.env` should look like:
 DATABASE_URL="file:./dev.db"
 NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="your-generated-secret-here"
-AUTH0_CLIENT_ID="your-auth0-client-id"
-AUTH0_CLIENT_SECRET="your-auth0-client-secret"
-AUTH0_ISSUER="https://your-domain.auth0.com"
+OAUTH_ISSUER="https://your-tenant.auth0.com"
+OAUTH_CLIENT_ID="your-oauth-client-id"
+OAUTH_CLIENT_SECRET="your-oauth-client-secret"
 ```
 
 **Generate NEXTAUTH_SECRET:**
@@ -95,9 +109,9 @@ env:
   DATABASE_URL: "file:/data/daydesk.db"
   NEXTAUTH_URL: "https://daydesk.yourdomain.com"
   NEXTAUTH_SECRET: "$(openssl rand -base64 32)"
-  AUTH0_CLIENT_ID: "your-production-client-id"
-  AUTH0_CLIENT_SECRET: "your-production-client-secret"
-  AUTH0_ISSUER: "https://your-domain.auth0.com"
+  OAUTH_CLIENT_ID: "your-production-client-id"
+  OAUTH_CLIENT_SECRET: "your-production-client-secret"
+  OAUTH_ISSUER: "https://your-tenant.auth0.com"
 EOF
 ```
 
@@ -107,17 +121,16 @@ EOF
 helm upgrade --install daydesk ./helm -f ./helm/values.local.yaml
 ```
 
-#### Update Auth0 for Production
+#### Update OIDC Provider for Production
 
-In your Auth0 application settings, add:
-- **Allowed Callback URLs**: `https://daydesk.yourdomain.com/api/auth/callback/auth0`
-- **Allowed Logout URLs**: `https://daydesk.yourdomain.com`
-- **Allowed Web Origins**: `https://daydesk.yourdomain.com`
+In your OIDC provider settings, add:
+- **Allowed Callback URL**: `https://daydesk.yourdomain.com/api/auth/callback/oidc`
+- **Allowed Logout URL**: `https://daydesk.yourdomain.com`
 
 ### Option 2: Docker Compose (Development/Testing)
 
 ```bash
-# Add Auth0 credentials to .env file
+# Add OIDC provider credentials to .env file
 docker-compose up
 ```
 
@@ -143,9 +156,9 @@ The app will appear on your home screen like a native app!
 ## Troubleshooting
 
 ### "Invalid callback URL" error
-- Check that your Auth0 Allowed Callback URLs matches exactly
-- For local development: `http://localhost:3000/api/auth/callback/auth0`
-- For production: `https://your-domain.com/api/auth/callback/auth0`
+- Check that your OIDC provider's Allowed Callback URLs matches exactly
+- For local development: `http://localhost:3000/api/auth/callback/oidc`
+- For production: `https://your-domain.com/api/auth/callback/oidc`
 
 ### Database errors
 ```bash
@@ -193,7 +206,7 @@ npm run db:push
 - **Frontend**: Next.js 16 with React Server Components
 - **Backend**: Next.js API routes
 - **Database**: SQLite with Prisma ORM
-- **Auth**: NextAuth.js v5 + Auth0
+- **Auth**: NextAuth.js + OIDC
 - **Styling**: TailwindCSS
 - **Deployment**: Docker + Helm for K8s
 
@@ -201,5 +214,5 @@ npm run db:push
 
 For issues or questions:
 - Check the README.md
-- Review Auth0 documentation
+- Review your OIDC provider's documentation
 - Check Prisma documentation for database issues

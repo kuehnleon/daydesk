@@ -97,23 +97,31 @@ tolerations: []
 
 affinity: {}
 
-# -- Public URL of the application (used for APP_BASE_URL and NEXTAUTH_URL)
+# -- Public URL of the application (used for APP_BASE_URL and NEXTAUTH_URL in the ConfigMap)
 appUrl: "http://localhost:3000"
 
-# -- Auth0 secret configuration
-# If existingSecret is set, no Auth0 Secret resource is created.
-# The existing secret must contain keys: auth0-domain, auth0-secret, auth0-client-id, auth0-client-secret
-auth0:
+# -- Non-secret environment variables (loaded via ConfigMap)
+# Add any custom env vars here; they will be injected into the container.
+env:
+  NEXT_PUBLIC_SKELETON_MIN_MS: "300"
+  # OAUTH_LOGOUT_URL: ""   # optional — set if your OIDC provider supports RP-initiated logout
+
+# -- OAuth / OIDC secret configuration (works with any OIDC provider: Auth0, Keycloak, Okta, Azure AD, etc.)
+# If existingSecret is set, no OAuth Secret resource is created.
+# The existing secret must contain keys: NEXTAUTH_SECRET, OAUTH_ISSUER, OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET
+# Optional key: OAUTH_LOGOUT_URL
+oauth:
   existingSecret: ""
-  domain: ""
+  issuer: ""            # OIDC issuer URL (e.g. https://your-tenant.auth0.com)
   clientId: ""
   clientSecret: ""
-  secret: ""
+  nextauthSecret: ""    # random secret for NextAuth.js JWT signing
+  logoutUrl: ""         # optional RP-initiated logout URL
 
 # -- Postgres secret configuration
 # Provide databaseUrl to create a managed secret, or set existingSecret to reference a pre-created one.
-# The existing secret must contain the key: database-url (and optionally: direct-url)
-# directUrl is for connection poolers (e.g. Supabase/PgBouncer) where Prisma needs a
+# The existing secret must contain the key: DATABASE_URL (and optionally: DIRECT_URL)
+# DIRECT_URL is for connection poolers (e.g. Supabase/PgBouncer) where Prisma needs a
 # direct connection for migrations while the app uses the pooled connection.
 postgres:
   existingSecret: ""
@@ -126,7 +134,7 @@ initContainer:
 
 # -- VAPID configuration for Web Push notifications
 # If existingSecret is set, no VAPID Secret resource is created.
-# The existing secret must contain keys: vapid-public-key, vapid-private-key, vapid-subject, push-api-secret
+# The existing secret must contain keys: VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT, PUSH_API_SECRET
 vapid:
   existingSecret: ""
   publicKey: ""

@@ -1,13 +1,16 @@
 import { NextResponse } from 'next/server'
 
 export async function GET() {
-  const domain = process.env.AUTH0_DOMAIN
-  const clientId = process.env.AUTH0_CLIENT_ID
   const baseUrl = process.env.NEXTAUTH_URL || process.env.APP_BASE_URL || 'http://localhost:3000'
+  const signInUrl = `${baseUrl}/auth/signin`
 
-  const logoutUrl = new URL(`https://${domain}/v2/logout`)
-  logoutUrl.searchParams.set('client_id', clientId!)
-  logoutUrl.searchParams.set('returnTo', `${baseUrl}/auth/signin`)
+  // If the provider exposes a logout endpoint, redirect through it first
+  const providerLogoutUrl = process.env.OAUTH_LOGOUT_URL
+  if (providerLogoutUrl) {
+    const logoutUrl = new URL(providerLogoutUrl)
+    logoutUrl.searchParams.set('post_logout_redirect_uri', signInUrl)
+    return NextResponse.redirect(logoutUrl.toString())
+  }
 
-  return NextResponse.redirect(logoutUrl.toString())
+  return NextResponse.redirect(signInUrl)
 }

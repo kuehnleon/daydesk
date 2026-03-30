@@ -24,14 +24,14 @@ A lightweight multi-user application for tracking office and home office attenda
 - **Export Reports**: CSV and PDF exports with date range selection
 - **Multi-user**: Each user has their own attendance records
 - **PWA Support**: Install on iPhone/macOS home screen
-- **Auth0 Authentication**: Secure user authentication
+- **OIDC Authentication**: Works with any OpenID Connect provider (Auth0, Keycloak, Okta, Azure AD, etc.)
 
 ## Tech Stack
 
 - Next.js 16 (App Router)
 - TypeScript
 - Prisma + SQLite
-- NextAuth.js v5 + Auth0
+- NextAuth.js + OIDC
 - TailwindCSS
 - PWA (installable)
 
@@ -40,33 +40,53 @@ A lightweight multi-user application for tracking office and home office attenda
 ### Prerequisites
 
 - Node.js 20+ and npm
-- Auth0 account (free tier)
+- An OIDC-compliant identity provider (e.g. [Auth0](https://auth0.com), [Keycloak](https://www.keycloak.org), [Okta](https://www.okta.com), [Azure AD](https://azure.microsoft.com/en-us/products/active-directory))
 
-### Auth0 Setup
+### OIDC Provider Setup
+
+daydesk works with **any** OIDC-compliant provider. You need three values from your provider:
+
+- **Issuer URL** — must expose `/.well-known/openid-configuration`
+- **Client ID**
+- **Client Secret**
+
+Configure a "Web Application" in your provider with:
+
+**Allowed Callback URL:**
+```
+http://localhost:3000/api/auth/callback/oidc
+```
+
+**Allowed Logout URL:**
+```
+http://localhost:3000
+```
+
+Your provider must support the `openid email profile` scopes so that the ID token includes the user's email, name, and picture.
+
+<details>
+<summary><strong>Auth0 Example</strong></summary>
 
 1. Create a free Auth0 account at https://auth0.com
 2. Create a new **Regular Web Application**
 3. Configure the following settings:
 
-   **Allowed Callback URLs:**
-   ```
-   http://localhost:3000/api/auth/callback/auth0
-   ```
+   **Allowed Callback URLs:** `http://localhost:3000/api/auth/callback/oidc`
 
-   **Allowed Logout URLs:**
-   ```
-   http://localhost:3000
-   ```
+   **Allowed Logout URLs:** `http://localhost:3000`
 
-   **Allowed Web Origins:**
-   ```
-   http://localhost:3000
-   ```
+   **Allowed Web Origins:** `http://localhost:3000`
 
 4. Copy your credentials:
-   - Domain (e.g., `your-tenant.auth0.com`)
-   - Client ID
-   - Client Secret
+   - Domain → use as `OAUTH_ISSUER` with `https://` prefix (e.g. `https://your-tenant.auth0.com`)
+   - Client ID → `OAUTH_CLIENT_ID`
+   - Client Secret → `OAUTH_CLIENT_SECRET`
+
+5. For logout support, set `OAUTH_LOGOUT_URL` to:
+   ```
+   https://your-tenant.auth0.com/v2/logout?client_id=YOUR_CLIENT_ID
+   ```
+</details>
 
 ### Local Development
 
@@ -86,16 +106,16 @@ A lightweight multi-user application for tracking office and home office attenda
    cp .env.example .env
    ```
 
-4. Update `.env` with your Auth0 credentials:
+4. Update `.env` with your OIDC provider credentials:
    ```
    DATABASE_URL="file:./dev.db"
    NEXTAUTH_URL="http://localhost:3000"
+   NEXTAUTH_SECRET="generate-a-random-secret"
 
    APP_BASE_URL=http://localhost:3000
-   AUTH0_DOMAIN=your-domain.auth0.com
-   AUTH0_CLIENT_ID=your-client-id
-   AUTH0_CLIENT_SECRET=your-client-secret
-   AUTH0_SECRET=generate-a-random-secret
+   OAUTH_ISSUER=https://your-tenant.auth0.com
+   OAUTH_CLIENT_ID=your-client-id
+   OAUTH_CLIENT_SECRET=your-client-secret
    ```
 
 5. Generate Prisma client and push database schema:
@@ -111,7 +131,7 @@ A lightweight multi-user application for tracking office and home office attenda
 
 7. Open http://localhost:3000
 
-### Generate AUTH0_SECRET
+### Generate NEXTAUTH_SECRET
 
 ```bash
 openssl rand -hex 32
@@ -164,9 +184,9 @@ env:
   DATABASE_URL: "file:/data/daydesk.db"
   NEXTAUTH_URL: "https://daydesk.your-domain.com"
   NEXTAUTH_SECRET: "your-production-secret"
-  AUTH0_CLIENT_ID: "your-client-id"
-  AUTH0_CLIENT_SECRET: "your-client-secret"
-  AUTH0_ISSUER: "https://your-domain.auth0.com"
+  OAUTH_CLIENT_ID: "your-client-id"
+  OAUTH_CLIENT_SECRET: "your-client-secret"
+  OAUTH_ISSUER: "https://your-tenant.auth0.com"
 
 ingress:
   enabled: true
@@ -177,21 +197,16 @@ EOF
 helm upgrade --install daydesk . -f values.local.yaml
 ```
 
-### Update Auth0 for Production
+### Update OIDC Provider for Production
 
-In your Auth0 application settings, add production URLs:
+In your OIDC provider settings, add production URLs:
 
-**Allowed Callback URLs:**
+**Allowed Callback URL:**
 ```
-https://daydesk.your-domain.com/api/auth/callback/auth0
-```
-
-**Allowed Logout URLs:**
-```
-https://daydesk.your-domain.com
+https://daydesk.your-domain.com/api/auth/callback/oidc
 ```
 
-**Allowed Web Origins:**
+**Allowed Logout URL:**
 ```
 https://daydesk.your-domain.com
 ```
