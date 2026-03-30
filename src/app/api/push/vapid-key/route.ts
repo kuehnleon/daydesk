@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
+import { withLogging } from '@/lib/api-utils'
 
-export async function GET() {
+export const GET = withLogging(async () => {
   const publicKey = process.env.VAPID_PUBLIC_KEY
 
   if (!publicKey) {
@@ -14,4 +15,4 @@ export async function GET() {
     { publicKey },
     { headers: { 'Cache-Control': 'public, max-age=86400' } }
   )
-}
+})

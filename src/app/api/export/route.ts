@@ -6,12 +6,13 @@ import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import type { AttendanceWithRelations } from '@/types'
 import { exportQuerySchema } from '@/lib/validations'
+import { withLogging } from '@/lib/api-utils'
 
 interface jsPDFWithAutoTable extends jsPDF {
   lastAutoTable: { finalY: number }
 }
 
-export async function GET(request: Request) {
+export const GET = withLogging(async (request) => {
   const session = await auth()
 
   if (!session?.user?.id) {
@@ -66,7 +67,7 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json({ error: 'Invalid format' }, { status: 400 })
-}
+})
 
 function generateCSV(attendances: AttendanceWithRelations[]): string {
   const headers = ['Date', 'Type', 'Location', 'Transport', 'Distance (km)', 'Notes']

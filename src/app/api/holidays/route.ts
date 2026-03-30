@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { holidaysQuerySchema } from '@/lib/validations'
+import { withLogging } from '@/lib/api-utils'
 
 interface Holiday {
   date: string
@@ -53,7 +54,7 @@ async function fetchHolidaysForYear(year: string): Promise<Holiday[]> {
   return data
 }
 
-export async function GET(request: Request) {
+export const GET = withLogging(async (request) => {
   const { searchParams } = new URL(request.url)
   const query = Object.fromEntries(searchParams.entries())
   const parsed = holidaysQuerySchema.safeParse(query)
@@ -86,4 +87,4 @@ export async function GET(request: Request) {
       { status: 500 }
     )
   }
-}
+})

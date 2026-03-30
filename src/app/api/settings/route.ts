@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { updateSettingsSchema } from '@/lib/validations'
+import { withLogging } from '@/lib/api-utils'
 
-export async function GET() {
+export const GET = withLogging(async () => {
   const session = await auth()
 
   if (!session?.user?.id) {
@@ -35,9 +36,9 @@ export async function GET() {
   return NextResponse.json(user, {
     headers: { 'Cache-Control': 'private, no-cache' },
   })
-}
+})
 
-export async function PATCH(request: Request) {
+export const PATCH = withLogging(async (request) => {
   const session = await auth()
 
   if (!session?.user?.id) {
@@ -69,4 +70,4 @@ export async function PATCH(request: Request) {
   })
 
   return NextResponse.json(user)
-}
+})

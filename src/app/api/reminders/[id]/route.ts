@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
+import { withLogging } from '@/lib/api-utils'
 
-export async function DELETE(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export const DELETE = withLogging(async (_request, { params }) => {
   const session = await auth()
 
   if (!session?.user?.id) {
@@ -22,4 +20,4 @@ export async function DELETE(
   await prisma.reminderTime.delete({ where: { id } })
 
   return NextResponse.json({ success: true })
-}
+})

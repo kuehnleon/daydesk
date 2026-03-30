@@ -3,8 +3,9 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { startOfMonth, endOfMonth, parseISO } from 'date-fns'
 import { getAttendanceQuerySchema, createAttendanceSchema } from '@/lib/validations'
+import { withLogging } from '@/lib/api-utils'
 
-export async function GET(request: Request) {
+export const GET = withLogging(async (request) => {
   const session = await auth()
 
   if (!session?.user?.id) {
@@ -55,9 +56,9 @@ export async function GET(request: Request) {
   return NextResponse.json(attendances, {
     headers: { 'Cache-Control': 'private, no-cache' },
   })
-}
+})
 
-export async function POST(request: Request) {
+export const POST = withLogging(async (request) => {
   const session = await auth()
 
   if (!session?.user?.id) {
@@ -105,4 +106,4 @@ export async function POST(request: Request) {
   })
 
   return NextResponse.json(attendance)
-}
+})

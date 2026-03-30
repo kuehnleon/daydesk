@@ -2,11 +2,9 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { updateTransportSchema } from '@/lib/validations'
+import { withLogging } from '@/lib/api-utils'
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export const PATCH = withLogging(async (request, { params }) => {
   const session = await auth()
 
   if (!session?.user?.id) {
@@ -44,12 +42,9 @@ export async function PATCH(
   })
 
   return NextResponse.json(transport)
-}
+})
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export const DELETE = withLogging(async (request, { params }) => {
   const session = await auth()
 
   if (!session?.user?.id) {
@@ -71,4 +66,4 @@ export async function DELETE(
   })
 
   return NextResponse.json({ success: true })
-}
+})
