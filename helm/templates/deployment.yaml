@@ -108,6 +108,13 @@ spec:
                 secretKeyRef:
                   name: {{ include "daydesk.oauthSecretName" . }}
                   key: oauth-client-secret
+            {{- if .Values.oauth.logoutUrl }}
+            - name: OAUTH_LOGOUT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "daydesk.oauthSecretName" . }}
+                  key: oauth-logout-url
+            {{- end }}
             {{- if .Values.pushNotifications.enabled }}
             - name: VAPID_PUBLIC_KEY
               valueFrom:
