@@ -115,7 +115,6 @@ oauth:
   clientId: ""
   clientSecret: ""
   nextauthSecret: ""    # random secret for NextAuth.js JWT signing
-  logoutUrl: ""         # optional RP-initiated logout URL
 
 # -- Postgres secret configuration
 # Provide databaseUrl to create a managed secret, or set existingSecret to reference a pre-created one.
