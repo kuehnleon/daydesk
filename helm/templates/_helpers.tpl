@@ -62,10 +62,10 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
-Create the name of the Auth0 secret to use
+Create the name of the OAuth secret to use
 */}}
-{{- define "daydesk.auth0SecretName" -}}
-{{- default (printf "%s-auth0" (include "daydesk.fullname" .)) .Values.auth0.existingSecret }}
+{{- define "daydesk.oauthSecretName" -}}
+{{- default (printf "%s-oauth" (include "daydesk.fullname" .)) .Values.oauth.existingSecret }}
 {{- end }}
 
 {{/*

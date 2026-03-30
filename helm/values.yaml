@@ -100,15 +100,17 @@ affinity: {}
 # -- Public URL of the application (used for APP_BASE_URL and NEXTAUTH_URL)
 appUrl: "http://localhost:3000"
 
-# -- Auth0 secret configuration
-# If existingSecret is set, no Auth0 Secret resource is created.
-# The existing secret must contain keys: auth0-domain, auth0-secret, auth0-client-id, auth0-client-secret
-auth0:
+# -- OAuth / OIDC secret configuration (works with any OIDC provider: Auth0, Keycloak, Okta, Azure AD, etc.)
+# If existingSecret is set, no OAuth Secret resource is created.
+# The existing secret must contain keys: oauth-issuer, nextauth-secret, oauth-client-id, oauth-client-secret
+oauth:
   existingSecret: ""
-  domain: ""
+  issuer: ""            # OIDC issuer URL (e.g. https://your-tenant.auth0.com)
   clientId: ""
   clientSecret: ""
-  secret: ""
+  nextauthSecret: ""    # random secret for NextAuth.js JWT signing
+  providerName: ""      # optional display name on the sign-in button (defaults to "SSO")
+  logoutUrl: ""         # optional RP-initiated logout URL
 
 # -- Postgres secret configuration
 # Provide databaseUrl to create a managed secret, or set existingSecret to reference a pre-created one.
