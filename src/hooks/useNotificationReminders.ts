@@ -198,9 +198,9 @@ export function useNotificationReminders() {
     try {
       const registration = await navigator.serviceWorker?.getRegistration()
       if (registration?.active) {
-        await registration.showNotification('Daydesk Reminder', options)
+        await registration.showNotification('daydesk Reminder', options)
       } else {
-        new Notification('Daydesk Reminder', options)
+        new Notification('daydesk Reminder', options)
       }
       return true
     } catch (error) {

@@ -47,3 +47,19 @@ helm/**/values.local.yaml
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# claude / AI assistant
+.claude/
+
+# internal project management
+tasks/
+
+# markdown files (ignore by default, whitelist public-facing docs)
+*.md
+!README.md
+!SETUP.md
+!CONTRIBUTING.md
+!SECURITY.md
+!CODE_OF_CONDUCT.md
+!CHANGELOG.md
+!public/ICONS.md

@@ -1,4 +1,4 @@
-Daydesk has been deployed!
+daydesk has been deployed!
 
 1. Get the application URL by running:
 {{- if .Values.ingress.enabled }}

@@ -70,7 +70,7 @@ export async function POST(request: Request) {
     notifiedUsers.add(user.id)
 
     const payload = JSON.stringify({
-      title: 'Daydesk Reminder',
+      title: 'daydesk Reminder',
       body: "Don't forget to log your attendance for today!",
       url: '/dashboard',
     })

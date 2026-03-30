@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "Daydesk Setup Script"
+echo "daydesk Setup Script"
 echo "======================"
 echo ""
 

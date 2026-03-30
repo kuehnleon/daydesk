@@ -119,7 +119,7 @@ self.addEventListener('fetch', (event) => {
 // Handle push notifications from server
 self.addEventListener('push', (event) => {
   let data = {
-    title: 'Daydesk Reminder',
+    title: 'daydesk Reminder',
     body: "Don't forget to log your attendance!",
     url: '/dashboard',
   };

@@ -26,16 +26,19 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Daydesk - Office Attendance Tracker",
+  title: "daydesk - Office Attendance Tracker",
   description: "Track office and home office attendance for German tax reporting",
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Daydesk',
+    title: 'daydesk',
   },
   icons: {
-    icon: '/icon-192.png',
-    apple: '/icon-192.png',
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
   },
   other: {
     'mobile-web-app-capable': 'yes',
