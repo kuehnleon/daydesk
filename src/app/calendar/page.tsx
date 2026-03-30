@@ -732,17 +732,55 @@ export default function Calendar() {
                     style={{ backgroundColor: location.color }}
                   >
                     <button
-                      onClick={() => saveAttendance('office', location.transportId, location.id)}
+                      onClick={() => {
+                        const dates = getSelectedDatesArray()
+                        const existing = dates.length === 1 ? attendances[dates[0]] : null
+                        const transportId =
+                          existing?.locationId === location.id
+                            ? existing.transportId
+                            : location.transportId
+                        saveAttendance('office', transportId, location.id)
+                      }}
                       disabled={isLoading}
                       className="flex flex-1 cursor-pointer items-center gap-4 p-4 text-left disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Building2 className="h-10 w-10" />
                       <div>
                         <div className="font-semibold">{location.name}</div>
-                        {location.transport && (
-                          <div className="text-sm opacity-90">{location.transport.name}</div>
-                        )}
-                        {location.distance && (
+                        {(() => {
+                          const dates = getSelectedDatesArray()
+                          const existing = dates.length === 1 ? attendances[dates[0]] : null
+                          const hasOverride =
+                            existing?.locationId === location.id &&
+                            existing?.transportId !== location.transportId
+                          const overrideTransport = hasOverride ? existing?.transport : null
+
+                          if (hasOverride && overrideTransport) {
+                            return (
+                              <div className="text-sm opacity-90">
+                                {location.transport && (
+                                  <span className="line-through opacity-60">
+                                    {location.transport.name}
+                                  </span>
+                                )}{' '}
+                                {overrideTransport.name}
+                              </div>
+                            )
+                          }
+                          if (hasOverride && !existing?.transportId) {
+                            return location.transport ? (
+                              <div className="text-sm opacity-90">
+                                <span className="line-through opacity-60">
+                                  {location.transport.name}
+                                </span>
+                              </div>
+                            ) : null
+                          }
+                          return location.transport ? (
+                            <div className="text-sm opacity-90">{location.transport.name}</div>
+                          ) : null
+                        })()}
+                        {location.distance && Number(location.distance) > 0 && (
                           <div className="text-xs opacity-75">{location.distance} km</div>
                         )}
                       </div>
