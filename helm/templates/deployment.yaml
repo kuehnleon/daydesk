@@ -71,6 +71,9 @@ spec:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ include "daydesk.fullname" . }}-config
           env:
             - name: DATABASE_URL
               valueFrom:
@@ -85,10 +88,6 @@ spec:
                   {{- if .Values.postgres.existingSecret }}
                   optional: true
                   {{- end }}
-            - name: APP_BASE_URL
-              value: {{ .Values.appUrl | quote }}
-            - name: NEXTAUTH_URL
-              value: {{ .Values.appUrl | quote }}
             - name: NEXTAUTH_SECRET
               valueFrom:
                 secretKeyRef:

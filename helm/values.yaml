@@ -97,8 +97,14 @@ tolerations: []
 
 affinity: {}
 
-# -- Public URL of the application (used for APP_BASE_URL and NEXTAUTH_URL)
+# -- Public URL of the application (used for APP_BASE_URL and NEXTAUTH_URL in the ConfigMap)
 appUrl: "http://localhost:3000"
+
+# -- Non-secret environment variables (loaded via ConfigMap)
+# Add any custom env vars here; they will be injected into the container.
+env:
+  NEXT_PUBLIC_SKELETON_MIN_MS: "300"
+  # OAUTH_LOGOUT_URL: ""   # optional — set if your OIDC provider supports RP-initiated logout
 
 # -- OAuth / OIDC secret configuration (works with any OIDC provider: Auth0, Keycloak, Okta, Azure AD, etc.)
 # If existingSecret is set, no OAuth Secret resource is created.
