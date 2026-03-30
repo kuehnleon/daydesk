@@ -104,6 +104,7 @@ appUrl: "http://localhost:3000"
 # Add any custom env vars here; they will be injected into the container.
 env:
   NEXT_PUBLIC_SKELETON_MIN_MS: "300"
+  LOG_LEVEL: "info"
   # OAUTH_LOGOUT_URL: ""   # optional — set if your OIDC provider supports RP-initiated logout
 
 # -- OAuth / OIDC secret configuration (works with any OIDC provider: Auth0, Keycloak, Okta, Azure AD, etc.)

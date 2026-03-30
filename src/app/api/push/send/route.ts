@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { sendPushNotification } from '@/lib/web-push'
 import { getCurrentTimeInTimezone, getDayOfWeekInTimezone, getTodayDateInTimezone } from '@/lib/timezone'
+import { withLogging } from '@/lib/api-utils'
 
-export async function POST(request: Request) {
+export const POST = withLogging(async (request) => {
   const authHeader = request.headers.get('authorization')
   const expectedSecret = process.env.PUSH_API_SECRET
 
@@ -95,4 +96,4 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({ notified, errors, cleaned })
-}
+})

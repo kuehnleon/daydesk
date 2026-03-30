@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { pushSubscribeSchema } from '@/lib/validations'
+import { withLogging } from '@/lib/api-utils'
 
-export async function POST(request: Request) {
+export const POST = withLogging(async (request) => {
   const session = await auth()
 
   if (!session?.user?.id) {
@@ -42,4 +43,4 @@ export async function POST(request: Request) {
   })
 
   return NextResponse.json({ success: true })
-}
+})
