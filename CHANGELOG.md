@@ -6,6 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.7.0] - 2026-03-31
+
+### Added
+
+- Add multi-country public holiday support
+- Add swipe gesture to navigate months on mobile calendar
+
+### Documentation
+
+- Update README and remove tax reporting claims
+
+### Fixed
+
+- Pass route context in tests for TypeScript 6 compatibility
+- Prevent horizontal scroll and overscroll bounce on mobile
+- Improve mobile touch handling for calendar day selection
+- Prevent swipe gesture from triggering day selection modal
+
+### Miscellaneous
+
+- Configure dependabot to use conventional commits
+
 ## [0.6.3] - 2026-03-30
 
 ### Added
@@ -138,6 +160,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix next auth and middleware
 
+[0.7.0]: https://github.com/kuehnleon/daydesk/compare/v0.6.3...v0.7.0
 [0.6.3]: https://github.com/kuehnleon/daydesk/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/kuehnleon/daydesk/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/kuehnleon/daydesk/compare/v0.6.0...v0.6.1
