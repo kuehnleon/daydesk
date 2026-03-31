@@ -178,7 +178,7 @@ npm install
 
 - **Quick Log**: Dashboard buttons for instant attendance logging
 - **Calendar**: Visual month view with color-coded days
-- **Export**: CSV reports for tax filing
+- **Export**: CSV and PDF reports
 - **Multi-user**: Each user has separate attendance records
 - **German Holidays**: Automatic for all 16 states via Nager.Date API
 - **PWA**: Install on any device

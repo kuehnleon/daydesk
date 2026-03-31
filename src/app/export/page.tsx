@@ -230,7 +230,7 @@ export default function ExportImport() {
             <ul className="space-y-1 text-xs text-text-secondary">
               <li>• CSV format: Date, Type, Transport, Notes</li>
               <li>• PDF format: Formatted table with monthly summaries</li>
-              <li>• Use for German tax reporting (Anlage N, Entfernungspauschale)</li>
+              <li>• Exports may be useful for personal record-keeping (e.g. tax filings)</li>
             </ul>
           </div>
         </div>

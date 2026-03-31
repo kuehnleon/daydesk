@@ -14,23 +14,26 @@
 
 # daydesk
 
-A lightweight multi-user application for tracking office and home office attendance for German tax reporting.
+A lightweight multi-user application for tracking office and home office attendance.
 
 ## Features
 
-- **Quick Logging**: One-tap buttons to log today's attendance
-- **Calendar View**: Visual month view to log/edit past days
+- **Quick Logging**: One-tap buttons to log today's attendance with customizable office locations
+- **Calendar View**: Visual month view to log/edit past days with color-coded location markers
+- **Statistics Dashboard**: Attendance breakdown, office location usage, transport methods, and commute distance tracking
+- **Custom Locations & Transports**: Define office locations with colors, distances, and preferred transport methods
 - **German Public Holidays**: Automatic fetching via Nager.Date API for all 16 states
-- **Export Reports**: CSV and PDF exports with date range selection
+- **Export & Import**: CSV and PDF exports with date range selection, plus CSV import
+- **Push Notifications**: Optional daily reminders to log attendance via Web Push
 - **Multi-user**: Each user has their own attendance records
-- **PWA Support**: Install on iPhone/macOS home screen
+- **PWA Support**: Installable on any device with offline support and background sync
 - **OIDC Authentication**: Works with any OpenID Connect provider (Auth0, Keycloak, Okta, Azure AD, etc.)
 
 ## Tech Stack
 
 - Next.js 16 (App Router)
 - TypeScript
-- Prisma + SQLite
+- Prisma + PostgreSQL
 - NextAuth.js + OIDC
 - TailwindCSS
 - PWA (installable)
@@ -106,11 +109,19 @@ Your provider must support the `openid email profile` scopes so that the ID toke
    cp .env.example .env
    ```
 
-4. Update `.env` with your OIDC provider credentials:
+4. Generate secrets:
+   ```bash
+   # Used for session cookie encryption and push API authentication
+   openssl rand -hex 32
    ```
-   DATABASE_URL="file:./dev.db"
+   Run this command **twice** — once for `NEXTAUTH_SECRET` and once for `PUSH_API_SECRET`.
+
+5. Update `.env` with your OIDC provider credentials and generated secrets:
+   ```
+   DATABASE_URL="postgresql://daydesk:daydesk@localhost:5432/daydesk"
+   DIRECT_URL="postgresql://daydesk:daydesk@localhost:5432/daydesk"
    NEXTAUTH_URL="http://localhost:3000"
-   NEXTAUTH_SECRET="generate-a-random-secret"
+   NEXTAUTH_SECRET="<first-generated-secret>"
 
    APP_BASE_URL=http://localhost:3000
    OAUTH_ISSUER=https://your-tenant.auth0.com
@@ -118,52 +129,68 @@ Your provider must support the `openid email profile` scopes so that the ID toke
    OAUTH_CLIENT_SECRET=your-client-secret
    ```
 
-5. Generate Prisma client and push database schema:
+   For push notifications (optional), also add:
+   ```
+   PUSH_API_SECRET="<second-generated-secret>"
+   VAPID_PUBLIC_KEY="<from-generate-command-below>"
+   VAPID_PRIVATE_KEY="<from-generate-command-below>"
+   VAPID_SUBJECT="mailto:your-email@example.com"
+   ```
+
+   `VAPID_SUBJECT` is a contact URL (typically `mailto:`) that identifies the application server to the browser push service.
+
+   Generate the VAPID key pair with:
+   ```bash
+   npx web-push generate-vapid-keys
+   ```
+
+6. Start a local PostgreSQL instance:
+   ```bash
+   docker compose up -d postgres
+   ```
+
+7. Generate Prisma client and push database schema:
    ```bash
    npm run db:generate
    npm run db:push
    ```
 
-6. Start development server:
+8. Start development server:
    ```bash
    npm run dev
    ```
 
-7. Open http://localhost:3000
-
-### Generate NEXTAUTH_SECRET
-
-```bash
-openssl rand -hex 32
-```
-
-## Database Schema
-
-- **User**: email, name, defaultState (German state code), workDays (comma-separated 1-5 for Mon-Fri)
-- **Attendance**: date, type (office/home/off/holiday/sick), transport (own_car/company_car/null), notes
-- **Account/Session**: NextAuth.js tables for auth
+9. Open http://localhost:3000
 
 ## Usage
 
 ### Quick Log
-- Dashboard has three buttons: Office (Own Car), Office (Company Car), Home Office
+- Dashboard shows buttons for each configured office location (with custom colors), plus Home Office, Day Off, and Sick
 - Click to log today's attendance instantly
 
 ### Calendar
 - View/edit any past or future day
-- Color-coded: Blue (office), Green (home), Red (holiday), Gray (weekend)
+- Color-coded by custom location colors, green (home), red (holiday), gray (weekend)
 - Click a day to add/edit attendance
 
-### Export
+### Statistics
+- Attendance breakdown by type (office, home, off, holiday, sick)
+- Office location usage and transport method distribution
+- Commute distance summary (total, average, days tracked)
+- Date range presets: this month, last month, this year, or custom range
+
+### Export & Import
 - Select date range
 - Download CSV or PDF report
+- Import attendance data from CSV
 - Includes summary statistics
 
-> Both formats are compatible with German tax software.
-
 ### Settings
+- Manage office locations (name, color, distance, default transport)
+- Manage transport methods
 - Configure your German state (for holiday calculation)
-- Set default work days
+- Set default work days and week start day
+- Set up daily reminder notifications (time, timezone, work days only)
 
 ## Kubernetes Deployment
 
@@ -181,7 +208,8 @@ cd helm
 # Create values override file
 cat > values.local.yaml <<EOF
 env:
-  DATABASE_URL: "file:/data/daydesk.db"
+  DATABASE_URL: "postgresql://user:pass@db-host:5432/daydesk"
+  DIRECT_URL: "postgresql://user:pass@db-host:5432/daydesk"
   NEXTAUTH_URL: "https://daydesk.your-domain.com"
   NEXTAUTH_SECRET: "your-production-secret"
   OAUTH_CLIENT_ID: "your-client-id"
@@ -240,12 +268,48 @@ npm run db:studio
 # Create database migration
 npm run db:migrate
 
+# Run tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+
+# Lint code
+npm run lint
+
 # Build for production
 npm run build
 
 # Start production server
 npm start
 ```
+
+## Push Notifications
+
+daydesk can send daily reminders via the [Web Push API](https://developer.mozilla.org/en-US/docs/Web/API/Push_API) to remind users who haven't logged their attendance yet.
+
+### How It Works
+
+1. Users enable notifications in **Settings** and configure reminder times (e.g. 09:00 Europe/Berlin)
+2. The browser subscribes to push notifications via the service worker
+3. An external cron job calls `POST /api/push/send` every minute
+4. The server checks which users have a reminder matching the current time in their timezone, haven't logged attendance today, and have push notifications enabled
+5. Matching users receive a browser notification linking to the dashboard
+
+### Triggering Locally
+
+To trigger push notifications during development, send a request to the send endpoint using the `PUSH_API_SECRET`:
+
+```bash
+curl -X POST http://localhost:3000/api/push/send \
+  -H "Authorization: Bearer <your-PUSH_API_SECRET>" \
+  -H "Content-Type: application/json"
+```
+
+In production, a Kubernetes CronJob handles this automatically (see `helm/templates/cronjob.yaml`).
 
 ## Public Holiday API
 
