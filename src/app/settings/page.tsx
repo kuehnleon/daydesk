@@ -568,6 +568,10 @@ export default function Settings() {
             {isSaving ? 'Saving...' : 'Save Settings'}
           </button>
         </div>
+        {/* Version */}
+        <p className="mt-6 text-center text-xs text-text-tertiary">
+          daydesk v{process.env.NEXT_PUBLIC_APP_VERSION}
+        </p>
       </main>
 
       {/* Transport Modal */}
