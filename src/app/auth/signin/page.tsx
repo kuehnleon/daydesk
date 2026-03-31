@@ -1,8 +1,10 @@
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { auth } from '@/lib/auth'
 import SignInButton from './SignInButton'
 
 export default async function SignIn() {
+  const t = await getTranslations('signin')
   const session = await auth()
 
   if (session) {
@@ -27,7 +29,7 @@ export default async function SignIn() {
             daydesk
           </h1>
           <p className="mt-3 text-sm text-text-secondary">
-            Track your office attendance, commute, and work location
+            {t('tagline')}
           </p>
         </div>
 

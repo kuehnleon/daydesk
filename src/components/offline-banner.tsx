@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { useOnlineStatus } from '@/hooks/useOnlineStatus'
 import { syncPendingEntries } from '@/lib/offline-sync'
 import { count } from '@/lib/offline-queue'
@@ -8,6 +9,7 @@ import { useToast } from '@/components/ui/toast'
 import { WifiOff } from 'lucide-react'
 
 export function OfflineBanner() {
+  const t = useTranslations('offline')
   const { isOnline } = useOnlineStatus()
   const { showToast } = useToast()
   const wasOffline = useRef(false)
@@ -39,10 +41,10 @@ export function OfflineBanner() {
       wasOffline.current = false
       syncPendingEntries().then((result) => {
         if (result.synced > 0) {
-          showToast(`Synced ${result.synced} offline entr${result.synced === 1 ? 'y' : 'ies'}`, 'success')
+          showToast(t('synced', { count: result.synced }), 'success')
         }
         if (result.failed > 0) {
-          showToast(`${result.failed} entr${result.failed === 1 ? 'y' : 'ies'} failed to sync`, 'error')
+          showToast(t('failedToSync', { count: result.failed }), 'error')
         }
         count().then(setPendingCount).catch(() => {})
       })
@@ -60,8 +62,8 @@ export function OfflineBanner() {
       <div className="mx-auto flex max-w-7xl items-center justify-center gap-2">
         {!isOnline && <WifiOff className="h-4 w-4" />}
         {!isOnline
-          ? 'You are offline. Changes will sync when you reconnect.'
-          : `${pendingCount} pending entr${pendingCount === 1 ? 'y' : 'ies'} waiting to sync...`
+          ? t('youAreOffline')
+          : t('pendingEntries', { count: pendingCount })
         }
       </div>
     </div>

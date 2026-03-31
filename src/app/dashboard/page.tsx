@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
+import { useTranslations, useLocale } from 'next-intl'
+import { getDateFnsLocale } from '@/lib/date-locale'
 import { useToast } from '@/components/ui/toast'
 import { Navbar } from '@/components/navbar'
 import { Building2, Home, Palmtree, ThermometerSun } from 'lucide-react'
@@ -22,6 +24,9 @@ export default function Dashboard() {
   const [todayAttendance, setTodayAttendance] = useState<TodayAttendance | null>(null)
   const [locations, setLocations] = useState<Location[]>([])
   const { showToast } = useToast()
+  const t = useTranslations('dashboard')
+  const locale = useLocale()
+  const dateFnsLocale = getDateFnsLocale(locale)
 
   const today = format(new Date(), 'yyyy-MM-dd')
 
@@ -90,17 +95,17 @@ export default function Dashboard() {
 
       if (response.ok) {
         setTodayAttendance({ type, transportId, locationId })
-        showToast('Attendance logged successfully!', 'success')
+        showToast(t('attendanceLogged'), 'success')
       } else {
-        showToast('Failed to log attendance', 'error')
+        showToast(t('failedToLog'), 'error')
       }
     } catch {
       if (!navigator.onLine) {
         await enqueue({ date: today, type, transportId, locationId })
         setTodayAttendance({ type, transportId, locationId })
-        showToast('Saved offline. Will sync when you reconnect.', 'success')
+        showToast(t('savedOffline'), 'success')
       } else {
-        showToast('Error logging attendance', 'error')
+        showToast(t('errorLogging'), 'error')
       }
     } finally {
       setIsLoading(false)
@@ -139,12 +144,12 @@ export default function Dashboard() {
 
       <main className="mx-auto max-w-7xl px-4 py-6 pb-[calc(1.5rem+var(--sai-bottom))] sm:py-12 sm:px-6 lg:px-8">
         <div className="mb-4 sm:mb-8">
-          <h2 className="text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">Quick Log</h2>
+          <h2 className="text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">{t('quickLog')}</h2>
           <p
             className="mt-2 text-sm text-text-secondary"
             suppressHydrationWarning
           >
-            {`Log your attendance for today: ${format(new Date(), 'EEEE, MMMM d, yyyy')}`}
+            {t('logForToday', { date: format(new Date(), 'EEEE, MMMM d, yyyy', { locale: dateFnsLocale }) })}
           </p>
         </div>
 
@@ -205,7 +210,7 @@ export default function Dashboard() {
                 }`}
               >
                 <Home className="mb-3 h-12 w-12" />
-                <span className="text-lg font-semibold">Home Office</span>
+                <span className="text-lg font-semibold">{t('homeOffice')}</span>
               </button>
 
               <button
@@ -218,7 +223,7 @@ export default function Dashboard() {
                 }`}
               >
                 <Palmtree className="mb-3 h-12 w-12" />
-                <span className="text-lg font-semibold">Day Off</span>
+                <span className="text-lg font-semibold">{t('dayOff')}</span>
               </button>
 
               <button
@@ -231,7 +236,7 @@ export default function Dashboard() {
                 }`}
               >
                 <ThermometerSun className="mb-3 h-12 w-12" />
-                <span className="text-lg font-semibold">Sick</span>
+                <span className="text-lg font-semibold">{t('sick')}</span>
               </button>
             </>
           )}
@@ -240,9 +245,9 @@ export default function Dashboard() {
         {!isLoadingInitial && locations.length === 0 && (
           <p className="mt-4 text-center text-sm text-text-secondary">
             <a href="/settings" className="text-accent hover:underline">
-              Add office locations in Settings
+              {t('addLocationsHint')}
             </a>{' '}
-            to create quick-log shortcuts for your workplaces.
+            {t('addLocationsHintSuffix')}
           </p>
         )}
       </main>

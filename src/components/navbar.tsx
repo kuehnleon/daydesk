@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react'
 import { signOut } from 'next-auth/react'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Menu, X } from 'lucide-react'
 
 export function Navbar() {
   const pathname = usePathname()
+  const t = useTranslations('nav')
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   // Close sidebar on route change
@@ -23,11 +25,11 @@ export function Navbar() {
   }, [isMenuOpen])
 
   const navLinks = [
-    { href: '/dashboard', label: 'Dashboard' },
-    { href: '/calendar', label: 'Calendar' },
-    { href: '/statistics', label: 'Statistics' },
-    { href: '/export', label: 'Export' },
-    { href: '/settings', label: 'Settings' },
+    { href: '/dashboard', label: t('dashboard') },
+    { href: '/calendar', label: t('calendar') },
+    { href: '/statistics', label: t('statistics') },
+    { href: '/export', label: t('export') },
+    { href: '/settings', label: t('settings') },
   ]
 
   const handleSignOut = async () => {
@@ -45,7 +47,7 @@ export function Navbar() {
               <button
                 onClick={() => setIsMenuOpen(true)}
                 className="rounded-md p-2 text-text-secondary hover:bg-surface-secondary md:hidden"
-                aria-label="Open menu"
+                aria-label={t('openMenu')}
               >
                 <Menu className="h-5 w-5" />
               </button>
@@ -86,7 +88,7 @@ export function Navbar() {
                 onClick={handleSignOut}
                 className="ml-2 rounded-md px-3 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:bg-surface-secondary hover:text-foreground"
               >
-                Sign Out
+                {t('signOut')}
               </button>
             </div>
           </div>
@@ -136,7 +138,7 @@ export function Navbar() {
             <button
               onClick={() => setIsMenuOpen(false)}
               className="rounded-md p-2 text-text-secondary hover:bg-surface-secondary"
-              aria-label="Close menu"
+              aria-label={t('closeMenu')}
             >
               <X className="h-5 w-5" />
             </button>
@@ -165,7 +167,7 @@ export function Navbar() {
               onClick={handleSignOut}
               className="w-full rounded-lg border border-border px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-surface-secondary hover:text-foreground"
             >
-              Sign Out
+              {t('signOut')}
             </button>
           </div>
         </div>

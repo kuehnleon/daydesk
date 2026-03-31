@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { format, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths } from 'date-fns'
+import { useTranslations, useLocale } from 'next-intl'
+import { getDateFnsLocale } from '@/lib/date-locale'
 import { Navbar } from '@/components/navbar'
 import { Building2, Home, Palmtree, Car, MapPin, Calendar, TrendingUp, ThermometerSun } from 'lucide-react'
 import type { Location, Transport } from '@/types'
@@ -22,6 +24,9 @@ interface Attendance {
 type DatePreset = 'this-month' | 'last-month' | 'this-year' | 'custom'
 
 export default function Statistics() {
+  const t = useTranslations('statistics')
+  const locale = useLocale()
+  const dateFnsLocale = getDateFnsLocale(locale)
   const [preset, setPreset] = useState<DatePreset>('this-month')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
@@ -155,11 +160,11 @@ export default function Statistics() {
   const totalDays = attendances.length
 
   const typeConfig = [
-    { key: 'office', label: 'Office', icon: Building2, color: '#3B82F6' },
-    { key: 'home', label: 'Home Office', icon: Home, color: '#10B981' },
-    { key: 'off', label: 'Day Off', icon: Palmtree, color: '#F59E0B' },
-    { key: 'holiday', label: 'Holiday', icon: Calendar, color: '#8B5CF6' },
-    { key: 'sick', label: 'Sick', icon: ThermometerSun, color: '#EF4444' },
+    { key: 'office', label: t('office'), icon: Building2, color: '#3B82F6' },
+    { key: 'home', label: t('homeOffice'), icon: Home, color: '#10B981' },
+    { key: 'off', label: t('dayOff'), icon: Palmtree, color: '#F59E0B' },
+    { key: 'holiday', label: t('holiday'), icon: Calendar, color: '#8B5CF6' },
+    { key: 'sick', label: t('sick'), icon: ThermometerSun, color: '#EF4444' },
   ]
 
   return (
@@ -167,24 +172,24 @@ export default function Statistics() {
       <Navbar />
 
       <main className="mx-auto max-w-7xl px-4 py-6 pb-[calc(1.5rem+var(--sai-bottom))] sm:py-12 sm:px-6 lg:px-8">
-        <h2 className="mb-4 text-2xl font-semibold tracking-tight text-text-primary sm:mb-8 sm:text-3xl">Statistics</h2>
+        <h2 className="mb-4 text-2xl font-semibold tracking-tight text-text-primary sm:mb-8 sm:text-3xl">{t('title')}</h2>
 
         {/* Date Range Selector */}
         <div className="mb-8 card p-6">
           <div className="flex flex-wrap items-end gap-4">
             <div>
               <label className="mb-2 block text-sm font-medium text-text-secondary">
-                Time Period
+                {t('timePeriod')}
               </label>
               <select
                 value={preset}
                 onChange={(e) => setPreset(e.target.value as DatePreset)}
                 className="rounded-lg border border-border bg-surface px-4 py-2 text-foreground focus:border-accent focus:ring-accent"
               >
-                <option value="this-month">This Month</option>
-                <option value="last-month">Last Month</option>
-                <option value="this-year">This Year</option>
-                <option value="custom">Custom Range</option>
+                <option value="this-month">{t('thisMonth')}</option>
+                <option value="last-month">{t('lastMonth')}</option>
+                <option value="this-year">{t('thisYear')}</option>
+                <option value="custom">{t('customRange')}</option>
               </select>
             </div>
 
@@ -192,7 +197,7 @@ export default function Statistics() {
               <>
                 <div>
                   <label className="mb-2 block text-sm font-medium text-text-secondary">
-                    Start Date
+                    {t('startDate')}
                   </label>
                   <input
                     type="date"
@@ -203,7 +208,7 @@ export default function Statistics() {
                 </div>
                 <div>
                   <label className="mb-2 block text-sm font-medium text-text-secondary">
-                    End Date
+                    {t('endDate')}
                   </label>
                   <input
                     type="date"
@@ -217,7 +222,7 @@ export default function Statistics() {
 
             {startDate && endDate && (
               <div className="flex h-[42px] items-center text-sm text-text-secondary">
-                Showing: {format(new Date(startDate), 'MMM d, yyyy')} - {format(new Date(endDate), 'MMM d, yyyy')}
+                {t('showing', { start: format(new Date(startDate), 'MMM d, yyyy', { locale: dateFnsLocale }), end: format(new Date(endDate), 'MMM d, yyyy', { locale: dateFnsLocale }) })}
               </div>
             )}
           </div>
@@ -237,9 +242,9 @@ export default function Statistics() {
             {/* Attendance Overview */}
             <div className="mb-8">
               <h3 className="mb-4 text-lg font-semibold text-text-primary">
-                Attendance Overview
+                {t('attendanceOverview')}
                 <span className="ml-2 text-sm font-normal text-text-secondary">
-                  ({totalDays} days total)
+                  {t('daysTotal', { count: totalDays })}
                 </span>
               </h3>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
@@ -276,7 +281,7 @@ export default function Statistics() {
             {locationStats.length > 0 && (
               <div className="mb-8">
                 <h3 className="mb-4 text-lg font-semibold text-text-primary">
-                  Office Locations
+                  {t('officeLocations')}
                 </h3>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
                   {locationStats.map(({ count, location }) => (
@@ -308,7 +313,7 @@ export default function Statistics() {
             {transportStats.length > 0 && (
               <div className="mb-8">
                 <h3 className="mb-4 text-lg font-semibold text-text-primary">
-                  Transport Methods
+                  {t('transportMethods')}
                 </h3>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
                   {transportStats.map(({ count, transport }) => (
@@ -337,7 +342,7 @@ export default function Statistics() {
             {distanceStats.total > 0 && (
               <div className="mb-8">
                 <h3 className="mb-4 text-lg font-semibold text-text-primary">
-                  Distance Summary
+                  {t('distanceSummary')}
                 </h3>
                 <div className="card p-6">
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
@@ -350,7 +355,7 @@ export default function Statistics() {
                           {distanceStats.total.toLocaleString()} km
                         </div>
                         <div className="text-sm text-text-secondary">
-                          Total distance (round trip)
+                          {t('totalDistance')}
                         </div>
                       </div>
                     </div>
@@ -363,7 +368,7 @@ export default function Statistics() {
                           {distanceStats.average} km
                         </div>
                         <div className="text-sm text-text-secondary">
-                          Average per commute day
+                          {t('averagePerCommute')}
                         </div>
                       </div>
                     </div>
@@ -376,7 +381,7 @@ export default function Statistics() {
                           {distanceStats.days}
                         </div>
                         <div className="text-sm text-text-secondary">
-                          Days with commute
+                          {t('daysWithCommute')}
                         </div>
                       </div>
                     </div>
@@ -390,10 +395,10 @@ export default function Statistics() {
               <div className="card p-12 text-center">
                 <Calendar className="mx-auto mb-4 h-12 w-12 text-text-tertiary" />
                 <h3 className="text-lg font-medium text-text-primary">
-                  No data for this period
+                  {t('noData')}
                 </h3>
                 <p className="mt-2 text-text-secondary">
-                  Try selecting a different time period or log some attendance first.
+                  {t('noDataHint')}
                 </p>
               </div>
             )}
