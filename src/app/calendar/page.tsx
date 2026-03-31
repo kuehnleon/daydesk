@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isToday, getDay, isBefore, isAfter } from 'date-fns'
+import { useTranslations, useLocale } from 'next-intl'
+import { getDateFnsLocale } from '@/lib/date-locale'
 import { useToast } from '@/components/ui/toast'
 import { Navbar } from '@/components/navbar'
 import {
@@ -52,6 +54,10 @@ export default function Calendar() {
   const [expandedLocationId, setExpandedLocationId] = useState<string | null>(null)
   const [selectedTransportId, setSelectedTransportId] = useState<string | null>(null)
   const { showToast } = useToast()
+  const t = useTranslations('calendar')
+  const tDays = useTranslations('daysShort')
+  const locale = useLocale()
+  const dateFnsLocale = getDateFnsLocale(locale)
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const longPressTriggered = useRef(false)
   const isMultiSelecting = useRef(false)
@@ -65,11 +71,11 @@ export default function Calendar() {
   useEffect(() => {
     const isTouchDevice = window.matchMedia('(pointer: coarse)').matches
     if (isTouchDevice) {
-      setSelectionHint('Tap a day to edit, drag to select a range, or long-press to pick individual days.')
+      setSelectionHint(t('selectionHintTouch'))
     } else {
       const isMac = navigator.platform.toUpperCase().includes('MAC')
       const modifier = isMac ? '⌘' : 'Ctrl'
-      setSelectionHint(`Click a day to edit, drag to select a range, or ${modifier}-click to pick individual days.`)
+      setSelectionHint(t('selectionHintDesktop', { modifier }))
     }
   }, [])
 
@@ -146,10 +152,10 @@ export default function Calendar() {
   const days = eachDayOfInterval({ start: monthStart, end: monthEnd })
 
   const getDayNames = () => {
-    if (weekStartDay === 1) {
-      return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-    }
-    return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    const dayKeys = weekStartDay === 1
+      ? ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+      : ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
+    return dayKeys.map(key => tDays(key))
   }
 
   const getFirstDayOffset = () => {
@@ -390,21 +396,21 @@ export default function Calendar() {
 
       const allOk = results.every(r => r.ok)
       if (allOk) {
-        showToast(`Attendance saved for ${dates.length} day${dates.length > 1 ? 's' : ''}!`, 'success')
+        showToast(t('attendanceSaved', { count: dates.length }), 'success')
         await loadAttendances()
         closeModal()
       } else {
-        showToast('Failed to save some entries', 'error')
+        showToast(t('failedToSave'), 'error')
       }
     } catch {
       if (!navigator.onLine) {
         for (const dateStr of dates) {
           await enqueue({ date: dateStr, type, transportId, locationId })
         }
-        showToast(`Saved ${dates.length} entr${dates.length === 1 ? 'y' : 'ies'} offline. Will sync when you reconnect.`, 'success')
+        showToast(t('savedOffline', { count: dates.length }), 'success')
         closeModal()
       } else {
-        showToast('Error saving attendance', 'error')
+        showToast(t('errorSaving'), 'error')
       }
     } finally {
       setIsLoading(false)
@@ -430,14 +436,14 @@ export default function Calendar() {
 
       const allOk = results.every(r => r.ok)
       if (allOk) {
-        showToast(`Cleared ${toDelete.length} entr${toDelete.length > 1 ? 'ies' : 'y'}`, 'success')
+        showToast(t('cleared', { count: toDelete.length }), 'success')
         await loadAttendances()
         closeModal()
       } else {
-        showToast('Failed to clear some entries', 'error')
+        showToast(t('failedToClear'), 'error')
       }
     } catch {
-      showToast('Error clearing attendance', 'error')
+      showToast(t('errorClearing'), 'error')
     } finally {
       setIsLoading(false)
     }
@@ -446,9 +452,9 @@ export default function Calendar() {
   const getModalTitle = () => {
     const dates = getSelectedDatesArray()
     if (dates.length === 1) {
-      return format(new Date(dates[0]), 'EEEE, MMMM d, yyyy')
+      return format(new Date(dates[0]), 'EEEE, MMMM d, yyyy', { locale: dateFnsLocale })
     }
-    return `Edit ${dates.length} days`
+    return t('editDays', { count: dates.length })
   }
 
   const getMonthlySummary = () => {
@@ -503,13 +509,13 @@ export default function Calendar() {
       <main className="mx-auto max-w-7xl px-4 py-6 pb-[calc(1.5rem+var(--sai-bottom))] sm:py-12 sm:px-6 lg:px-8">
         <div className="mb-4 flex items-center justify-between sm:mb-8">
           <h2 className="text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">
-            {format(currentMonth, 'MMMM yyyy')}
+            {format(currentMonth, 'MMMM yyyy', { locale: dateFnsLocale })}
           </h2>
           <div className="flex gap-2">
             <button
               onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}
               className="rounded-lg bg-accent p-2 text-white transition-colors hover:bg-accent-hover"
-              aria-label="Previous month"
+              aria-label={t('previousMonth')}
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
@@ -517,12 +523,12 @@ export default function Calendar() {
               onClick={() => setCurrentMonth(new Date())}
               className="rounded-lg border border-border bg-surface px-4 py-2 text-text-primary transition-colors hover:bg-surface-secondary"
             >
-              Today
+              {t('today')}
             </button>
             <button
               onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}
               className="rounded-lg bg-accent p-2 text-white transition-colors hover:bg-accent-hover"
-              aria-label="Next month"
+              aria-label={t('nextMonth')}
             >
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -544,15 +550,15 @@ export default function Calendar() {
             ))}
             <span className="flex items-center gap-1.5">
               <span className="inline-block h-2.5 w-2.5 rounded-full bg-emerald-400" />
-              Home
+              {t('homeLegend')}
             </span>
             <span className="flex items-center gap-1.5">
               <span className="inline-block h-2.5 w-2.5 rounded-full bg-amber-400" />
-              Off
+              {t('offLegend')}
             </span>
             <span className="flex items-center gap-1.5">
               <span className="inline-block h-2.5 w-2.5 rounded-full bg-red-400" />
-              Sick / Holiday
+              {t('sickHolidayLegend')}
             </span>
           </div>
         )}
@@ -596,7 +602,7 @@ export default function Calendar() {
               </div>
               <div className="min-w-0">
                 <div className="text-2xl font-bold text-text-primary">{summary.officeNoLocation}</div>
-                <div className="truncate text-xs text-text-secondary">Office (Legacy)</div>
+                <div className="truncate text-xs text-text-secondary">{t('officeLegacy')}</div>
               </div>
             </div>
           )}
@@ -607,7 +613,7 @@ export default function Calendar() {
             </div>
             <div className="min-w-0">
               <div className="text-2xl font-bold text-text-primary">{summary.homeOffice}</div>
-              <div className="truncate text-xs text-text-secondary">Home Office</div>
+              <div className="truncate text-xs text-text-secondary">{t('homeOffice')}</div>
             </div>
           </div>
 
@@ -617,7 +623,7 @@ export default function Calendar() {
             </div>
             <div className="min-w-0">
               <div className="text-2xl font-bold text-text-primary">{summary.total}</div>
-              <div className="truncate text-xs text-text-secondary">Total Days</div>
+              <div className="truncate text-xs text-text-secondary">{t('totalDays')}</div>
             </div>
           </div>
             </>
@@ -728,7 +734,7 @@ export default function Calendar() {
                           <Building2 className="h-8 w-8" />
                           <div>
                             <div className="font-semibold">{location.name}</div>
-                            <div className="text-sm opacity-80">Select transport method</div>
+                            <div className="text-sm opacity-80">{t('selectTransport')}</div>
                           </div>
                         </div>
                         <button
@@ -767,7 +773,7 @@ export default function Calendar() {
                                 </div>
                                 <span className="flex-1 font-medium">{transport.name}</span>
                                 {isDefault && (
-                                  <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs">default</span>
+                                  <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs">{t('default')}</span>
                                 )}
                               </button>
                             )
@@ -788,9 +794,9 @@ export default function Calendar() {
                                 <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: location.color }} />
                               )}
                             </div>
-                            <span className="flex-1 font-medium">No transport</span>
+                            <span className="flex-1 font-medium">{t('noTransport')}</span>
                             {!location.transportId && (
-                              <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs">default</span>
+                              <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs">{t('default')}</span>
                             )}
                           </button>
                         </div>
@@ -804,7 +810,7 @@ export default function Calendar() {
                           className="w-full cursor-pointer rounded-lg bg-white py-2.5 font-semibold transition-all hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
                           style={{ color: location.color }}
                         >
-                          Save
+                          {t('save')}
                         </button>
                       </div>
                     </div>
@@ -893,7 +899,7 @@ export default function Calendar() {
                         }}
                         disabled={isLoading}
                         className="mr-3 flex cursor-pointer items-center gap-1.5 rounded-lg bg-white/20 px-2.5 py-1.5 text-sm font-medium transition-all hover:bg-white/30 disabled:cursor-not-allowed disabled:opacity-50"
-                        title="Change transport method"
+                        title={t('changeTransport')}
                       >
                         <Car className="h-4 w-4" />
                         <ChevronRight className="h-3.5 w-3.5" />
@@ -919,7 +925,7 @@ export default function Calendar() {
                     >
                       <Home className="h-10 w-10" />
                       <div>
-                        <div className="font-semibold">Home Office</div>
+                        <div className="font-semibold">{t('homeOffice')}</div>
                       </div>
                     </button>
 
@@ -932,7 +938,7 @@ export default function Calendar() {
                     >
                       <Palmtree className="h-10 w-10" />
                       <div>
-                        <div className="font-semibold">Day Off</div>
+                        <div className="font-semibold">{t('dayOff')}</div>
                       </div>
                     </button>
 
@@ -945,7 +951,7 @@ export default function Calendar() {
                     >
                       <ThermometerSun className="h-10 w-10" />
                       <div>
-                        <div className="font-semibold">Sick</div>
+                        <div className="font-semibold">{t('sick')}</div>
                       </div>
                     </button>
                   </>
@@ -959,7 +965,7 @@ export default function Calendar() {
                 disabled={isLoading}
                 className="mt-4 w-full cursor-pointer rounded-xl border-2 border-red-300 bg-red-50 p-3 text-red-700 transition-all hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-700 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
               >
-                {selectedDates.size > 1 ? 'Clear All Entries' : 'Clear Entry'}
+                {selectedDates.size > 1 ? t('clearAllEntries') : t('clearEntry')}
               </button>
             )}
           </div>

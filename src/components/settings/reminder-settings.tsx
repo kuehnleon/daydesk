@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Bell, BellOff, Plus, Trash2, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { useNotificationReminders } from '@/hooks/useNotificationReminders'
 import { useToast } from '@/components/ui/toast'
@@ -17,25 +18,26 @@ export function ReminderSettings() {
     sendTestNotification,
   } = useNotificationReminders()
 
+  const t = useTranslations('reminders')
   const { showToast } = useToast()
   const [newTime, setNewTime] = useState('09:00')
 
   const handleRequestPermission = async () => {
     const granted = await requestPermission()
     if (granted) {
-      showToast('Notifications enabled!', 'success')
+      showToast(t('notificationsEnabled'), 'success')
     } else {
-      showToast('Permission denied. Enable in browser settings.', 'error')
+      showToast(t('permissionDenied'), 'error')
     }
   }
 
   const handleAddTime = () => {
-    if (settings.times.some(t => t.time === newTime)) {
-      showToast('This time is already added', 'error')
+    if (settings.times.some(entry => entry.time === newTime)) {
+      showToast(t('timeAlreadyAdded'), 'error')
       return
     }
     addReminderTime(newTime)
-    showToast(`Reminder added for ${newTime}`, 'success')
+    showToast(t('reminderAdded', { time: newTime }), 'success')
   }
 
   const handleRemoveTime = (id: string) => {
@@ -45,16 +47,16 @@ export function ReminderSettings() {
   const handleTest = async () => {
     const success = await sendTestNotification()
     if (success) {
-      showToast('Test notification sent!', 'info')
+      showToast(t('testSent'), 'info')
     } else {
-      showToast('Failed to send notification. Check browser and system notification settings.', 'error')
+      showToast(t('testFailed'), 'error')
     }
   }
 
   if (!isLoaded) {
     return (
       <div className="card p-4 sm:p-8">
-        <p className="text-sm text-text-tertiary">Loading...</p>
+        <p className="text-sm text-text-tertiary">{t('loading')}</p>
       </div>
     )
   }
@@ -65,11 +67,11 @@ export function ReminderSettings() {
         <div className="flex items-center gap-2">
           <BellOff className="h-5 w-5 text-text-tertiary" />
           <h3 className="text-lg font-semibold text-text-primary">
-            Reminder Notifications
+            {t('title')}
           </h3>
         </div>
         <p className="mt-2 text-sm text-text-secondary">
-          Notifications are not supported in this browser.
+          {t('unsupported')}
         </p>
       </div>
     )
@@ -80,7 +82,7 @@ export function ReminderSettings() {
       <div className="mb-4 flex items-center gap-2">
         <Bell className="h-5 w-5 text-accent" />
         <h3 className="text-lg font-semibold text-text-primary">
-          Reminder Notifications
+          {t('title')}
         </h3>
       </div>
 
@@ -90,17 +92,17 @@ export function ReminderSettings() {
           <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
           <div className="flex-1">
             <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
-              Permission required
+              {t('permissionRequired')}
             </p>
             <p className="text-xs text-amber-600 dark:text-amber-400">
-              Allow notifications to receive attendance reminders
+              {t('permissionHint')}
             </p>
           </div>
           <button
             onClick={handleRequestPermission}
             className="rounded-lg bg-amber-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-700"
           >
-            Enable
+            {t('enable')}
           </button>
         </div>
       )}
@@ -110,10 +112,10 @@ export function ReminderSettings() {
           <BellOff className="h-5 w-5 text-red-600 dark:text-red-400" />
           <div className="flex-1">
             <p className="text-sm font-medium text-red-800 dark:text-red-200">
-              Notifications blocked
+              {t('blocked')}
             </p>
             <p className="text-xs text-red-600 dark:text-red-400">
-              Please enable notifications in your browser settings
+              {t('blockedHint')}
             </p>
           </div>
         </div>
@@ -122,7 +124,7 @@ export function ReminderSettings() {
       {permission === 'granted' && (
         <div className="mb-4 flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
           <CheckCircle2 className="h-4 w-4" />
-          <span>Notifications enabled</span>
+          <span>{t('enabled')}</span>
         </div>
       )}
 
@@ -137,7 +139,7 @@ export function ReminderSettings() {
             className="h-4 w-4 rounded border-border text-accent focus:ring-accent disabled:opacity-50"
           />
           <span className="text-sm font-medium text-text-secondary">
-            Enable daily reminders
+            {t('enableDaily')}
           </span>
         </label>
       </div>
@@ -145,7 +147,7 @@ export function ReminderSettings() {
       {/* Reminder Times */}
       <div className="mb-4">
         <label className="mb-2 block text-sm font-medium text-text-secondary">
-          Reminder Times
+          {t('reminderTimes')}
         </label>
 
         {settings.times.length > 0 ? (
@@ -169,7 +171,7 @@ export function ReminderSettings() {
           </div>
         ) : (
           <p className="mb-3 text-sm text-text-tertiary">
-            No reminder times configured
+            {t('noTimes')}
           </p>
         )}
 
@@ -202,11 +204,11 @@ export function ReminderSettings() {
             className="h-4 w-4 rounded border-border text-accent focus:ring-accent disabled:opacity-50"
           />
           <span className="text-sm font-medium text-text-secondary">
-            Only on work days
+            {t('onlyWorkDays')}
           </span>
         </label>
         <p className="ml-7 text-xs text-text-tertiary">
-          Respects your configured work days in settings below
+          {t('workDaysHint')}
         </p>
       </div>
 
@@ -216,7 +218,7 @@ export function ReminderSettings() {
           onClick={handleTest}
           className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-surface-secondary hover:text-foreground"
         >
-          Send Test Notification
+          {t('sendTest')}
         </button>
       )}
     </div>

@@ -50,6 +50,7 @@ export interface UserSettings {
   defaultState: string
   workDays: string // "1,2,3,4,5" for Mon-Fri
   weekStartDay: number
+  locale: string
   reminderEnabled: boolean
   reminders: ReminderTimeEntry[]
   reminderWorkDaysOnly: boolean

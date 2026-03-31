@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { locales } from '@/i18n/config'
 
 // --- Shared primitives ---
 
@@ -72,6 +73,7 @@ export const updateSettingsSchema = z.object({
   defaultState: z.string().max(10).optional(),
   workDays: z.string().regex(/^[0-6](,[0-6])*$/, 'Must be comma-separated days 0-6').optional(),
   weekStartDay: z.number().int().min(0).max(6).optional(),
+  locale: z.enum(locales).optional(),
   reminderEnabled: z.boolean().optional(),
   reminderWorkDaysOnly: z.boolean().optional(),
 })

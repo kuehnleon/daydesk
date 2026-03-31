@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 import { useToast } from '@/components/ui/toast'
 import { Navbar } from '@/components/navbar'
 import { ReminderSettings } from '@/components/settings/reminder-settings'
@@ -54,6 +55,9 @@ export default function Settings() {
   const [regions, setRegions] = useState<Region[]>([])
   const [isLoadingRegions, setIsLoadingRegions] = useState(true)
   const { showToast } = useToast()
+  const t = useTranslations('settings')
+  const tDays = useTranslations('days')
+  const currentLocale = useLocale()
 
   // Transport state
   const [transports, setTransports] = useState<Transport[]>([])
@@ -162,12 +166,12 @@ export default function Settings() {
       })
 
       if (response.ok) {
-        showToast('Settings saved successfully!', 'success')
+        showToast(t('settingsSaved'), 'success')
       } else {
-        showToast('Failed to save settings', 'error')
+        showToast(t('failedToSave'), 'error')
       }
     } catch {
-      showToast('Error saving settings', 'error')
+      showToast(t('errorSaving'), 'error')
     } finally {
       setIsSaving(false)
     }
@@ -179,6 +183,20 @@ export default function Settings() {
       ? days.filter(d => d !== day)
       : [...days, day].sort()
     setWorkDays(newDays.join(','))
+  }
+
+  const handleLocaleChange = async (newLocale: string) => {
+    document.cookie = `NEXT_LOCALE=${newLocale};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax`
+    try {
+      await fetch('/api/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ locale: newLocale }),
+      })
+    } catch {
+      // Best-effort DB save; cookie is already set
+    }
+    window.location.reload()
   }
 
   // Transport handlers
@@ -196,7 +214,7 @@ export default function Settings() {
 
   const saveTransport = async () => {
     if (!transportForm.name.trim()) {
-      showToast('Name is required', 'error')
+      showToast(t('nameRequired'), 'error')
       return
     }
 
@@ -208,9 +226,9 @@ export default function Settings() {
           body: JSON.stringify(transportForm),
         })
         if (response.ok) {
-          showToast('Transport updated', 'success')
+          showToast(t('transportUpdated'), 'success')
         } else {
-          showToast('Failed to update transport', 'error')
+          showToast(t('failedToUpdateTransport'), 'error')
           return
         }
       } else {
@@ -220,9 +238,9 @@ export default function Settings() {
           body: JSON.stringify(transportForm),
         })
         if (response.ok) {
-          showToast('Transport added', 'success')
+          showToast(t('transportAdded'), 'success')
         } else {
-          showToast('Failed to add transport', 'error')
+          showToast(t('failedToAddTransport'), 'error')
           return
         }
       }
@@ -230,26 +248,26 @@ export default function Settings() {
       loadTransports()
       loadLocations() // Refresh to get updated transport names
     } catch {
-      showToast('Error saving transport', 'error')
+      showToast(t('errorSavingTransport'), 'error')
     }
   }
 
   const deleteTransport = async (id: string) => {
-    if (!confirm('Delete this transport method? Locations using it will have their transport cleared.')) {
+    if (!confirm(t('deleteTransportConfirm'))) {
       return
     }
 
     try {
       const response = await fetch(`/api/transports/${id}`, { method: 'DELETE' })
       if (response.ok) {
-        showToast('Transport deleted', 'success')
+        showToast(t('transportDeleted'), 'success')
         loadTransports()
         loadLocations()
       } else {
-        showToast('Failed to delete transport', 'error')
+        showToast(t('failedToDeleteTransport'), 'error')
       }
     } catch {
-      showToast('Error deleting transport', 'error')
+      showToast(t('errorDeletingTransport'), 'error')
     }
   }
 
@@ -278,7 +296,7 @@ export default function Settings() {
 
   const saveLocation = async () => {
     if (!locationForm.name.trim()) {
-      showToast('Name is required', 'error')
+      showToast(t('nameRequired'), 'error')
       return
     }
 
@@ -290,9 +308,9 @@ export default function Settings() {
           body: JSON.stringify(locationForm),
         })
         if (response.ok) {
-          showToast('Location updated', 'success')
+          showToast(t('locationUpdated'), 'success')
         } else {
-          showToast('Failed to update location', 'error')
+          showToast(t('failedToUpdateLocation'), 'error')
           return
         }
       } else {
@@ -302,56 +320,56 @@ export default function Settings() {
           body: JSON.stringify(locationForm),
         })
         if (response.ok) {
-          showToast('Location added', 'success')
+          showToast(t('locationAdded'), 'success')
         } else {
-          showToast('Failed to add location', 'error')
+          showToast(t('failedToAddLocation'), 'error')
           return
         }
       }
       setShowLocationModal(false)
       loadLocations()
     } catch {
-      showToast('Error saving location', 'error')
+      showToast(t('errorSavingLocation'), 'error')
     }
   }
 
   const deleteLocation = async (id: string) => {
-    if (!confirm('Delete this location? Attendance records using it will keep their data but lose the location reference.')) {
+    if (!confirm(t('deleteLocationConfirm'))) {
       return
     }
 
     try {
       const response = await fetch(`/api/locations/${id}`, { method: 'DELETE' })
       if (response.ok) {
-        showToast('Location deleted', 'success')
+        showToast(t('locationDeleted'), 'success')
         loadLocations()
       } else {
-        showToast('Failed to delete location', 'error')
+        showToast(t('failedToDeleteLocation'), 'error')
       }
     } catch {
-      showToast('Error deleting location', 'error')
+      showToast(t('errorDeletingLocation'), 'error')
     }
   }
 
-  const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+  const dayNames = [tDays('monday'), tDays('tuesday'), tDays('wednesday'), tDays('thursday'), tDays('friday'), tDays('saturday'), tDays('sunday')]
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
       <main className="mx-auto max-w-3xl px-4 py-6 pb-[calc(1.5rem+var(--sai-bottom))] sm:py-12 sm:px-6 lg:px-8">
-        <h2 className="mb-4 text-2xl font-semibold tracking-tight text-text-primary sm:mb-8 sm:text-3xl">Settings</h2>
+        <h2 className="mb-4 text-2xl font-semibold tracking-tight text-text-primary sm:mb-8 sm:text-3xl">{t('title')}</h2>
 
         {/* Transport Methods Section */}
         <div className="mb-6 card p-4 sm:p-8">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-text-primary">Transport Methods</h3>
+            <h3 className="text-lg font-semibold text-text-primary">{t('transportMethods')}</h3>
             <button
               onClick={openAddTransport}
               className="flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-accent-hover"
             >
               <Plus className="h-4 w-4" />
-              Add
+              {t('add')}
             </button>
           </div>
 
@@ -362,7 +380,7 @@ export default function Settings() {
             </div>
           ) : transports.length === 0 ? (
             <p className="text-sm text-text-secondary">
-              No transport methods configured. Add methods like &quot;Own Car&quot;, &quot;Bike&quot;, &quot;Public Transport&quot;.
+              {t('noTransportMethods')}
             </p>
           ) : (
             <div className="space-y-2">
@@ -396,13 +414,13 @@ export default function Settings() {
         {/* Locations Section */}
         <div className="mb-6 card p-4 sm:p-8">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-text-primary">Your Locations</h3>
+            <h3 className="text-lg font-semibold text-text-primary">{t('yourLocations')}</h3>
             <button
               onClick={openAddLocation}
               className="flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-accent-hover"
             >
               <Plus className="h-4 w-4" />
-              Add
+              {t('add')}
             </button>
           </div>
 
@@ -428,7 +446,7 @@ export default function Settings() {
                     {location.name}
                   </span>
                   <span className="text-sm text-text-secondary">
-                    {location.transport?.name || 'No transport'}
+                    {location.transport?.name || t('noTransport')}
                   </span>
                   {location.distance && (
                     <span className="text-sm text-text-secondary">
@@ -455,10 +473,10 @@ export default function Settings() {
                 <GripVertical className="h-4 w-4 text-text-tertiary" />
                 <div className="h-4 w-4 rounded bg-emerald-500" />
                 <span className="flex-1 font-medium text-text-primary">
-                  Home Office
+                  {t('homeOffice')}
                 </span>
                 <span className="text-xs text-text-tertiary">
-                  Built-in
+                  {t('builtIn')}
                 </span>
               </div>
             </div>
@@ -474,7 +492,24 @@ export default function Settings() {
         <div className="space-y-6 card p-4 sm:p-8">
           <div>
             <label className="mb-2 block text-sm font-medium text-text-secondary">
-              Country
+              {t('language')}
+            </label>
+            <select
+              value={currentLocale}
+              onChange={(e) => handleLocaleChange(e.target.value)}
+              className="w-full rounded-lg border border-border bg-surface px-4 py-2 text-foreground focus:border-accent focus:ring-accent"
+            >
+              <option value="en">{t('english')}</option>
+              <option value="de">{t('german')}</option>
+            </select>
+            <p className="mt-1 text-xs text-text-tertiary">
+              {t('languageHelp')}
+            </p>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-text-secondary">
+              {t('country')}
             </label>
             <select
               value={country}
@@ -488,14 +523,14 @@ export default function Settings() {
               ))}
             </select>
             <p className="mt-1 text-xs text-text-tertiary">
-              Used for fetching public holidays
+              {t('countryHelp')}
             </p>
           </div>
 
           {(isLoadingRegions || regions.length > 0) && (
             <div>
               <label className="mb-2 block text-sm font-medium text-text-secondary">
-                Region
+                {t('region')}
               </label>
               {isLoadingRegions ? (
                 <Skeleton className="h-10 rounded-lg" />
@@ -505,7 +540,7 @@ export default function Settings() {
                   onChange={(e) => setDefaultState(e.target.value)}
                   className="w-full rounded-lg border border-border bg-surface px-4 py-2 text-foreground focus:border-accent focus:ring-accent"
                 >
-                  <option value="">All regions</option>
+                  <option value="">{t('allRegions')}</option>
                   {regions.map((r) => (
                     <option key={r.code} value={r.code}>
                       {r.name}
@@ -514,31 +549,31 @@ export default function Settings() {
                 </select>
               )}
               <p className="mt-1 text-xs text-text-tertiary">
-                Used for calculating region-specific public holidays
+                {t('regionHelp')}
               </p>
             </div>
           )}
 
           <div>
             <label className="mb-2 block text-sm font-medium text-text-secondary">
-              Week Starts On
+              {t('weekStartsOn')}
             </label>
             <select
               value={weekStartDay}
               onChange={(e) => setWeekStartDay(Number(e.target.value))}
               className="w-full rounded-lg border border-border bg-surface px-4 py-2 text-foreground focus:border-accent focus:ring-accent"
             >
-              <option value={1}>Monday</option>
-              <option value={0}>Sunday</option>
+              <option value={1}>{t('monday')}</option>
+              <option value={0}>{t('sunday')}</option>
             </select>
             <p className="mt-1 text-xs text-text-tertiary">
-              First day of the week in the calendar view
+              {t('weekStartHelp')}
             </p>
           </div>
 
           <div>
             <label className="mb-2 block text-sm font-medium text-text-secondary">
-              Work Days
+              {t('workDays')}
             </label>
             <div className="space-y-2">
               {dayNames.map((name, index) => {
@@ -565,7 +600,7 @@ export default function Settings() {
             disabled={isSaving}
             className="w-full rounded-lg bg-accent px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-accent-hover disabled:opacity-50"
           >
-            {isSaving ? 'Saving...' : 'Save Settings'}
+            {isSaving ? t('saving') : t('saveSettings')}
           </button>
         </div>
         {/* Version */}
@@ -579,19 +614,19 @@ export default function Settings() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="mx-4 my-[calc(1rem+var(--sai-top))] max-h-[calc(100dvh-2rem-var(--sai-top)-var(--sai-bottom))] w-full max-w-md overflow-y-auto rounded-xl border border-border bg-surface p-6 shadow-overlay">
             <h3 className="mb-4 text-lg font-semibold text-text-primary">
-              {editingTransport ? 'Edit Transport' : 'Add Transport'}
+              {editingTransport ? t('editTransport') : t('addTransport')}
             </h3>
 
             <div className="space-y-4">
               <div>
                 <label className="mb-1 block text-sm font-medium text-text-secondary">
-                  Name
+                  {t('name')}
                 </label>
                 <input
                   type="text"
                   value={transportForm.name}
                   onChange={(e) => setTransportForm({ ...transportForm, name: e.target.value })}
-                  placeholder="e.g., Own Car, Bike, Public Transport"
+                  placeholder={t('transportPlaceholder')}
                   className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground focus:border-accent focus:ring-accent"
                 />
               </div>
@@ -602,13 +637,13 @@ export default function Settings() {
                 onClick={() => setShowTransportModal(false)}
                 className="flex-1 rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-surface-secondary"
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 onClick={saveTransport}
                 className="flex-1 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-hover"
               >
-                {editingTransport ? 'Save' : 'Add'}
+                {editingTransport ? t('save') : t('add')}
               </button>
             </div>
           </div>
@@ -620,36 +655,36 @@ export default function Settings() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="mx-4 my-[calc(1rem+var(--sai-top))] max-h-[calc(100dvh-2rem-var(--sai-top)-var(--sai-bottom))] w-full max-w-md overflow-y-auto rounded-xl border border-border bg-surface p-6 shadow-overlay">
             <h3 className="mb-4 text-lg font-semibold text-text-primary">
-              {editingLocation ? 'Edit Location' : 'Add Location'}
+              {editingLocation ? t('editLocation') : t('addLocation')}
             </h3>
 
             <div className="space-y-4">
               <div>
                 <label className="mb-1 block text-sm font-medium text-text-secondary">
-                  Name
+                  {t('name')}
                 </label>
                 <input
                   type="text"
                   value={locationForm.name}
                   onChange={(e) => setLocationForm({ ...locationForm, name: e.target.value })}
-                  placeholder="e.g., Office Munich"
+                  placeholder={t('locationPlaceholder')}
                   className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground focus:border-accent focus:ring-accent"
                 />
               </div>
 
               <div>
                 <label className="mb-1 block text-sm font-medium text-text-secondary">
-                  Default Transport
+                  {t('defaultTransport')}
                 </label>
                 <select
                   value={locationForm.transportId}
                   onChange={(e) => setLocationForm({ ...locationForm, transportId: e.target.value })}
                   className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground focus:border-accent focus:ring-accent"
                 >
-                  <option value="">None</option>
-                  {transports.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.name}
+                  <option value="">{t('none')}</option>
+                  {transports.map((tr) => (
+                    <option key={tr.id} value={tr.id}>
+                      {tr.name}
                     </option>
                   ))}
                 </select>
@@ -657,23 +692,23 @@ export default function Settings() {
 
               <div>
                 <label className="mb-1 block text-sm font-medium text-text-secondary">
-                  Distance (km)
+                  {t('distance')}
                 </label>
                 <input
                   type="number"
                   value={locationForm.distance}
                   onChange={(e) => setLocationForm({ ...locationForm, distance: e.target.value })}
-                  placeholder="e.g., 25"
+                  placeholder={t('distancePlaceholder')}
                   className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-foreground focus:border-accent focus:ring-accent"
                 />
                 <p className="mt-1 text-xs text-text-tertiary">
-                  One-way commute distance in km
+                  {t('distanceHelp')}
                 </p>
               </div>
 
               <div>
                 <label className="mb-1 block text-sm font-medium text-text-secondary">
-                  Color
+                  {t('color')}
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {COLOR_OPTIONS.map((color) => (
@@ -697,13 +732,13 @@ export default function Settings() {
                 onClick={() => setShowLocationModal(false)}
                 className="flex-1 rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-surface-secondary"
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 onClick={saveLocation}
                 className="flex-1 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-hover"
               >
-                {editingLocation ? 'Save' : 'Add'}
+                {editingLocation ? t('save') : t('add')}
               </button>
             </div>
           </div>

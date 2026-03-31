@@ -18,6 +18,7 @@ model User {
   defaultState  String       @default("BW")
   workDays      String       @default("1,2,3,4,5")
   weekStartDay         Int          @default(1)
+  locale               String       @default("en")
   reminderEnabled      Boolean      @default(false)
   reminderWorkDaysOnly Boolean      @default(true)
   createdAt            DateTime     @default(now())
