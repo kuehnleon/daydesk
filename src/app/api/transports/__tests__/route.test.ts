@@ -13,6 +13,7 @@ vi.mock('@/lib/db', () => ({
 import { GET, POST } from '@/app/api/transports/route'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
+import { dummyCtx } from '@/test/helpers'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockAuth = auth as any
@@ -28,7 +29,7 @@ describe('GET /api/transports', () => {
 
   it('returns 401 when not authenticated', async () => {
     mockAuth.mockResolvedValue(null as never)
-    const res = await GET()
+    const res = await GET(new Request('http://localhost/api/transports'), dummyCtx)
     expect(res.status).toBe(401)
   })
 
@@ -36,7 +37,7 @@ describe('GET /api/transports', () => {
     mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     mockPrisma.transport.findMany.mockResolvedValue([{ id: 't1', name: 'Car' }] as never)
 
-    const res = await GET()
+    const res = await GET(new Request('http://localhost/api/transports'), dummyCtx)
     expect(res.status).toBe(200)
   })
 })
@@ -49,7 +50,7 @@ describe('POST /api/transports', () => {
     const res = await POST(makeRequest('http://localhost/api/transports', {
       method: 'POST',
       body: JSON.stringify({ name: '' }),
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(400)
   })
 
@@ -58,7 +59,7 @@ describe('POST /api/transports', () => {
     const res = await POST(makeRequest('http://localhost/api/transports', {
       method: 'POST',
       body: JSON.stringify({}),
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(400)
   })
 
@@ -70,7 +71,7 @@ describe('POST /api/transports', () => {
     const res = await POST(makeRequest('http://localhost/api/transports', {
       method: 'POST',
       body: JSON.stringify({ name: 'Car' }),
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(201)
   })
 })

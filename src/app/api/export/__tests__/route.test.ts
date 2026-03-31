@@ -29,6 +29,7 @@ vi.mock('jspdf-autotable', () => ({
 import { GET } from '@/app/api/export/route'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
+import { dummyCtx } from '@/test/helpers'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockAuth = auth as any
@@ -44,19 +45,19 @@ describe('GET /api/export', () => {
 
   it('returns 401 when not authenticated', async () => {
     mockAuth.mockResolvedValue(null as never)
-    const res = await GET(makeRequest('http://localhost/api/export?startDate=2024-01-01&endDate=2024-12-31'))
+    const res = await GET(makeRequest('http://localhost/api/export?startDate=2024-01-01&endDate=2024-12-31'), dummyCtx)
     expect(res.status).toBe(401)
   })
 
   it('returns 400 for missing startDate', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
-    const res = await GET(makeRequest('http://localhost/api/export?endDate=2024-12-31'))
+    const res = await GET(makeRequest('http://localhost/api/export?endDate=2024-12-31'), dummyCtx)
     expect(res.status).toBe(400)
   })
 
   it('returns 400 for invalid format', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
-    const res = await GET(makeRequest('http://localhost/api/export?startDate=2024-01-01&endDate=2024-12-31&format=xlsx'))
+    const res = await GET(makeRequest('http://localhost/api/export?startDate=2024-01-01&endDate=2024-12-31&format=xlsx'), dummyCtx)
     expect(res.status).toBe(400)
   })
 
@@ -73,7 +74,7 @@ describe('GET /api/export', () => {
       },
     ] as never)
 
-    const res = await GET(makeRequest('http://localhost/api/export?startDate=2024-01-01&endDate=2024-12-31'))
+    const res = await GET(makeRequest('http://localhost/api/export?startDate=2024-01-01&endDate=2024-12-31'), dummyCtx)
     expect(res.headers.get('Content-Type')).toBe('text/csv')
   })
 })

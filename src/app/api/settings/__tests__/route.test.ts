@@ -13,6 +13,7 @@ vi.mock('@/lib/db', () => ({
 import { GET, PATCH } from '@/app/api/settings/route'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
+import { dummyCtx } from '@/test/helpers'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockAuth = auth as any
@@ -28,7 +29,7 @@ describe('GET /api/settings', () => {
 
   it('returns 401 when not authenticated', async () => {
     mockAuth.mockResolvedValue(null as never)
-    const res = await GET()
+    const res = await GET(new Request('http://localhost/api/settings'), dummyCtx)
     expect(res.status).toBe(401)
   })
 
@@ -45,7 +46,7 @@ describe('GET /api/settings', () => {
       reminders: [{ id: 'r1', time: '09:00', timezone: 'Europe/Berlin' }],
     } as never)
 
-    const res = await GET()
+    const res = await GET(new Request('http://localhost/api/settings'), dummyCtx)
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data.reminderEnabled).toBe(false)
@@ -62,7 +63,7 @@ describe('PATCH /api/settings', () => {
     const res = await PATCH(makeRequest('http://localhost/api/settings', {
       method: 'PATCH',
       body: JSON.stringify({ defaultState: 'XX' }),
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(400)
   })
 
@@ -71,7 +72,7 @@ describe('PATCH /api/settings', () => {
     const res = await PATCH(makeRequest('http://localhost/api/settings', {
       method: 'PATCH',
       body: JSON.stringify({ workDays: 'abc' }),
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(400)
   })
 
@@ -80,7 +81,7 @@ describe('PATCH /api/settings', () => {
     const res = await PATCH(makeRequest('http://localhost/api/settings', {
       method: 'PATCH',
       body: JSON.stringify({ weekStartDay: 7 }),
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(400)
   })
 
@@ -94,7 +95,7 @@ describe('PATCH /api/settings', () => {
     const res = await PATCH(makeRequest('http://localhost/api/settings', {
       method: 'PATCH',
       body: JSON.stringify({ defaultState: 'BY' }),
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(200)
   })
 
@@ -109,7 +110,7 @@ describe('PATCH /api/settings', () => {
     const res = await PATCH(makeRequest('http://localhost/api/settings', {
       method: 'PATCH',
       body: JSON.stringify({ reminderEnabled: true, reminderWorkDaysOnly: true }),
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(200)
   })
 })

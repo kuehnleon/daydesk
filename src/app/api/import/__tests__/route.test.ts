@@ -16,6 +16,7 @@ vi.mock('@/lib/db', () => ({
 import { POST } from '@/app/api/import/route'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
+import { dummyCtx } from '@/test/helpers'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockAuth = auth as any
@@ -35,13 +36,13 @@ describe('POST /api/import', () => {
 
   it('returns 401 when not authenticated', async () => {
     mockAuth.mockResolvedValue(null as never)
-    const res = await POST(makeRequest({ rows: [] }))
+    const res = await POST(makeRequest({ rows: [] }), dummyCtx)
     expect(res.status).toBe(401)
   })
 
   it('returns 400 for empty rows array', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
-    const res = await POST(makeRequest({ rows: [] }))
+    const res = await POST(makeRequest({ rows: [] }), dummyCtx)
     expect(res.status).toBe(400)
   })
 
@@ -49,7 +50,7 @@ describe('POST /api/import', () => {
     mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     const res = await POST(makeRequest({
       rows: [{ date: 'bad-date', type: 'office' }],
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(400)
   })
 
@@ -57,7 +58,7 @@ describe('POST /api/import', () => {
     mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     const res = await POST(makeRequest({
       rows: [{ date: '2024-01-15', type: 'invalid' }],
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(400)
   })
 
@@ -66,7 +67,7 @@ describe('POST /api/import', () => {
     const res = await POST(new Request('http://localhost/api/import', {
       method: 'POST',
       body: 'not json',
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(400)
   })
 
@@ -86,7 +87,7 @@ describe('POST /api/import', () => {
       rows: [
         { date: '2024-01-15', type: 'office', location: 'Office Munich', transport: 'Car' },
       ],
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data.imported).toBe(1)
@@ -107,7 +108,7 @@ describe('POST /api/import', () => {
       rows: [
         { date: '2024-01-15', type: 'office', location: 'office munich' },
       ],
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(200)
 
     // Verify upsert was called with the resolved location ID
@@ -127,7 +128,7 @@ describe('POST /api/import', () => {
       rows: [
         { date: '2024-01-15', type: 'office', location: 'Unknown Office' },
       ],
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(200)
   })
 
@@ -148,7 +149,7 @@ describe('POST /api/import', () => {
         { date: '2024-01-15', type: 'office' },
         { date: '2024-01-16', type: 'home' },
       ],
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data.imported).toBe(1)

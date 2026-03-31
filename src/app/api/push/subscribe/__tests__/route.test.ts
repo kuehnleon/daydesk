@@ -13,6 +13,7 @@ vi.mock('@/lib/db', () => ({
 import { POST } from '@/app/api/push/subscribe/route'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
+import { dummyCtx } from '@/test/helpers'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockAuth = auth as any
@@ -31,19 +32,19 @@ describe('POST /api/push/subscribe', () => {
 
   it('returns 401 when not authenticated', async () => {
     mockAuth.mockResolvedValue(null as never)
-    const res = await POST(makeRequest({ endpoint: 'https://push.example.com/sub1', keys: { p256dh: 'key1', auth: 'auth1' } }))
+    const res = await POST(makeRequest({ endpoint: 'https://push.example.com/sub1', keys: { p256dh: 'key1', auth: 'auth1' } }), dummyCtx)
     expect(res.status).toBe(401)
   })
 
   it('returns 400 for invalid body', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
-    const res = await POST(makeRequest({ endpoint: 'not-a-url' }))
+    const res = await POST(makeRequest({ endpoint: 'not-a-url' }), dummyCtx)
     expect(res.status).toBe(400)
   })
 
   it('returns 400 for missing keys', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
-    const res = await POST(makeRequest({ endpoint: 'https://push.example.com/sub1' }))
+    const res = await POST(makeRequest({ endpoint: 'https://push.example.com/sub1' }), dummyCtx)
     expect(res.status).toBe(400)
   })
 
@@ -54,7 +55,7 @@ describe('POST /api/push/subscribe', () => {
     const res = await POST(makeRequest({
       endpoint: 'https://push.example.com/sub1',
       keys: { p256dh: 'key1', auth: 'auth1' },
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(200)
     expect(mockPrisma.pushSubscription.upsert).toHaveBeenCalledWith(
       expect.objectContaining({
