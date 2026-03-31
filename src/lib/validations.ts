@@ -10,10 +10,9 @@ export const hexColorSchema = z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Must be a h
 
 export const attendanceTypeSchema = z.enum(['office', 'home', 'off', 'holiday', 'sick'])
 
-export const germanStateCodeSchema = z.enum([
-  'BW', 'BY', 'BE', 'BB', 'HB', 'HH', 'HE', 'MV',
-  'NI', 'NW', 'RP', 'SL', 'SN', 'ST', 'SH', 'TH',
-])
+export const countryCodeSchema = z.string().regex(/^[A-Z]{2}$/, 'Must be a 2-letter country code')
+
+export const regionCodeSchema = z.string().min(1).max(10)
 
 // --- Route schemas ---
 
@@ -69,7 +68,8 @@ export const updateTransportSchema = z.object({
 })
 
 export const updateSettingsSchema = z.object({
-  defaultState: germanStateCodeSchema.optional(),
+  country: countryCodeSchema.optional(),
+  defaultState: z.string().max(10).optional(),
   workDays: z.string().regex(/^[0-6](,[0-6])*$/, 'Must be comma-separated days 0-6').optional(),
   weekStartDay: z.number().int().min(0).max(6).optional(),
   reminderEnabled: z.boolean().optional(),
@@ -84,7 +84,8 @@ export const exportQuerySchema = z.object({
 
 export const holidaysQuerySchema = z.object({
   year: z.string().regex(/^\d{4}$/, 'Must be a 4-digit year').optional(),
-  state: germanStateCodeSchema.optional(),
+  country: countryCodeSchema.optional(),
+  state: regionCodeSchema.optional(),
 })
 
 // --- Import schemas ---

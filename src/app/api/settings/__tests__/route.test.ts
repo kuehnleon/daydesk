@@ -33,11 +33,12 @@ describe('GET /api/settings', () => {
     expect(res.status).toBe(401)
   })
 
-  it('returns user settings including reminders relation', async () => {
+  it('returns user settings including country and reminders', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     mockPrisma.user.findUnique.mockResolvedValue({
       id: 'user1',
       email: 'test@test.com',
+      country: 'DE',
       defaultState: 'BW',
       workDays: '1,2,3,4,5',
       weekStartDay: 1,
@@ -49,6 +50,7 @@ describe('GET /api/settings', () => {
     const res = await GET(new Request('http://localhost/api/settings'), dummyCtx)
     expect(res.status).toBe(200)
     const data = await res.json()
+    expect(data.country).toBe('DE')
     expect(data.reminderEnabled).toBe(false)
     expect(data.reminders).toEqual([{ id: 'r1', time: '09:00', timezone: 'Europe/Berlin' }])
     expect(data.reminderWorkDaysOnly).toBe(true)
@@ -58,11 +60,11 @@ describe('GET /api/settings', () => {
 describe('PATCH /api/settings', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('returns 400 for invalid state code', async () => {
+  it('returns 400 for invalid country code', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     const res = await PATCH(makeRequest('http://localhost/api/settings', {
       method: 'PATCH',
-      body: JSON.stringify({ defaultState: 'XX' }),
+      body: JSON.stringify({ country: 'invalid' }),
     }), dummyCtx)
     expect(res.status).toBe(400)
   })
@@ -85,16 +87,32 @@ describe('PATCH /api/settings', () => {
     expect(res.status).toBe(400)
   })
 
-  it('updates settings with valid data', async () => {
+  it('updates settings with valid country and state', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     mockPrisma.user.update.mockResolvedValue({
       id: 'user1',
+      country: 'AT',
+      defaultState: '',
+    } as never)
+
+    const res = await PATCH(makeRequest('http://localhost/api/settings', {
+      method: 'PATCH',
+      body: JSON.stringify({ country: 'AT', defaultState: '' }),
+    }), dummyCtx)
+    expect(res.status).toBe(200)
+  })
+
+  it('updates settings with valid German state', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
+    mockPrisma.user.update.mockResolvedValue({
+      id: 'user1',
+      country: 'DE',
       defaultState: 'BY',
     } as never)
 
     const res = await PATCH(makeRequest('http://localhost/api/settings', {
       method: 'PATCH',
-      body: JSON.stringify({ defaultState: 'BY' }),
+      body: JSON.stringify({ country: 'DE', defaultState: 'BY' }),
     }), dummyCtx)
     expect(res.status).toBe(200)
   })

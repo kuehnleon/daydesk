@@ -1,22 +1,4 @@
-import { isHoliday, GERMAN_STATES } from '@/lib/holidays'
-
-describe('GERMAN_STATES', () => {
-  it('has exactly 16 states', () => {
-    expect(Object.keys(GERMAN_STATES)).toHaveLength(16)
-  })
-
-  it('contains known state codes', () => {
-    expect(GERMAN_STATES).toHaveProperty('BW')
-    expect(GERMAN_STATES).toHaveProperty('BY')
-    expect(GERMAN_STATES).toHaveProperty('BE')
-  })
-
-  it('has non-empty values', () => {
-    Object.values(GERMAN_STATES).forEach((name) => {
-      expect(name.length).toBeGreaterThan(0)
-    })
-  })
-})
+import { isHoliday } from '@/lib/holidays'
 
 describe('isHoliday', () => {
   const holidays = [

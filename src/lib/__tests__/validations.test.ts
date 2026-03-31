@@ -3,7 +3,6 @@ import {
   yearMonthSchema,
   hexColorSchema,
   attendanceTypeSchema,
-  germanStateCodeSchema,
   createAttendanceSchema,
   getAttendanceQuerySchema,
   createLocationSchema,
@@ -64,21 +63,6 @@ describe('attendanceTypeSchema', () => {
     expect(attendanceTypeSchema.safeParse('invalid').success).toBe(false)
     expect(attendanceTypeSchema.safeParse('').success).toBe(false)
     expect(attendanceTypeSchema.safeParse('OFFICE').success).toBe(false)
-  })
-})
-
-describe('germanStateCodeSchema', () => {
-  const validStates = ['BW', 'BY', 'BE', 'BB', 'HB', 'HH', 'HE', 'MV', 'NI', 'NW', 'RP', 'SL', 'SN', 'ST', 'SH', 'TH']
-  it.each(validStates)('accepts "%s"', (state) => {
-    expect(germanStateCodeSchema.safeParse(state).success).toBe(true)
-  })
-  it('has exactly 16 states', () => {
-    expect(validStates).toHaveLength(16)
-  })
-  it('rejects invalid codes', () => {
-    expect(germanStateCodeSchema.safeParse('XX').success).toBe(false)
-    expect(germanStateCodeSchema.safeParse('bw').success).toBe(false)
-    expect(germanStateCodeSchema.safeParse('').success).toBe(false)
   })
 })
 
@@ -306,8 +290,8 @@ describe('updateSettingsSchema', () => {
     expect(updateSettingsSchema.safeParse({ weekStartDay: 1 }).success).toBe(true)
   })
 
-  it('rejects invalid state code', () => {
-    expect(updateSettingsSchema.safeParse({ defaultState: 'XX' }).success).toBe(false)
+  it('rejects overly long state code', () => {
+    expect(updateSettingsSchema.safeParse({ defaultState: 'ABCDEFGHIJK' }).success).toBe(false)
   })
 
   it('rejects invalid workDays format', () => {
@@ -368,7 +352,7 @@ describe('holidaysQuerySchema', () => {
     expect(holidaysQuerySchema.safeParse({ year: '24' }).success).toBe(false)
   })
 
-  it('rejects invalid state', () => {
-    expect(holidaysQuerySchema.safeParse({ state: 'XX' }).success).toBe(false)
+  it('rejects overly long state', () => {
+    expect(holidaysQuerySchema.safeParse({ state: 'ABCDEFGHIJK' }).success).toBe(false)
   })
 })
