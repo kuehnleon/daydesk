@@ -27,7 +27,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "daydesk - Office Attendance Tracker",
-  description: "Track office and home office attendance for German tax reporting",
+  description: "Track office and home office attendance",
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',

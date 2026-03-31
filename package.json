@@ -1,7 +1,7 @@
 {
   "name": "daydesk",
   "version": "0.6.3",
-  "description": "Office attendance tracker for German tax reporting",
+  "description": "Office attendance tracker",
   "license": "MIT",
   "author": "Leon Kuehn",
   "repository": {
