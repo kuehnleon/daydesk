@@ -54,6 +54,9 @@ export default function Calendar() {
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const longPressTriggered = useRef(false)
   const isMultiSelecting = useRef(false)
+  const swipeStartX = useRef(0)
+  const swipeStartY = useRef(0)
+  const [slideDirection, setSlideDirection] = useState<'left' | 'right' | null>(null)
   const [selectionHint, setSelectionHint] = useState('')
 
   useEffect(() => {
@@ -283,6 +286,28 @@ export default function Calendar() {
     if (longPressTriggered.current) {
       e.preventDefault()
       longPressTriggered.current = false
+    }
+  }
+
+  const handleSwipeStart = (e: React.TouchEvent) => {
+    swipeStartX.current = e.touches[0].clientX
+    swipeStartY.current = e.touches[0].clientY
+  }
+
+  const handleSwipeEnd = (e: React.TouchEvent) => {
+    const deltaX = e.changedTouches[0].clientX - swipeStartX.current
+    const deltaY = e.changedTouches[0].clientY - swipeStartY.current
+    if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      const direction = deltaX < 0 ? 'left' : 'right'
+      setSlideDirection(direction)
+      setTimeout(() => {
+        if (direction === 'left') {
+          setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))
+        } else {
+          setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))
+        }
+        setSlideDirection(null)
+      }, 150)
     }
   }
 
@@ -557,7 +582,16 @@ export default function Calendar() {
           )}
         </div>
 
-        <div className="grid grid-cols-7 gap-1 select-none sm:gap-2">
+        <div
+          className="grid grid-cols-7 gap-1 select-none sm:gap-2"
+          onTouchStart={handleSwipeStart}
+          onTouchEnd={handleSwipeEnd}
+          style={{
+            transition: slideDirection ? 'transform 150ms ease-out, opacity 150ms ease-out' : undefined,
+            transform: slideDirection === 'left' ? 'translateX(-30px)' : slideDirection === 'right' ? 'translateX(30px)' : undefined,
+            opacity: slideDirection ? 0.5 : undefined,
+          }}
+        >
           {getDayNames().map(day => (
             <div key={day} className="p-2 text-center text-sm font-semibold text-text-secondary">
               {day}
