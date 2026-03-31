@@ -36,6 +36,7 @@ export default function Calendar() {
   const [attendances, setAttendances] = useState<Record<string, Attendance>>({})
   const [selectedDates, setSelectedDates] = useState<Set<string>>(new Set())
   const [showModal, setShowModal] = useState(false)
+  const [modalInteractive, setModalInteractive] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [holidays, setHolidays] = useState<Set<string>>(new Set())
   const [weekStartDay, setWeekStartDay] = useState(1)
@@ -54,6 +55,8 @@ export default function Calendar() {
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const longPressTriggered = useRef(false)
   const isMultiSelecting = useRef(false)
+  const isTouching = useRef(false)
+  const calendarGridRef = useRef<HTMLDivElement>(null)
   const swipeStartX = useRef(0)
   const swipeStartY = useRef(0)
   const [slideDirection, setSlideDirection] = useState<'left' | 'right' | null>(null)
@@ -219,6 +222,7 @@ export default function Calendar() {
   }
 
   const handleMouseDown = (day: Date, e: React.MouseEvent) => {
+    if (isTouching.current) return
     e.preventDefault()
 
     if (e.metaKey || e.ctrlKey) {
@@ -269,24 +273,49 @@ export default function Calendar() {
     return () => window.removeEventListener('keyup', handleKeyUp)
   }, [selectedDates])
 
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
+      if (selectedDates.size > 0 && !showModal && calendarGridRef.current && !calendarGridRef.current.contains(e.target as Node)) {
+        setSelectedDates(new Set())
+      }
+    }
+    document.addEventListener('mousedown', handleOutsideClick)
+    document.addEventListener('touchstart', handleOutsideClick)
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick)
+      document.removeEventListener('touchstart', handleOutsideClick)
+    }
+  }, [selectedDates, showModal])
+
   const handleTouchStart = (day: Date) => {
+    isTouching.current = true
     longPressTriggered.current = false
     longPressTimer.current = setTimeout(() => {
       longPressTriggered.current = true
       toggleDateInSelection(day)
-      setShowModal(true)
     }, 500)
   }
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
+  const handleTouchEnd = (day: Date) => {
     if (longPressTimer.current) {
       clearTimeout(longPressTimer.current)
       longPressTimer.current = null
     }
     if (longPressTriggered.current) {
-      e.preventDefault()
       longPressTriggered.current = false
+    } else {
+      // Quick tap: if days are already selected via long-press, open the modal
+      // Otherwise, select this single day and open the modal
+      const dateStr = format(day, 'yyyy-MM-dd')
+      if (selectedDates.size > 0) {
+        openModal()
+      } else {
+        setSelectedDates(new Set([dateStr]))
+        openModal()
+      }
     }
+    // Reset after a short delay to let synthetic mouse events pass
+    setTimeout(() => { isTouching.current = false }, 400)
   }
 
   const handleSwipeStart = (e: React.TouchEvent) => {
@@ -309,6 +338,14 @@ export default function Calendar() {
         setSlideDirection(null)
       }, 150)
     }
+  }
+
+  const openModal = () => {
+    setModalInteractive(false)
+    setShowModal(true)
+    setTimeout(() => {
+      setModalInteractive(true)
+    }, 400)
   }
 
   const closeModal = () => {
@@ -583,6 +620,7 @@ export default function Calendar() {
         </div>
 
         <div
+          ref={calendarGridRef}
           className="grid grid-cols-7 gap-1 select-none sm:gap-2"
           onTouchStart={handleSwipeStart}
           onTouchEnd={handleSwipeEnd}
@@ -620,7 +658,7 @@ export default function Calendar() {
                   onMouseDown={(e) => !isDayDisabled && handleMouseDown(day, e)}
                   onMouseEnter={() => handleMouseEnter(day)}
                   onTouchStart={() => !isDayDisabled && handleTouchStart(day)}
-                  onTouchEnd={(e) => handleTouchEnd(e)}
+                  onTouchEnd={() => handleTouchEnd(day)}
                   disabled={isDayDisabled}
                   className={`
                     min-h-14 rounded-lg p-1.5 text-left transition-all sm:min-h-20 sm:p-2
@@ -650,7 +688,7 @@ export default function Calendar() {
 
       {/* Attendance Edit Modal */}
       {showModal && selectedDates.size > 0 && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={closeModal}>
+        <div className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 ${modalInteractive ? '' : 'pointer-events-none'}`} onClick={closeModal}>
           <div className="mx-4 my-[calc(1rem+var(--sai-top))] max-h-[calc(100dvh-2rem-var(--sai-top)-var(--sai-bottom))] w-full max-w-lg overflow-y-auto rounded-xl border border-border bg-surface p-6 shadow-overlay" onClick={(e) => e.stopPropagation()}>
             <div className="mb-6 flex items-center justify-between">
               <h3 className="text-xl font-semibold tracking-tight text-text-primary">
