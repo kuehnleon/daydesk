@@ -296,12 +296,17 @@ export default function Calendar() {
     }, 500)
   }
 
-  const handleTouchEnd = (day: Date) => {
+  const handleTouchEnd = (day: Date, e: React.TouchEvent) => {
     if (longPressTimer.current) {
       clearTimeout(longPressTimer.current)
       longPressTimer.current = null
     }
-    if (longPressTriggered.current) {
+    // Check if this was a swipe gesture
+    const deltaX = Math.abs(e.changedTouches[0].clientX - swipeStartX.current)
+    const deltaY = Math.abs(e.changedTouches[0].clientY - swipeStartY.current)
+    if (deltaX > 50 && deltaX > deltaY) {
+      // Swipe handled month navigation — ignore tap
+    } else if (longPressTriggered.current) {
       longPressTriggered.current = false
     } else {
       // Quick tap: if days are already selected via long-press, open the modal
@@ -658,7 +663,7 @@ export default function Calendar() {
                   onMouseDown={(e) => !isDayDisabled && handleMouseDown(day, e)}
                   onMouseEnter={() => handleMouseEnter(day)}
                   onTouchStart={() => !isDayDisabled && handleTouchStart(day)}
-                  onTouchEnd={() => handleTouchEnd(day)}
+                  onTouchEnd={(e) => handleTouchEnd(day, e)}
                   disabled={isDayDisabled}
                   className={`
                     min-h-14 rounded-lg p-1.5 text-left transition-all sm:min-h-20 sm:p-2
