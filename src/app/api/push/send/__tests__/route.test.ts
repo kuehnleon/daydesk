@@ -22,6 +22,7 @@ import { POST } from '@/app/api/push/send/route'
 import { prisma } from '@/lib/db'
 import { sendPushNotification } from '@/lib/web-push'
 import { getCurrentTimeInTimezone, getDayOfWeekInTimezone, getTodayDateInTimezone } from '@/lib/timezone'
+import { dummyCtx } from '@/test/helpers'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockPrisma = prisma as any
@@ -57,12 +58,12 @@ describe('POST /api/push/send', () => {
   })
 
   it('returns 401 without authorization', async () => {
-    const res = await POST(makeRequest())
+    const res = await POST(makeRequest(), dummyCtx)
     expect(res.status).toBe(401)
   })
 
   it('returns 401 with wrong token', async () => {
-    const res = await POST(makeRequest('wrong-secret'))
+    const res = await POST(makeRequest('wrong-secret'), dummyCtx)
     expect(res.status).toBe(401)
   })
 
@@ -88,7 +89,7 @@ describe('POST /api/push/send', () => {
     mockPrisma.attendance.findUnique.mockResolvedValue(null as never)
     mockSendPush.mockResolvedValue(undefined as never)
 
-    const res = await POST(makeRequest(PUSH_API_SECRET))
+    const res = await POST(makeRequest(PUSH_API_SECRET), dummyCtx)
     expect(res.status).toBe(200)
 
     const data = await res.json()
@@ -117,7 +118,7 @@ describe('POST /api/push/send', () => {
       },
     ] as never)
 
-    const res = await POST(makeRequest(PUSH_API_SECRET))
+    const res = await POST(makeRequest(PUSH_API_SECRET), dummyCtx)
     const data = await res.json()
     expect(data.notified).toBe(0)
     expect(mockSendPush).not.toHaveBeenCalled()
@@ -144,7 +145,7 @@ describe('POST /api/push/send', () => {
 
     mockPrisma.attendance.findUnique.mockResolvedValue({ id: 'att1' } as never)
 
-    const res = await POST(makeRequest(PUSH_API_SECRET))
+    const res = await POST(makeRequest(PUSH_API_SECRET), dummyCtx)
     const data = await res.json()
     expect(data.notified).toBe(0)
     expect(mockSendPush).not.toHaveBeenCalled()
@@ -187,7 +188,7 @@ describe('POST /api/push/send', () => {
     mockPrisma.attendance.findUnique.mockResolvedValue(null as never)
     mockSendPush.mockResolvedValue(undefined as never)
 
-    const res = await POST(makeRequest(PUSH_API_SECRET))
+    const res = await POST(makeRequest(PUSH_API_SECRET), dummyCtx)
     const data = await res.json()
     // Should only notify once despite two matching reminders
     expect(data.notified).toBe(1)
@@ -216,7 +217,7 @@ describe('POST /api/push/send', () => {
     mockSendPush.mockRejectedValue({ statusCode: 410 } as never)
     mockPrisma.pushSubscription.delete.mockResolvedValue(undefined as never)
 
-    const res = await POST(makeRequest(PUSH_API_SECRET))
+    const res = await POST(makeRequest(PUSH_API_SECRET), dummyCtx)
     const data = await res.json()
     expect(data.cleaned).toBe(1)
     expect(mockPrisma.pushSubscription.delete).toHaveBeenCalledWith({ where: { id: 'sub1' } })

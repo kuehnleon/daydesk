@@ -5,6 +5,7 @@ const mockFetch = vi.fn()
 vi.stubGlobal('fetch', mockFetch)
 
 import { GET } from '@/app/api/holidays/route'
+import { dummyCtx } from '@/test/helpers'
 
 function makeRequest(url: string) {
   return new Request(url)
@@ -16,12 +17,12 @@ describe('GET /api/holidays', () => {
   })
 
   it('returns 400 for invalid year', async () => {
-    const res = await GET(makeRequest('http://localhost/api/holidays?year=24'))
+    const res = await GET(makeRequest('http://localhost/api/holidays?year=24'), dummyCtx)
     expect(res.status).toBe(400)
   })
 
   it('returns 400 for invalid state', async () => {
-    const res = await GET(makeRequest('http://localhost/api/holidays?state=XX'))
+    const res = await GET(makeRequest('http://localhost/api/holidays?state=XX'), dummyCtx)
     expect(res.status).toBe(400)
   })
 
@@ -33,7 +34,7 @@ describe('GET /api/holidays', () => {
       ]),
     })
 
-    const res = await GET(makeRequest('http://localhost/api/holidays?year=2024&state=BW'))
+    const res = await GET(makeRequest('http://localhost/api/holidays?year=2024&state=BW'), dummyCtx)
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data).toHaveLength(1)
@@ -43,7 +44,7 @@ describe('GET /api/holidays', () => {
     mockFetch.mockResolvedValue({ ok: false, statusText: 'Not Found' })
 
     // Use a different year to avoid the in-memory cache from previous test
-    const res = await GET(makeRequest('http://localhost/api/holidays?year=2025&state=BW'))
+    const res = await GET(makeRequest('http://localhost/api/holidays?year=2025&state=BW'), dummyCtx)
     expect(res.status).toBe(500)
   })
 })

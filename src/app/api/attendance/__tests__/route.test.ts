@@ -13,6 +13,7 @@ vi.mock('@/lib/db', () => ({
 import { GET, POST } from '@/app/api/attendance/route'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
+import { dummyCtx } from '@/test/helpers'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockAuth = auth as any
@@ -28,19 +29,19 @@ describe('GET /api/attendance', () => {
 
   it('returns 401 when not authenticated', async () => {
     mockAuth.mockResolvedValue(null as never)
-    const res = await GET(makeRequest('http://localhost/api/attendance'))
+    const res = await GET(makeRequest('http://localhost/api/attendance'), dummyCtx)
     expect(res.status).toBe(401)
   })
 
   it('returns 400 for invalid month format', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
-    const res = await GET(makeRequest('http://localhost/api/attendance?month=2024'))
+    const res = await GET(makeRequest('http://localhost/api/attendance?month=2024'), dummyCtx)
     expect(res.status).toBe(400)
   })
 
   it('returns 400 for startDate without endDate', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
-    const res = await GET(makeRequest('http://localhost/api/attendance?startDate=2024-01-01'))
+    const res = await GET(makeRequest('http://localhost/api/attendance?startDate=2024-01-01'), dummyCtx)
     expect(res.status).toBe(400)
   })
 
@@ -48,7 +49,7 @@ describe('GET /api/attendance', () => {
     mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     mockPrisma.attendance.findMany.mockResolvedValue([{ id: 'att1' }] as never)
 
-    const res = await GET(makeRequest('http://localhost/api/attendance?month=2024-01'))
+    const res = await GET(makeRequest('http://localhost/api/attendance?month=2024-01'), dummyCtx)
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data).toHaveLength(1)
@@ -63,7 +64,7 @@ describe('POST /api/attendance', () => {
     const res = await POST(makeRequest('http://localhost/api/attendance', {
       method: 'POST',
       body: JSON.stringify({ date: '2024-01-15', type: 'office' }),
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(401)
   })
 
@@ -72,7 +73,7 @@ describe('POST /api/attendance', () => {
     const res = await POST(makeRequest('http://localhost/api/attendance', {
       method: 'POST',
       body: JSON.stringify({}),
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(400)
   })
 
@@ -81,7 +82,7 @@ describe('POST /api/attendance', () => {
     const res = await POST(makeRequest('http://localhost/api/attendance', {
       method: 'POST',
       body: JSON.stringify({ date: '2024-01-15', type: 'working' }),
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(400)
   })
 
@@ -92,7 +93,7 @@ describe('POST /api/attendance', () => {
     const res = await POST(makeRequest('http://localhost/api/attendance', {
       method: 'POST',
       body: JSON.stringify({ date: '2024-01-15', type: 'office' }),
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(200)
   })
 })

@@ -17,6 +17,7 @@ vi.mock('@/lib/db', () => ({
 import { GET, POST } from '@/app/api/reminders/route'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
+import { dummyCtx } from '@/test/helpers'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockAuth = auth as any
@@ -28,7 +29,7 @@ describe('GET /api/reminders', () => {
 
   it('returns 401 when not authenticated', async () => {
     mockAuth.mockResolvedValue(null as never)
-    const res = await GET()
+    const res = await GET(new Request('http://localhost/api/reminders'), dummyCtx)
     expect(res.status).toBe(401)
   })
 
@@ -39,7 +40,7 @@ describe('GET /api/reminders', () => {
       { id: 'r2', time: '14:00', timezone: 'Europe/Berlin' },
     ] as never)
 
-    const res = await GET()
+    const res = await GET(new Request('http://localhost/api/reminders'), dummyCtx)
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data).toHaveLength(2)
@@ -55,7 +56,7 @@ describe('POST /api/reminders', () => {
     const res = await POST(new Request('http://localhost/api/reminders', {
       method: 'POST',
       body: JSON.stringify({ time: '09:00', timezone: 'Europe/Berlin' }),
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(401)
   })
 
@@ -64,7 +65,7 @@ describe('POST /api/reminders', () => {
     const res = await POST(new Request('http://localhost/api/reminders', {
       method: 'POST',
       body: JSON.stringify({ time: '9am', timezone: 'Europe/Berlin' }),
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(400)
   })
 
@@ -74,7 +75,7 @@ describe('POST /api/reminders', () => {
     const res = await POST(new Request('http://localhost/api/reminders', {
       method: 'POST',
       body: JSON.stringify({ time: '09:00', timezone: 'Invalid/Timezone' }),
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(400)
   })
 
@@ -88,7 +89,7 @@ describe('POST /api/reminders', () => {
     const res = await POST(new Request('http://localhost/api/reminders', {
       method: 'POST',
       body: JSON.stringify({ time: '09:00', timezone: 'Europe/Berlin' }),
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(201)
     const data = await res.json()
     expect(data.id).toBe('r1')
@@ -100,7 +101,7 @@ describe('POST /api/reminders', () => {
     const res = await POST(new Request('http://localhost/api/reminders', {
       method: 'POST',
       body: JSON.stringify({ time: '09:00', timezone: 'Europe/Berlin' }),
-    }))
+    }), dummyCtx)
     expect(res.status).toBe(400)
     const data = await res.json()
     expect(data.error).toContain('Maximum')
