@@ -46,6 +46,7 @@ export interface UserSettings {
   id: string
   email: string
   name?: string
+  country: string
   defaultState: string
   workDays: string // "1,2,3,4,5" for Mon-Fri
   weekStartDay: number

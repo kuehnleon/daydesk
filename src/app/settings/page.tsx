@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { GERMAN_STATES } from '@/lib/holidays'
 import { useToast } from '@/components/ui/toast'
 import { Navbar } from '@/components/navbar'
 import { ReminderSettings } from '@/components/settings/reminder-settings'
@@ -9,6 +8,16 @@ import { Plus, Pencil, Trash2, GripVertical } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { minLoadingDelay } from '@/lib/loading'
 import type { Location, Transport } from '@/types'
+
+interface AvailableCountry {
+  countryCode: string
+  name: string
+}
+
+interface Region {
+  code: string
+  name: string
+}
 
 const COLOR_OPTIONS = [
   '#3B82F6', // blue
@@ -35,11 +44,15 @@ interface TransportFormData {
 }
 
 export default function Settings() {
+  const [country, setCountry] = useState('DE')
   const [defaultState, setDefaultState] = useState('BW')
   const [workDays, setWorkDays] = useState('1,2,3,4,5')
   const [weekStartDay, setWeekStartDay] = useState(1)
   const [isSaving, setIsSaving] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
+  const [countries, setCountries] = useState<AvailableCountry[]>([])
+  const [regions, setRegions] = useState<Region[]>([])
+  const [isLoadingRegions, setIsLoadingRegions] = useState(true)
   const { showToast } = useToast()
 
   // Transport state
@@ -64,6 +77,7 @@ export default function Settings() {
   useEffect(() => {
     setIsMounted(true)
     loadSettings()
+    loadCountries()
     loadTransports()
     loadLocations()
   }, [])
@@ -72,10 +86,44 @@ export default function Settings() {
     const response = await fetch('/api/settings')
     if (response.ok) {
       const data = await response.json()
+      setCountry(data.country ?? 'DE')
       setDefaultState(data.defaultState)
       setWorkDays(data.workDays)
       setWeekStartDay(data.weekStartDay ?? 1)
+      // Load regions for the user's saved country
+      loadRegions(data.country ?? 'DE')
     }
+  }
+
+  const loadCountries = async () => {
+    const response = await fetch('/api/countries')
+    if (response.ok) {
+      const data: AvailableCountry[] = await response.json()
+      setCountries(data)
+    }
+  }
+
+  const loadRegions = async (countryCode: string) => {
+    setIsLoadingRegions(true)
+    try {
+      const response = await fetch(`/api/countries/${countryCode}/regions`)
+      if (response.ok) {
+        const data: Region[] = await response.json()
+        setRegions(data)
+      } else {
+        setRegions([])
+      }
+    } catch {
+      setRegions([])
+    } finally {
+      setIsLoadingRegions(false)
+    }
+  }
+
+  const handleCountryChange = (newCountry: string) => {
+    setCountry(newCountry)
+    setDefaultState('') // Reset region when country changes
+    loadRegions(newCountry)
   }
 
   const loadTransports = async () => {
@@ -110,7 +158,7 @@ export default function Settings() {
       const response = await fetch('/api/settings', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ defaultState, workDays, weekStartDay }),
+        body: JSON.stringify({ country, defaultState, workDays, weekStartDay }),
       })
 
       if (response.ok) {
@@ -426,23 +474,50 @@ export default function Settings() {
         <div className="space-y-6 card p-4 sm:p-8">
           <div>
             <label className="mb-2 block text-sm font-medium text-text-secondary">
-              German State (Bundesland)
+              Country
             </label>
             <select
-              value={defaultState}
-              onChange={(e) => setDefaultState(e.target.value)}
+              value={country}
+              onChange={(e) => handleCountryChange(e.target.value)}
               className="w-full rounded-lg border border-border bg-surface px-4 py-2 text-foreground focus:border-accent focus:ring-accent"
             >
-              {Object.entries(GERMAN_STATES).map(([code, name]) => (
-                <option key={code} value={code}>
-                  {name}
+              {countries.map((c) => (
+                <option key={c.countryCode} value={c.countryCode}>
+                  {c.name}
                 </option>
               ))}
             </select>
             <p className="mt-1 text-xs text-text-tertiary">
-              Used for calculating state-specific public holidays
+              Used for fetching public holidays
             </p>
           </div>
+
+          {(isLoadingRegions || regions.length > 0) && (
+            <div>
+              <label className="mb-2 block text-sm font-medium text-text-secondary">
+                Region
+              </label>
+              {isLoadingRegions ? (
+                <Skeleton className="h-10 rounded-lg" />
+              ) : (
+                <select
+                  value={defaultState}
+                  onChange={(e) => setDefaultState(e.target.value)}
+                  className="w-full rounded-lg border border-border bg-surface px-4 py-2 text-foreground focus:border-accent focus:ring-accent"
+                >
+                  <option value="">All regions</option>
+                  {regions.map((r) => (
+                    <option key={r.code} value={r.code}>
+                      {r.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+              <p className="mt-1 text-xs text-text-tertiary">
+                Used for calculating region-specific public holidays
+              </p>
+            </div>
+          )}
 
           <div>
             <label className="mb-2 block text-sm font-medium text-text-secondary">

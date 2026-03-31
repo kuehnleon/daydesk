@@ -17,6 +17,7 @@ export const GET = withLogging(async () => {
       id: true,
       email: true,
       name: true,
+      country: true,
       defaultState: true,
       workDays: true,
       weekStartDay: true,
@@ -56,12 +57,13 @@ export const PATCH = withLogging(async (request) => {
       { status: 400 }
     )
   }
-  const { defaultState, workDays, weekStartDay, reminderEnabled, reminderWorkDaysOnly } = parsed.data
+  const { country, defaultState, workDays, weekStartDay, reminderEnabled, reminderWorkDaysOnly } = parsed.data
 
   const user = await prisma.user.update({
     where: { id: session.user.id },
     data: {
-      ...(defaultState && { defaultState }),
+      ...(country && { country }),
+      ...(defaultState !== undefined && { defaultState }),
       ...(workDays && { workDays }),
       ...(weekStartDay !== undefined && { weekStartDay }),
       ...(reminderEnabled !== undefined && { reminderEnabled }),

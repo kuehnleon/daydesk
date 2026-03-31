@@ -40,6 +40,8 @@ export default function Calendar() {
   const [holidays, setHolidays] = useState<Set<string>>(new Set())
   const [weekStartDay, setWeekStartDay] = useState(1)
   const [workDays, setWorkDays] = useState<number[]>([1, 2, 3, 4, 5])
+  const [country, setCountry] = useState('DE')
+  const [defaultState, setDefaultState] = useState('BW')
   const [isSelecting, setIsSelecting] = useState(false)
   const [selectionStart, setSelectionStart] = useState<Date | null>(null)
   const [locations, setLocations] = useState<Location[]>([])
@@ -87,6 +89,8 @@ export default function Calendar() {
       if (data.workDays) {
         setWorkDays(data.workDays.split(',').map(Number))
       }
+      setCountry(data.country ?? 'DE')
+      setDefaultState(data.defaultState ?? '')
     }
   }
 
@@ -121,7 +125,9 @@ export default function Calendar() {
 
   const loadHolidays = async () => {
     const year = currentMonth.getFullYear()
-    const response = await fetch(`/api/holidays?year=${year}`)
+    const params = new URLSearchParams({ year: year.toString(), country })
+    if (defaultState) params.set('state', defaultState)
+    const response = await fetch(`/api/holidays?${params}`)
     if (response.ok) {
       const data = await response.json()
       const dates = new Set<string>(data.map((h: { date: string }) => h.date))

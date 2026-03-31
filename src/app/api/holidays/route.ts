@@ -17,7 +17,7 @@ interface CacheEntry {
 }
 
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours
-const CACHE_MAX_SIZE = 10
+const CACHE_MAX_SIZE = 50
 const holidayCache = new Map<string, CacheEntry>()
 
 function evictExpiredEntries() {
@@ -29,14 +29,15 @@ function evictExpiredEntries() {
   }
 }
 
-async function fetchHolidaysForYear(year: string): Promise<Holiday[]> {
-  const cached = holidayCache.get(year)
+async function fetchHolidaysForYear(year: string, countryCode: string): Promise<Holiday[]> {
+  const cacheKey = `${countryCode}_${year}`
+  const cached = holidayCache.get(cacheKey)
   if (cached && Date.now() < cached.expiresAt) {
     return cached.data
   }
 
   const response = await fetch(
-    `https://date.nager.at/api/v3/publicholidays/${year}/DE`
+    `https://date.nager.at/api/v3/publicholidays/${year}/${countryCode}`
   )
   if (!response.ok) {
     throw new Error('Failed to fetch holidays')
@@ -50,7 +51,7 @@ async function fetchHolidaysForYear(year: string): Promise<Holiday[]> {
     if (oldestKey !== undefined) holidayCache.delete(oldestKey)
   }
 
-  holidayCache.set(year, { data, expiresAt: Date.now() + CACHE_TTL_MS })
+  holidayCache.set(cacheKey, { data, expiresAt: Date.now() + CACHE_TTL_MS })
   return data
 }
 
@@ -65,18 +66,21 @@ export const GET = withLogging(async (request) => {
     )
   }
   const year = parsed.data.year || new Date().getFullYear().toString()
-  const stateCode = parsed.data.state || 'BW'
+  const countryCode = parsed.data.country || 'DE'
+  const stateCode = parsed.data.state
 
   try {
-    const allHolidays = await fetchHolidaysForYear(year)
+    const allHolidays = await fetchHolidaysForYear(year, countryCode)
 
-    const filteredHolidays = allHolidays.filter(holiday => {
-      if (holiday.global) return true
-      if (holiday.counties && holiday.counties.includes(`DE-${stateCode}`)) {
-        return true
-      }
-      return false
-    })
+    const filteredHolidays = stateCode
+      ? allHolidays.filter(holiday => {
+          if (holiday.global) return true
+          if (holiday.counties && holiday.counties.includes(`${countryCode}-${stateCode}`)) {
+            return true
+          }
+          return false
+        })
+      : allHolidays
 
     return NextResponse.json(filteredHolidays, {
       headers: { 'Cache-Control': 'public, max-age=86400' },

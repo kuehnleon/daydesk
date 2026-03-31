@@ -22,7 +22,7 @@ A lightweight multi-user application for tracking office and home office attenda
 - **Calendar View**: Visual month view to log/edit past days with color-coded location markers
 - **Statistics Dashboard**: Attendance breakdown, office location usage, transport methods, and commute distance tracking
 - **Custom Locations & Transports**: Define office locations with colors, distances, and preferred transport methods
-- **German Public Holidays**: Automatic fetching via Nager.Date API for all 16 states
+- **Public Holidays**: Automatic fetching via Nager.Date API with support for 100+ countries and regional holidays
 - **Export & Import**: CSV and PDF exports with date range selection, plus CSV import
 - **Push Notifications**: Optional daily reminders to log attendance via Web Push
 - **Multi-user**: Each user has their own attendance records
@@ -188,7 +188,7 @@ Your provider must support the `openid email profile` scopes so that the ID toke
 ### Settings
 - Manage office locations (name, color, distance, default transport)
 - Manage transport methods
-- Configure your German state (for holiday calculation)
+- Configure your country and region (for holiday calculation)
 - Set default work days and week start day
 - Set up daily reminder notifications (time, timezone, work days only)
 
@@ -313,8 +313,9 @@ In production, a Kubernetes CronJob handles this automatically (see `helm/templa
 
 ## Public Holiday API
 
-Uses [Nager.Date](https://date.nager.at) free API for German public holidays.
-- Supports all 16 German states
+Uses [Nager.Date](https://date.nager.at) free API for public holidays.
+- Supports 100+ countries worldwide (defaults to Germany)
+- Regional/state-level holiday filtering where available
 - Automatically caches results
 - No API key required
 
