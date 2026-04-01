@@ -6,6 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.9.0] - 2026-04-01
+
+### Changed
+
+- Split calendar and settings pages into focused sub-components
+
+### Fixed
+
+- Override effect to 3.20.0 to resolve CVE-2026-32887
+- Harden security (CSP header, timing-safe auth, secure cookies, k8s contexts)
+- Require authentication on countries, holidays, and vapid-key endpoints
+- Skip pre-commit install in CI environments
+- Show unified skeleton until all data is loaded on settings and calendar pages
+
+### Miscellaneous
+
+- Add top-level permissions to build workflow
+- Add pre-commit hooks for secret scanning and linting
+
 ## [0.8.0] - 2026-03-31
 
 ### Added
@@ -156,10 +175,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add CSV import with preview and validation
 - Add offline support with IndexedDB queue and background sync
 
-### Miscellaneous
-
-- Update improvements roadmap for priority 3 items
-
 ## [0.1.1] - 2026-03-28
 
 ### Fixed
@@ -172,6 +187,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix next auth and middleware
 
+[0.9.0]: https://github.com/kuehnleon/daydesk/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/kuehnleon/daydesk/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/kuehnleon/daydesk/compare/v0.6.3...v0.7.0
 [0.6.3]: https://github.com/kuehnleon/daydesk/compare/v0.6.2...v0.6.3
