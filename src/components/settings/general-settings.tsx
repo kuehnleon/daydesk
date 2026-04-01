@@ -1,10 +1,15 @@
 'use client'
 
+import { useRef, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useGeneralSettings } from '@/hooks/useGeneralSettings'
 
-export function GeneralSettings() {
+interface GeneralSettingsProps {
+  onReady?: () => void
+}
+
+export function GeneralSettings({ onReady }: GeneralSettingsProps) {
   const {
     country,
     defaultState,
@@ -14,6 +19,7 @@ export function GeneralSettings() {
     setWeekStartDay,
     isSaving,
     isMounted,
+    isLoaded,
     countries,
     regions,
     isLoadingRegions,
@@ -26,6 +32,15 @@ export function GeneralSettings() {
   const t = useTranslations('settings')
   const tDays = useTranslations('days')
   const currentLocale = useLocale()
+  const onReadyRef = useRef(onReady)
+  const calledRef = useRef(false)
+
+  useEffect(() => {
+    if (isLoaded && !calledRef.current) {
+      calledRef.current = true
+      onReadyRef.current?.()
+    }
+  }, [isLoaded])
 
   const dayNames = [tDays('monday'), tDays('tuesday'), tDays('wednesday'), tDays('thursday'), tDays('friday'), tDays('saturday'), tDays('sunday')]
 

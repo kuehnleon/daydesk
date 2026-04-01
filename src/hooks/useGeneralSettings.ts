@@ -12,6 +12,7 @@ export function useGeneralSettings() {
   const [weekStartDay, setWeekStartDay] = useState(1)
   const [isSaving, setIsSaving] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
+  const [isLoaded, setIsLoaded] = useState(false)
   const [countries, setCountries] = useState<AvailableCountry[]>([])
   const [regions, setRegions] = useState<Region[]>([])
   const [isLoadingRegions, setIsLoadingRegions] = useState(true)
@@ -46,7 +47,7 @@ export function useGeneralSettings() {
         setDefaultState(data.defaultState)
         setWorkDays(data.workDays)
         setWeekStartDay(data.weekStartDay ?? 1)
-        loadRegions(data.country ?? 'DE')
+        await loadRegions(data.country ?? 'DE')
       }
     }
 
@@ -58,8 +59,9 @@ export function useGeneralSettings() {
       }
     }
 
-    loadSettings()
-    loadCountries()
+    Promise.all([loadSettings(), loadCountries()]).then(() => {
+      setIsLoaded(true)
+    })
   }, [loadRegions])
 
   const handleCountryChange = (newCountry: string) => {
@@ -120,6 +122,7 @@ export function useGeneralSettings() {
     setWeekStartDay,
     isSaving,
     isMounted,
+    isLoaded,
     countries,
     regions,
     isLoadingRegions,
