@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { auth } from '@/lib/auth'
 import { withLogging } from '@/lib/api-utils'
 import { countryCodeSchema } from '@/lib/validations'
 import iso3166 from 'iso-3166-2'
@@ -21,6 +22,11 @@ const CACHE_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours
 const regionsCache = new Map<string, CacheEntry>()
 
 export const GET = withLogging(async (_request, context) => {
+  const session = await auth()
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const { country } = await context.params
   const parsed = countryCodeSchema.safeParse(country)
   if (!parsed.success) {
@@ -34,7 +40,7 @@ export const GET = withLogging(async (_request, context) => {
   const cached = regionsCache.get(countryCode)
   if (cached && Date.now() < cached.expiresAt) {
     return NextResponse.json(cached.data, {
-      headers: { 'Cache-Control': 'public, max-age=86400' },
+      headers: { 'Cache-Control': 'private, max-age=86400' },
     })
   }
 
@@ -77,7 +83,7 @@ export const GET = withLogging(async (_request, context) => {
     regionsCache.set(countryCode, { data: regions, expiresAt: Date.now() + CACHE_TTL_MS })
 
     return NextResponse.json(regions, {
-      headers: { 'Cache-Control': 'public, max-age=86400' },
+      headers: { 'Cache-Control': 'private, max-age=86400' },
     })
   } catch {
     return NextResponse.json(
