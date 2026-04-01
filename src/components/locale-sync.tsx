@@ -18,7 +18,7 @@ export function LocaleSync() {
           .find(c => c.startsWith('NEXT_LOCALE='))
           ?.split('=')[1]
         if (current !== data.locale) {
-          document.cookie = `NEXT_LOCALE=${data.locale};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax`
+          document.cookie = `NEXT_LOCALE=${data.locale};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax${window.location.protocol === 'https:' ? ';secure' : ''}`
           window.location.reload()
         }
       })

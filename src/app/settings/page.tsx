@@ -186,7 +186,7 @@ export default function Settings() {
   }
 
   const handleLocaleChange = async (newLocale: string) => {
-    document.cookie = `NEXT_LOCALE=${newLocale};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax`
+    document.cookie = `NEXT_LOCALE=${newLocale};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax${window.location.protocol === 'https:' ? ';secure' : ''}`
     try {
       await fetch('/api/settings', {
         method: 'PATCH',
