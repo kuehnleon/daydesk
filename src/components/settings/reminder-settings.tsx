@@ -1,12 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Bell, BellOff, Plus, Trash2, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { useNotificationReminders } from '@/hooks/useNotificationReminders'
 import { useToast } from '@/components/ui/toast'
 
-export function ReminderSettings() {
+interface ReminderSettingsProps {
+  onReady?: () => void
+}
+
+export function ReminderSettings({ onReady }: ReminderSettingsProps) {
   const {
     permission,
     settings,
@@ -21,6 +25,15 @@ export function ReminderSettings() {
   const t = useTranslations('reminders')
   const { showToast } = useToast()
   const [newTime, setNewTime] = useState('09:00')
+  const onReadyRef = useRef(onReady)
+  const calledRef = useRef(false)
+
+  useEffect(() => {
+    if (isLoaded && !calledRef.current) {
+      calledRef.current = true
+      onReadyRef.current?.()
+    }
+  }, [isLoaded])
 
   const handleRequestPermission = async () => {
     const granted = await requestPermission()

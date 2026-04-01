@@ -30,6 +30,7 @@ export default function Calendar() {
   const [transports, setTransports] = useState<Transport[]>([])
   const [isLoadingInitial, setIsLoadingInitial] = useState(true)
   const [isLoadingMonth, setIsLoadingMonth] = useState(true)
+  const isLoadingAny = isLoadingInitial || isLoadingMonth
   const [selectionHint, setSelectionHint] = useState('')
   const { showToast } = useToast()
   const t = useTranslations('calendar')
@@ -244,7 +245,7 @@ export default function Calendar() {
         </p>
 
         {/* Color legend — mobile only */}
-        {!isLoadingInitial && (
+        {!isLoadingAny && (
           <div className="mb-4 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-text-secondary sm:hidden">
             {locations.map(loc => (
               <span key={loc.id} className="flex items-center gap-1.5">
@@ -270,7 +271,7 @@ export default function Calendar() {
         <MonthlySummary
           attendances={attendances}
           locations={locations}
-          isLoading={isLoadingInitial}
+          isLoading={isLoadingAny}
         />
 
         <CalendarGrid
@@ -280,7 +281,7 @@ export default function Calendar() {
           selectedDates={selectedDates}
           workDays={workDays}
           weekStartDay={weekStartDay}
-          isLoadingMonth={isLoadingMonth}
+          isLoadingMonth={isLoadingAny}
           onSelectionChange={setSelectedDates}
           onSelectionComplete={(dates) => {
             setSelectedDates(dates)

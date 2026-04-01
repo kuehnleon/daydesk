@@ -1,11 +1,16 @@
 'use client'
 
+import { useRef, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Plus, Pencil, Trash2, GripVertical } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useLocationSettings, COLOR_OPTIONS } from '@/hooks/useLocationSettings'
 
-export function LocationSettings() {
+interface LocationSettingsProps {
+  onReady?: () => void
+}
+
+export function LocationSettings({ onReady }: LocationSettingsProps) {
   const {
     locations,
     transports,
@@ -22,6 +27,15 @@ export function LocationSettings() {
   } = useLocationSettings()
 
   const t = useTranslations('settings')
+  const onReadyRef = useRef(onReady)
+  const calledRef = useRef(false)
+
+  useEffect(() => {
+    if (!isLoading && !calledRef.current) {
+      calledRef.current = true
+      onReadyRef.current?.()
+    }
+  }, [isLoading])
 
   return (
     <>
