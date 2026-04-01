@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'crypto'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { sendPushNotification } from '@/lib/web-push'
@@ -8,7 +9,13 @@ export const POST = withLogging(async (request) => {
   const authHeader = request.headers.get('authorization')
   const expectedSecret = process.env.PUSH_API_SECRET
 
-  if (!expectedSecret || authHeader !== `Bearer ${expectedSecret}`) {
+  if (!expectedSecret || !authHeader) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const expected = Buffer.from(`Bearer ${expectedSecret}`)
+  const actual = Buffer.from(authHeader)
+  if (expected.length !== actual.length || !timingSafeEqual(expected, actual)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
