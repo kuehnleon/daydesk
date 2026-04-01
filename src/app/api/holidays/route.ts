@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { auth } from '@/lib/auth'
 import { holidaysQuerySchema } from '@/lib/validations'
 import { withLogging } from '@/lib/api-utils'
 
@@ -56,6 +57,11 @@ async function fetchHolidaysForYear(year: string, countryCode: string): Promise<
 }
 
 export const GET = withLogging(async (request) => {
+  const session = await auth()
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const { searchParams } = new URL(request.url)
   const query = Object.fromEntries(searchParams.entries())
   const parsed = holidaysQuerySchema.safeParse(query)
@@ -83,7 +89,7 @@ export const GET = withLogging(async (request) => {
       : allHolidays
 
     return NextResponse.json(filteredHolidays, {
-      headers: { 'Cache-Control': 'public, max-age=86400' },
+      headers: { 'Cache-Control': 'private, max-age=86400' },
     })
   } catch {
     return NextResponse.json(
