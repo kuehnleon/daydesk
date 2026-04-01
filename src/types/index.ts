@@ -87,3 +87,35 @@ export interface ImportRow {
   distance: string
   notes: string
 }
+
+export interface CalendarAttendance {
+  id: string
+  date: string
+  type: string
+  transportId: string | null
+  transport: Transport | null
+  locationId: string | null
+  location: (Location & { transport: Transport | null }) | null
+  notes: string | null
+}
+
+export interface AvailableCountry {
+  countryCode: string
+  name: string
+}
+
+export interface Region {
+  code: string
+  name: string
+}
+
+export interface TransportFormData {
+  name: string
+}
+
+export interface LocationFormData {
+  name: string
+  transportId: string
+  distance: string
+  color: string
+}
