@@ -24,7 +24,7 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "prepare": "pre-commit install"
+    "prepare": "if [ -z \"$CI\" ]; then pre-commit install; fi"
   },
   "dependencies": {
     "@next-auth/prisma-adapter": "^1.0.7",
