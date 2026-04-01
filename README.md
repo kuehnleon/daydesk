@@ -104,21 +104,25 @@ Your provider must support the `openid email profile` scopes so that the ID toke
    ```bash
    npm install
    ```
-   This also sets up pre-commit hooks (gitleaks secret scanning + ESLint) automatically via the `prepare` script.
 
-3. Create `.env` file from example:
+3. Set up pre-commit hooks (gitleaks secret scanning + ESLint):
+   ```bash
+   pre-commit install
+   ```
+
+4. Create `.env` file from example:
    ```bash
    cp .env.example .env
    ```
 
-4. Generate secrets:
+5. Generate secrets:
    ```bash
    # Used for session cookie encryption and push API authentication
    openssl rand -hex 32
    ```
    Run this command **twice** — once for `NEXTAUTH_SECRET` and once for `PUSH_API_SECRET`.
 
-5. Update `.env` with your OIDC provider credentials and generated secrets:
+6. Update `.env` with your OIDC provider credentials and generated secrets:
    ```
    DATABASE_URL="postgresql://daydesk:daydesk@localhost:5432/daydesk"
    DIRECT_URL="postgresql://daydesk:daydesk@localhost:5432/daydesk"
@@ -146,23 +150,23 @@ Your provider must support the `openid email profile` scopes so that the ID toke
    npx web-push generate-vapid-keys
    ```
 
-6. Start a local PostgreSQL instance:
+7. Start a local PostgreSQL instance:
    ```bash
    docker compose up -d postgres
    ```
 
-7. Generate Prisma client and push database schema:
+8. Generate Prisma client and push database schema:
    ```bash
    npm run db:generate
    npm run db:push
    ```
 
-8. Start development server:
+9. Start development server:
    ```bash
    npm run dev
    ```
 
-9. Open http://localhost:3000
+10. Open http://localhost:3000
 
 ## Usage
 
