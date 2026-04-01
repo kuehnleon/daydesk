@@ -1,0 +1,2 @@
+# Allow placeholder values in .env.example
+.env.example

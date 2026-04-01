@@ -43,6 +43,7 @@ A lightweight multi-user application for tracking office and home office attenda
 ### Prerequisites
 
 - Node.js 20+ and npm
+- [pre-commit](https://pre-commit.com/) (`brew install pre-commit` or `pip install pre-commit`)
 - An OIDC-compliant identity provider (e.g. [Auth0](https://auth0.com), [Keycloak](https://www.keycloak.org), [Okta](https://www.okta.com), [Azure AD](https://azure.microsoft.com/en-us/products/active-directory))
 
 ### OIDC Provider Setup
@@ -103,6 +104,7 @@ Your provider must support the `openid email profile` scopes so that the ID toke
    ```bash
    npm install
    ```
+   This also sets up pre-commit hooks (gitleaks secret scanning + ESLint) automatically via the `prepare` script.
 
 3. Create `.env` file from example:
    ```bash
