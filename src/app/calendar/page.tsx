@@ -282,6 +282,7 @@ export default function Calendar() {
           workDays={workDays}
           weekStartDay={weekStartDay}
           isLoadingMonth={isLoadingAny}
+          isModalOpen={showModal}
           onSelectionChange={setSelectedDates}
           onSelectionComplete={(dates) => {
             setSelectedDates(dates)

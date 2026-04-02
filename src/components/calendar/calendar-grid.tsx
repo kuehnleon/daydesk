@@ -20,6 +20,7 @@ interface CalendarGridProps {
   workDays: number[]
   weekStartDay: number
   isLoadingMonth: boolean
+  isModalOpen: boolean
   onSelectionChange: (dates: Set<string>) => void
   onSelectionComplete: (dates: Set<string>) => void
   onMonthChange: (month: Date) => void
@@ -33,6 +34,7 @@ export function CalendarGrid({
   workDays,
   weekStartDay,
   isLoadingMonth,
+  isModalOpen,
   onSelectionChange,
   onSelectionComplete,
   onMonthChange,
@@ -205,6 +207,7 @@ export function CalendarGrid({
 
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
+      if (isModalOpen) return
       if (selectedDates.size > 0 && calendarGridRef.current && !calendarGridRef.current.contains(e.target as Node)) {
         onSelectionChange(new Set())
       }
@@ -215,7 +218,7 @@ export function CalendarGrid({
       document.removeEventListener('mousedown', handleOutsideClick)
       document.removeEventListener('touchstart', handleOutsideClick)
     }
-  }, [selectedDates, onSelectionChange])
+  }, [selectedDates, isModalOpen, onSelectionChange])
 
   // Touch handlers
   const handleTouchStart = (day: Date) => {
