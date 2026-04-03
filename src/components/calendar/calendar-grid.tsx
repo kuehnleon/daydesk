@@ -10,6 +10,7 @@ import {
   ThermometerSun,
 } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
+import { haptic } from '@/lib/haptic'
 import type { CalendarAttendance } from '@/types'
 
 interface CalendarGridProps {
@@ -127,6 +128,7 @@ export function CalendarGrid({
     } else {
       next.add(dateStr)
     }
+    haptic()
     onSelectionChange(next)
   }
 
