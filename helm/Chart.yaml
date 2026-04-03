@@ -2,8 +2,8 @@ apiVersion: v2
 name: daydesk
 description: Office attendance tracker
 type: application
-version: 0.9.3
-appVersion: "0.9.3"
+version: 0.9.4
+appVersion: "0.9.4"
 home: https://github.com/kuehnleon/daydesk
 sources:
   - https://github.com/kuehnleon/daydesk
