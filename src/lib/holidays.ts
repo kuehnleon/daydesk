@@ -69,3 +69,72 @@ export function isHoliday(date: Date, holidays: Holiday[]): boolean {
   const dateStr = date.toISOString().split('T')[0]
   return holidays.some(h => h.date === dateStr)
 }
+
+// --- Server-side holiday fetching with in-memory cache ---
+
+interface ServerCacheEntry {
+  data: Holiday[]
+  expiresAt: number
+}
+
+const SERVER_CACHE_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours
+const SERVER_CACHE_MAX_SIZE = 50
+const serverHolidayCache = new Map<string, ServerCacheEntry>()
+
+function evictExpiredEntries() {
+  const now = Date.now()
+  for (const [key, entry] of serverHolidayCache) {
+    if (now >= entry.expiresAt) {
+      serverHolidayCache.delete(key)
+    }
+  }
+}
+
+/**
+ * Fetch public holidays from Nager.Date API with server-side in-memory caching.
+ * Intended for use in API routes / server-side code (no localStorage).
+ */
+export async function fetchHolidaysFromApi(year: string, countryCode: string): Promise<Holiday[]> {
+  const cacheKey = `${countryCode}_${year}`
+  const cached = serverHolidayCache.get(cacheKey)
+  if (cached && Date.now() < cached.expiresAt) {
+    return cached.data
+  }
+
+  const response = await fetch(
+    `https://date.nager.at/api/v3/publicholidays/${year}/${countryCode}`
+  )
+  if (!response.ok) {
+    throw new Error('Failed to fetch holidays')
+  }
+
+  const data: Holiday[] = await response.json()
+
+  evictExpiredEntries()
+  if (serverHolidayCache.size >= SERVER_CACHE_MAX_SIZE) {
+    const oldestKey = serverHolidayCache.keys().next().value
+    if (oldestKey !== undefined) serverHolidayCache.delete(oldestKey)
+  }
+
+  serverHolidayCache.set(cacheKey, { data, expiresAt: Date.now() + SERVER_CACHE_TTL_MS })
+  return data
+}
+
+/**
+ * Check if a given date (YYYY-MM-DD) is a public holiday for a country/state.
+ * Fetches and caches holiday data server-side.
+ */
+export async function isDateHoliday(
+  dateStr: string,
+  countryCode: string,
+  stateCode?: string | null
+): Promise<boolean> {
+  const year = dateStr.slice(0, 4)
+  const allHolidays = await fetchHolidaysFromApi(year, countryCode)
+
+  const holidays = stateCode
+    ? allHolidays.filter(h => h.global || (h.counties && h.counties.includes(`${countryCode}-${stateCode}`)))
+    : allHolidays
+
+  return holidays.some(h => h.date === dateStr)
+}
