@@ -9,6 +9,7 @@ import { Navbar } from '@/components/navbar'
 import { Building2, Home, Palmtree, ThermometerSun } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { minLoadingDelay } from '@/lib/loading'
+import { haptic } from '@/lib/haptic'
 import { enqueue } from '@/lib/offline-queue'
 import type { Location } from '@/types'
 
@@ -110,6 +111,7 @@ export default function Dashboard() {
 
       if (response.ok) {
         setTodayAttendance({ type, transportId, locationId })
+        haptic()
         showToast(t('attendanceLogged'), 'success')
       } else {
         showToast(t('failedToLog'), 'error')
@@ -118,6 +120,7 @@ export default function Dashboard() {
       if (!navigator.onLine) {
         await enqueue({ date: today, type, transportId, locationId })
         setTodayAttendance({ type, transportId, locationId })
+        haptic()
         showToast(t('savedOffline'), 'success')
       } else {
         showToast(t('errorLogging'), 'error')
