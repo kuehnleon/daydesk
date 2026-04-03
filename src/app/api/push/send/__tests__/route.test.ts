@@ -18,10 +18,15 @@ vi.mock('@/lib/timezone', () => ({
   getTodayDateInTimezone: vi.fn(),
 }))
 
+vi.mock('@/lib/holidays', () => ({
+  isDateHoliday: vi.fn(),
+}))
+
 import { POST } from '@/app/api/push/send/route'
 import { prisma } from '@/lib/db'
 import { sendPushNotification } from '@/lib/web-push'
 import { getCurrentTimeInTimezone, getDayOfWeekInTimezone, getTodayDateInTimezone } from '@/lib/timezone'
+import { isDateHoliday } from '@/lib/holidays'
 import { dummyCtx } from '@/test/helpers'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -34,6 +39,8 @@ const mockGetCurrentTime = getCurrentTimeInTimezone as any
 const mockGetDayOfWeek = getDayOfWeekInTimezone as any
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockGetTodayDate = getTodayDateInTimezone as any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mockIsDateHoliday = isDateHoliday as any
 
 const PUSH_API_SECRET = 'test-secret'
 
@@ -51,6 +58,7 @@ describe('POST /api/push/send', () => {
     mockGetCurrentTime.mockReturnValue('09:00')
     mockGetDayOfWeek.mockReturnValue(1)
     mockGetTodayDate.mockReturnValue(new Date('2026-03-28T00:00:00.000Z'))
+    mockIsDateHoliday.mockResolvedValue(false)
   })
 
   afterEach(() => {
@@ -79,6 +87,8 @@ describe('POST /api/push/send', () => {
           reminderEnabled: true,
           reminderWorkDaysOnly: false,
           workDays: '1,2,3,4,5',
+          country: 'DE',
+          defaultState: 'BW',
           pushSubscriptions: [
             { id: 'sub1', endpoint: 'https://push.example.com/1', p256dh: 'key1', auth: 'auth1' },
           ],
@@ -111,6 +121,8 @@ describe('POST /api/push/send', () => {
           reminderEnabled: true,
           reminderWorkDaysOnly: false,
           workDays: '1,2,3,4,5',
+          country: 'DE',
+          defaultState: 'BW',
           pushSubscriptions: [
             { id: 'sub1', endpoint: 'https://push.example.com/1', p256dh: 'key1', auth: 'auth1' },
           ],
@@ -136,6 +148,8 @@ describe('POST /api/push/send', () => {
           reminderEnabled: true,
           reminderWorkDaysOnly: false,
           workDays: '1,2,3,4,5',
+          country: 'DE',
+          defaultState: 'BW',
           pushSubscriptions: [
             { id: 'sub1', endpoint: 'https://push.example.com/1', p256dh: 'key1', auth: 'auth1' },
           ],
@@ -163,6 +177,8 @@ describe('POST /api/push/send', () => {
           reminderEnabled: true,
           reminderWorkDaysOnly: false,
           workDays: '1,2,3,4,5',
+          country: 'DE',
+          defaultState: 'BW',
           pushSubscriptions: [
             { id: 'sub1', endpoint: 'https://push.example.com/1', p256dh: 'key1', auth: 'auth1' },
           ],
@@ -178,6 +194,8 @@ describe('POST /api/push/send', () => {
           reminderEnabled: true,
           reminderWorkDaysOnly: false,
           workDays: '1,2,3,4,5',
+          country: 'DE',
+          defaultState: 'BW',
           pushSubscriptions: [
             { id: 'sub1', endpoint: 'https://push.example.com/1', p256dh: 'key1', auth: 'auth1' },
           ],
@@ -206,6 +224,8 @@ describe('POST /api/push/send', () => {
           reminderEnabled: true,
           reminderWorkDaysOnly: false,
           workDays: '1,2,3,4,5',
+          country: 'DE',
+          defaultState: 'BW',
           pushSubscriptions: [
             { id: 'sub1', endpoint: 'https://push.example.com/1', p256dh: 'key1', auth: 'auth1' },
           ],
@@ -221,5 +241,34 @@ describe('POST /api/push/send', () => {
     const data = await res.json()
     expect(data.cleaned).toBe(1)
     expect(mockPrisma.pushSubscription.delete).toHaveBeenCalledWith({ where: { id: 'sub1' } })
+  })
+
+  it('skips notifications on public holidays', async () => {
+    mockIsDateHoliday.mockResolvedValue(true)
+
+    mockPrisma.reminderTime.findMany.mockResolvedValue([
+      {
+        id: 'rt1',
+        userId: 'user1',
+        time: '09:00',
+        timezone: 'Europe/Berlin',
+        user: {
+          id: 'user1',
+          reminderEnabled: true,
+          reminderWorkDaysOnly: false,
+          workDays: '1,2,3,4,5',
+          country: 'DE',
+          defaultState: 'BW',
+          pushSubscriptions: [
+            { id: 'sub1', endpoint: 'https://push.example.com/1', p256dh: 'key1', auth: 'auth1' },
+          ],
+        },
+      },
+    ] as never)
+
+    const res = await POST(makeRequest(PUSH_API_SECRET), dummyCtx)
+    const data = await res.json()
+    expect(data.notified).toBe(0)
+    expect(mockSendPush).not.toHaveBeenCalled()
   })
 })

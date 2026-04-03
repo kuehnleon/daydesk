@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { sendPushNotification } from '@/lib/web-push'
 import { getCurrentTimeInTimezone, getDayOfWeekInTimezone, getTodayDateInTimezone } from '@/lib/timezone'
+import { isDateHoliday } from '@/lib/holidays'
 import { withLogging } from '@/lib/api-utils'
 
 export const POST = withLogging(async (request) => {
@@ -41,6 +42,8 @@ export const POST = withLogging(async (request) => {
           reminderEnabled: true,
           reminderWorkDaysOnly: true,
           workDays: true,
+          country: true,
+          defaultState: true,
           pushSubscriptions: true,
         },
       },
@@ -70,6 +73,15 @@ export const POST = withLogging(async (request) => {
     }
 
     const today = getTodayDateInTimezone(now, reminder.timezone)
+
+    // Skip if today is a public holiday for the user's country/state
+    const todayStr = today.toISOString().split('T')[0]
+    try {
+      if (await isDateHoliday(todayStr, user.country, user.defaultState)) continue
+    } catch {
+      // If holiday API is unavailable, don't block notifications
+    }
+
     const existing = await prisma.attendance.findUnique({
       where: { userId_date: { userId: user.id, date: today } },
     })
