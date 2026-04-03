@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 import { Navbar } from '@/components/navbar'
 import { TransportSettings } from '@/components/settings/transport-settings'
@@ -11,10 +11,45 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 const SECTION_COUNT = 4
 
+function parseDashboardHidden(raw: string): Set<string> {
+  if (!raw) return new Set()
+  return new Set(raw.split(',').filter(Boolean))
+}
+
 export default function Settings() {
   const t = useTranslations('settings')
   const [locationKey, setLocationKey] = useState(0)
   const [readyCount, setReadyCount] = useState(0)
+  const [dashboardHidden, setDashboardHidden] = useState<Set<string>>(new Set())
+
+  useEffect(() => {
+    fetch('/api/settings')
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        if (data?.dashboardHidden !== undefined) {
+          setDashboardHidden(parseDashboardHidden(data.dashboardHidden))
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  const toggleVisibility = useCallback((id: string) => {
+    setDashboardHidden((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+      const raw = Array.from(next).join(',')
+      fetch('/api/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dashboardHidden: raw }),
+      })
+      return next
+    })
+  }, [])
 
   const onSectionReady = useCallback(() => {
     setReadyCount((c) => c + 1)
@@ -33,7 +68,7 @@ export default function Settings() {
 
         <div className={allReady ? undefined : 'invisible absolute'}>
           <TransportSettings onDataChange={() => setLocationKey(k => k + 1)} onReady={onSectionReady} />
-          <LocationSettings key={locationKey} onReady={onSectionReady} />
+          <LocationSettings key={locationKey} onReady={onSectionReady} dashboardHidden={dashboardHidden} onToggleVisibility={toggleVisibility} />
 
           <div className="mb-6">
             <ReminderSettings onReady={onSectionReady} />
