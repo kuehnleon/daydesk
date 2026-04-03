@@ -54,6 +54,7 @@ export interface UserSettings {
   reminderEnabled: boolean
   reminders: ReminderTimeEntry[]
   reminderWorkDaysOnly: boolean
+  dashboardHidden: string // comma-separated IDs: "off,sick,clxyz123"
 }
 
 export interface AttendanceWithRelations {

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import { Plus, Pencil, Trash2, GripVertical } from 'lucide-react'
+import { Plus, Pencil, Trash2, GripVertical, Eye, EyeOff } from 'lucide-react'
 import {
   DndContext,
   closestCenter,
@@ -28,13 +28,17 @@ import type { Location } from '@/types'
 
 function SortableLocationItem({
   location,
+  isHidden,
   onEdit,
   onRemove,
+  onToggleVisibility,
   t,
 }: {
   location: Location
+  isHidden: boolean
   onEdit: (location: Location) => void
   onRemove: (id: string) => void
+  onToggleVisibility: (id: string) => void
   t: ReturnType<typeof useTranslations<'settings'>>
 }) {
   const {
@@ -82,6 +86,13 @@ function SortableLocationItem({
         </span>
       )}
       <button
+        onClick={() => onToggleVisibility(location.id)}
+        className="rounded p-1 text-text-tertiary hover:bg-surface-secondary hover:text-foreground transition-colors"
+        title={t('showOnDashboard')}
+      >
+        {isHidden ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+      </button>
+      <button
         onClick={() => onEdit(location)}
         className="rounded p-1 text-text-tertiary hover:bg-surface-secondary hover:text-foreground transition-colors"
       >
@@ -120,11 +131,19 @@ function LocationOverlayItem({ location, t }: { location: Location; t: ReturnTyp
   )
 }
 
+const BUILT_IN_ITEMS = [
+  { id: 'home', colorClass: 'bg-emerald-500', labelKey: 'homeOffice' as const },
+  { id: 'off', colorClass: 'bg-amber-500', labelKey: 'dayOff' as const },
+  { id: 'sick', colorClass: 'bg-red-500', labelKey: 'sickLeave' as const },
+]
+
 interface LocationSettingsProps {
   onReady?: () => void
+  dashboardHidden: Set<string>
+  onToggleVisibility: (id: string) => void
 }
 
-export function LocationSettings({ onReady }: LocationSettingsProps) {
+export function LocationSettings({ onReady, dashboardHidden, onToggleVisibility }: LocationSettingsProps) {
   const {
     locations,
     transports,
@@ -209,8 +228,10 @@ export function LocationSettings({ onReady }: LocationSettingsProps) {
                   <SortableLocationItem
                     key={location.id}
                     location={location}
+                    isHidden={dashboardHidden.has(location.id)}
                     onEdit={openEdit}
                     onRemove={remove}
+                    onToggleVisibility={onToggleVisibility}
                     t={t}
                   />
                 ))}
@@ -222,17 +243,33 @@ export function LocationSettings({ onReady }: LocationSettingsProps) {
               </DragOverlay>
             </DndContext>
 
-            {/* Built-in Home Office */}
-            <div className="flex items-center gap-3 rounded-lg border border-border bg-surface-secondary px-3 py-2">
-              <GripVertical className="h-4 w-4 text-transparent" />
-              <div className="h-4 w-4 rounded bg-emerald-500" />
-              <span className="flex-1 font-medium text-text-primary">
-                {t('homeOffice')}
-              </span>
-              <span className="text-xs text-text-tertiary">
-                {t('builtIn')}
-              </span>
-            </div>
+            {/* Built-in items */}
+            {BUILT_IN_ITEMS.map((item) => (
+              <div
+                key={item.id}
+                className="flex items-center gap-3 rounded-lg border border-border bg-surface-secondary px-3 py-2"
+              >
+                <GripVertical className="h-4 w-4 text-transparent" />
+                <div className={`h-4 w-4 rounded ${item.colorClass}`} />
+                <span className="flex-1 font-medium text-text-primary">
+                  {t(item.labelKey)}
+                </span>
+                <span className="text-xs text-text-tertiary">
+                  {t('builtIn')}
+                </span>
+                <button
+                  onClick={() => onToggleVisibility(item.id)}
+                  className="rounded p-1 text-text-tertiary hover:bg-surface-secondary hover:text-foreground transition-colors"
+                  title={t('showOnDashboard')}
+                >
+                  {dashboardHidden.has(item.id) ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+            ))}
           </div>
         )}
       </div>

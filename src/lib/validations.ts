@@ -76,6 +76,7 @@ export const updateSettingsSchema = z.object({
   locale: z.enum(locales).optional(),
   reminderEnabled: z.boolean().optional(),
   reminderWorkDaysOnly: z.boolean().optional(),
+  dashboardHidden: z.string().max(500).optional(),
 })
 
 export const exportQuerySchema = z.object({

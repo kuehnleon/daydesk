@@ -23,6 +23,7 @@ export default function Dashboard() {
   const [isLoadingInitial, setIsLoadingInitial] = useState(true)
   const [todayAttendance, setTodayAttendance] = useState<TodayAttendance | null>(null)
   const [locations, setLocations] = useState<Location[]>([])
+  const [dashboardHidden, setDashboardHidden] = useState<Set<string>>(new Set())
   const { showToast } = useToast()
   const t = useTranslations('dashboard')
   const locale = useLocale()
@@ -31,7 +32,7 @@ export default function Dashboard() {
   const today = format(new Date(), 'yyyy-MM-dd')
 
   useEffect(() => {
-    Promise.all([fetchTodayAttendance(), fetchLocations(), minLoadingDelay()]).finally(() => {
+    Promise.all([fetchTodayAttendance(), fetchLocations(), fetchDashboardHidden(), minLoadingDelay()]).finally(() => {
       setIsLoadingInitial(false)
     })
   }, [])
@@ -72,6 +73,20 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error('Error fetching locations:', error)
+    }
+  }
+
+  const fetchDashboardHidden = async () => {
+    try {
+      const response = await fetch('/api/settings')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.dashboardHidden) {
+          setDashboardHidden(new Set(data.dashboardHidden.split(',').filter(Boolean)))
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching settings:', error)
     }
   }
 
@@ -165,7 +180,7 @@ export default function Dashboard() {
             </>
           ) : (
             <>
-              {locations.map((location) => {
+              {locations.filter((location) => !dashboardHidden.has(location.id)).map((location) => {
                 const selected = isSelectedLocation(location.id)
                 return (
                   <button
@@ -200,6 +215,7 @@ export default function Dashboard() {
                 )
               })}
 
+              {!dashboardHidden.has('home') && (
               <button
                 onClick={() => logAttendance('home', null, null)}
                 disabled={isLoading}
@@ -212,7 +228,9 @@ export default function Dashboard() {
                 <Home className="mb-3 h-12 w-12" />
                 <span className="text-lg font-semibold">{t('homeOffice')}</span>
               </button>
+              )}
 
+              {!dashboardHidden.has('off') && (
               <button
                 onClick={() => logAttendance('off', null, null)}
                 disabled={isLoading}
@@ -225,7 +243,9 @@ export default function Dashboard() {
                 <Palmtree className="mb-3 h-12 w-12" />
                 <span className="text-lg font-semibold">{t('dayOff')}</span>
               </button>
+              )}
 
+              {!dashboardHidden.has('sick') && (
               <button
                 onClick={() => logAttendance('sick', null, null)}
                 disabled={isLoading}
@@ -238,6 +258,7 @@ export default function Dashboard() {
                 <ThermometerSun className="mb-3 h-12 w-12" />
                 <span className="text-lg font-semibold">{t('sick')}</span>
               </button>
+              )}
             </>
           )}
         </div>

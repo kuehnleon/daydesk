@@ -21,6 +21,7 @@ model User {
   locale               String       @default("en")
   reminderEnabled      Boolean      @default(false)
   reminderWorkDaysOnly Boolean      @default(true)
+  dashboardHidden      String       @default("")
   createdAt            DateTime     @default(now())
   updatedAt            DateTime     @updatedAt
   attendances          Attendance[]
