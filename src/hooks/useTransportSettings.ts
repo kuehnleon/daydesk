@@ -84,6 +84,34 @@ export function useTransportSettings(onDataChange?: () => void) {
     }
   }
 
+  const reorder = async (activeId: string, overId: string) => {
+    const oldIndex = transports.findIndex((t) => t.id === activeId)
+    const newIndex = transports.findIndex((t) => t.id === overId)
+    if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return
+
+    const reordered = [...transports]
+    const [moved] = reordered.splice(oldIndex, 1)
+    reordered.splice(newIndex, 0, moved)
+
+    // Optimistic update
+    setTransports(reordered)
+
+    try {
+      await Promise.all(
+        reordered.map((tr, i) =>
+          fetch(`/api/transports/${tr.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sortOrder: i }),
+          })
+        )
+      )
+    } catch {
+      showToast(t('reorderFailed'), 'error')
+      load()
+    }
+  }
+
   const remove = async (id: string) => {
     if (!confirm(t('deleteTransportConfirm'))) return
 
@@ -112,6 +140,7 @@ export function useTransportSettings(onDataChange?: () => void) {
     openAdd,
     openEdit,
     save,
+    reorder,
     remove,
   }
 }

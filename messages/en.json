@@ -135,6 +135,7 @@
     "locationDeleted": "Location deleted",
     "failedToDeleteLocation": "Failed to delete location",
     "errorDeletingLocation": "Error deleting location",
+    "reorderFailed": "Failed to save new order",
     "locationPlaceholder": "e.g., Office Munich",
     "language": "Language",
     "languageHelp": "Interface language",

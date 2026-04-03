@@ -135,6 +135,7 @@
     "locationDeleted": "Standort gelöscht",
     "failedToDeleteLocation": "Standort konnte nicht gelöscht werden",
     "errorDeletingLocation": "Fehler beim Löschen des Standorts",
+    "reorderFailed": "Fehler beim Speichern der neuen Reihenfolge",
     "locationPlaceholder": "z.B. Büro München",
     "language": "Sprache",
     "languageHelp": "Sprache der Benutzeroberfläche",

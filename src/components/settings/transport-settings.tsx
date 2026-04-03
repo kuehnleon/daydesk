@@ -1,10 +1,98 @@
 'use client'
 
-import { useRef, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Plus, Pencil, Trash2, GripVertical } from 'lucide-react'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  DragOverlay,
+  type DragStartEvent,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useTransportSettings } from '@/hooks/useTransportSettings'
+import type { Transport } from '@/types'
+
+function SortableTransportItem({
+  transport,
+  onEdit,
+  onRemove,
+}: {
+  transport: Transport
+  onEdit: (transport: Transport) => void
+  onRemove: (id: string) => void
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: transport.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center gap-3 rounded-lg border border-border bg-surface-secondary px-3 py-2 ${
+        isDragging ? 'opacity-50' : ''
+      }`}
+    >
+      <button
+        className="touch-none cursor-grab active:cursor-grabbing p-0.5 text-text-tertiary hover:text-text-secondary"
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="h-4 w-4" />
+      </button>
+      <span className="flex-1 font-medium text-text-primary">
+        {transport.name}
+      </span>
+      <button
+        onClick={() => onEdit(transport)}
+        className="rounded p-1 text-text-tertiary hover:bg-surface-secondary hover:text-foreground transition-colors"
+      >
+        <Pencil className="h-4 w-4" />
+      </button>
+      <button
+        onClick={() => onRemove(transport.id)}
+        className="rounded p-1 text-gray-500 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
+      >
+        <Trash2 className="h-4 w-4" />
+      </button>
+    </div>
+  )
+}
+
+function TransportOverlayItem({ transport }: { transport: Transport }) {
+  return (
+    <div className="flex items-center gap-3 rounded-lg border border-accent bg-surface px-3 py-2 shadow-elevated">
+      <GripVertical className="h-4 w-4 text-text-tertiary" />
+      <span className="flex-1 font-medium text-text-primary">
+        {transport.name}
+      </span>
+    </div>
+  )
+}
 
 interface TransportSettingsProps {
   onDataChange?: () => void
@@ -23,12 +111,20 @@ export function TransportSettings({ onDataChange, onReady }: TransportSettingsPr
     openAdd,
     openEdit,
     save,
+    reorder,
     remove,
   } = useTransportSettings(onDataChange)
 
   const t = useTranslations('settings')
   const onReadyRef = useRef(onReady)
   const calledRef = useRef(false)
+  const [activeId, setActiveId] = useState<string | null>(null)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  )
 
   useEffect(() => {
     if (!isLoading && !calledRef.current) {
@@ -36,6 +132,20 @@ export function TransportSettings({ onDataChange, onReady }: TransportSettingsPr
       onReadyRef.current?.()
     }
   }, [isLoading])
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string)
+  }
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    setActiveId(null)
+    const { active, over } = event
+    if (over && active.id !== over.id) {
+      reorder(active.id as string, over.id as string)
+    }
+  }
+
+  const activeTransport = activeId ? transports.find((t) => t.id === activeId) : null
 
   return (
     <>
@@ -62,29 +172,31 @@ export function TransportSettings({ onDataChange, onReady }: TransportSettingsPr
           </p>
         ) : (
           <div className="space-y-2">
-            {transports.map((transport) => (
-              <div
-                key={transport.id}
-                className="flex items-center gap-3 rounded-lg border border-border bg-surface-secondary px-3 py-2"
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={transports.map((t) => t.id)}
+                strategy={verticalListSortingStrategy}
               >
-                <GripVertical className="h-4 w-4 text-text-tertiary" />
-                <span className="flex-1 font-medium text-text-primary">
-                  {transport.name}
-                </span>
-                <button
-                  onClick={() => openEdit(transport)}
-                  className="rounded p-1 text-text-tertiary hover:bg-surface-secondary hover:text-foreground transition-colors"
-                >
-                  <Pencil className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => remove(transport.id)}
-                  className="rounded p-1 text-gray-500 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
-            ))}
+                {transports.map((transport) => (
+                  <SortableTransportItem
+                    key={transport.id}
+                    transport={transport}
+                    onEdit={openEdit}
+                    onRemove={remove}
+                  />
+                ))}
+              </SortableContext>
+              <DragOverlay>
+                {activeTransport ? (
+                  <TransportOverlayItem transport={activeTransport} />
+                ) : null}
+              </DragOverlay>
+            </DndContext>
           </div>
         )}
       </div>
