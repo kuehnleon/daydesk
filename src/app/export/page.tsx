@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { useToast } from '@/components/ui/toast'
 import { Navbar } from '@/components/navbar'
 import { Upload } from 'lucide-react'
-import type { ImportRow } from '@/types'
+import type { ImportRow, Location, Transport, NameMapping, ImportMappings } from '@/types'
 
 export default function ExportImport() {
   const t = useTranslations('export')
@@ -21,6 +21,84 @@ export default function ExportImport() {
   const [importResult, setImportResult] = useState<{ imported: number; updated: number } | null>(null)
   const [isDragOver, setIsDragOver] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Mapping state
+  const [existingLocations, setExistingLocations] = useState<Location[]>([])
+  const [existingTransports, setExistingTransports] = useState<Transport[]>([])
+  const [isLoadingEntities, setIsLoadingEntities] = useState(false)
+  const [locationMappings, setLocationMappings] = useState<Map<string, NameMapping>>(new Map())
+  const [transportMappings, setTransportMappings] = useState<Map<string, NameMapping>>(new Map())
+
+  const hasUnmatchedNames = locationMappings.size > 0 || transportMappings.size > 0
+
+  // Fetch existing locations/transports and compute unmatched names when rows change
+  useEffect(() => {
+    if (parsedRows.length === 0) {
+      setLocationMappings(new Map())
+      setTransportMappings(new Map())
+      return
+    }
+
+    const fetchEntities = async () => {
+      setIsLoadingEntities(true)
+      try {
+        const [locRes, trRes] = await Promise.all([
+          fetch('/api/locations'),
+          fetch('/api/transports'),
+        ])
+        const locs: Location[] = locRes.ok ? await locRes.json() : []
+        const trs: Transport[] = trRes.ok ? await trRes.json() : []
+        setExistingLocations(locs)
+        setExistingTransports(trs)
+
+        const existingLocNames = new Set(locs.map(l => l.name.toLowerCase()))
+        const existingTrNames = new Set(trs.map(t => t.name.toLowerCase()))
+
+        // Deduplicate CSV names case-insensitively, keep first original casing
+        const seenLocs = new Set<string>()
+        const csvLocationNames = parsedRows
+          .map(r => r.location)
+          .filter(Boolean)
+          .filter(name => {
+            const lower = name.toLowerCase()
+            if (seenLocs.has(lower)) return false
+            seenLocs.add(lower)
+            return true
+          })
+
+        const seenTrs = new Set<string>()
+        const csvTransportNames = parsedRows
+          .map(r => r.transport)
+          .filter(Boolean)
+          .filter(name => {
+            const lower = name.toLowerCase()
+            if (seenTrs.has(lower)) return false
+            seenTrs.add(lower)
+            return true
+          })
+
+        const locMap = new Map<string, NameMapping>()
+        for (const name of csvLocationNames) {
+          if (!existingLocNames.has(name.toLowerCase())) {
+            locMap.set(name, { csvName: name, action: 'create' })
+          }
+        }
+        setLocationMappings(locMap)
+
+        const trMap = new Map<string, NameMapping>()
+        for (const name of csvTransportNames) {
+          if (!existingTrNames.has(name.toLowerCase())) {
+            trMap.set(name, { csvName: name, action: 'create' })
+          }
+        }
+        setTransportMappings(trMap)
+      } finally {
+        setIsLoadingEntities(false)
+      }
+    }
+
+    fetchEntities()
+  }, [parsedRows])
 
   const exportData = async (exportFormat: 'csv' | 'pdf') => {
     if (!startDate || !endDate) {
@@ -148,10 +226,18 @@ export default function ExportImport() {
 
     setIsImporting(true)
     try {
+      const mappings: ImportMappings = {
+        locations: [...locationMappings.values()],
+        transports: [...transportMappings.values()],
+      }
+
       const response = await fetch('/api/import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rows: parsedRows }),
+        body: JSON.stringify({
+          rows: parsedRows,
+          ...(hasUnmatchedNames ? { mappings } : {}),
+        }),
       })
 
       if (response.ok) {
@@ -173,7 +259,41 @@ export default function ExportImport() {
     setParsedRows([])
     setParseErrors([])
     setImportResult(null)
+    setLocationMappings(new Map())
+    setTransportMappings(new Map())
+    setExistingLocations([])
+    setExistingTransports([])
     if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  const updateLocationMapping = (csvName: string, value: string) => {
+    const updated = new Map(locationMappings)
+    if (value === '__create__') {
+      updated.set(csvName, { csvName, action: 'create' })
+    } else if (value === '__skip__') {
+      updated.set(csvName, { csvName, action: 'skip' })
+    } else {
+      updated.set(csvName, { csvName, action: 'map', existingId: value })
+    }
+    setLocationMappings(updated)
+  }
+
+  const updateTransportMapping = (csvName: string, value: string) => {
+    const updated = new Map(transportMappings)
+    if (value === '__create__') {
+      updated.set(csvName, { csvName, action: 'create' })
+    } else if (value === '__skip__') {
+      updated.set(csvName, { csvName, action: 'skip' })
+    } else {
+      updated.set(csvName, { csvName, action: 'map', existingId: value })
+    }
+    setTransportMappings(updated)
+  }
+
+  const getMappingValue = (mapping: NameMapping) => {
+    if (mapping.action === 'create') return '__create__'
+    if (mapping.action === 'skip') return '__skip__'
+    return mapping.existingId ?? '__skip__'
   }
 
   return (
@@ -331,9 +451,89 @@ export default function ExportImport() {
                 )}
               </div>
 
+              {/* Loading state while fetching entities */}
+              {isLoadingEntities && (
+                <div className="flex items-center gap-2 text-sm text-text-secondary">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-border border-t-accent" />
+                  {t('checkingNames')}
+                </div>
+              )}
+
+              {/* Mapping step - shown only when there are unmatched names */}
+              {!isLoadingEntities && hasUnmatchedNames && (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-900/20">
+                  <h4 className="mb-1 text-sm font-semibold text-amber-800 dark:text-amber-200">
+                    {t('unmatchedNames')}
+                  </h4>
+                  <p className="mb-4 text-xs text-amber-700 dark:text-amber-300">
+                    {t('unmatchedNamesHint')}
+                  </p>
+
+                  {/* Unmatched Locations */}
+                  {locationMappings.size > 0 && (
+                    <div className="mb-4">
+                      <h5 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-secondary">
+                        {t('location')}
+                      </h5>
+                      <div className="space-y-2">
+                        {[...locationMappings.values()].map((mapping) => (
+                          <div key={mapping.csvName} className="flex items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2">
+                            <span className="min-w-0 flex-shrink-0 truncate text-sm font-medium text-text-primary max-w-[140px]">
+                              {mapping.csvName}
+                            </span>
+                            <span className="text-text-tertiary">&rarr;</span>
+                            <select
+                              value={getMappingValue(mapping)}
+                              onChange={(e) => updateLocationMapping(mapping.csvName, e.target.value)}
+                              className="min-w-0 flex-1 rounded-lg border border-border bg-surface px-2 py-1.5 text-sm text-foreground focus:border-accent focus:ring-accent"
+                            >
+                              <option value="__create__">{t('createNew')}</option>
+                              <option value="__skip__">{t('skipLeaveEmpty')}</option>
+                              {existingLocations.map(loc => (
+                                <option key={loc.id} value={loc.id}>{loc.name}</option>
+                              ))}
+                            </select>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Unmatched Transports */}
+                  {transportMappings.size > 0 && (
+                    <div>
+                      <h5 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-secondary">
+                        {t('transport')}
+                      </h5>
+                      <div className="space-y-2">
+                        {[...transportMappings.values()].map((mapping) => (
+                          <div key={mapping.csvName} className="flex items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2">
+                            <span className="min-w-0 flex-shrink-0 truncate text-sm font-medium text-text-primary max-w-[140px]">
+                              {mapping.csvName}
+                            </span>
+                            <span className="text-text-tertiary">&rarr;</span>
+                            <select
+                              value={getMappingValue(mapping)}
+                              onChange={(e) => updateTransportMapping(mapping.csvName, e.target.value)}
+                              className="min-w-0 flex-1 rounded-lg border border-border bg-surface px-2 py-1.5 text-sm text-foreground focus:border-accent focus:ring-accent"
+                            >
+                              <option value="__create__">{t('createNew')}</option>
+                              <option value="__skip__">{t('skipLeaveEmpty')}</option>
+                              {existingTransports.map(tr => (
+                                <option key={tr.id} value={tr.id}>{tr.name}</option>
+                              ))}
+                            </select>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <button
                 onClick={handleImport}
-                disabled={isImporting}
+                disabled={isImporting || isLoadingEntities}
                 className="w-full rounded-lg bg-accent px-4 py-3 text-sm font-semibold text-white hover:bg-accent-hover disabled:opacity-50"
               >
                 {isImporting ? t('importing') : t('importRows', { count: parsedRows.length })}

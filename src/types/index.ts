@@ -89,6 +89,19 @@ export interface ImportRow {
   notes: string
 }
 
+export type MappingAction = 'skip' | 'map' | 'create'
+
+export interface NameMapping {
+  csvName: string
+  action: MappingAction
+  existingId?: string
+}
+
+export interface ImportMappings {
+  locations: NameMapping[]
+  transports: NameMapping[]
+}
+
 export interface CalendarAttendance {
   id: string
   date: string
