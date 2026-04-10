@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: 'daydesk - Office Attendance Tracker',
     short_name: 'daydesk',
     description: 'Track office and home office attendance',
-    start_url: '/',
+    start_url: '/dashboard',
     display: 'standalone',
     background_color: '#fafafa',
     theme_color: '#3B5BDB',
