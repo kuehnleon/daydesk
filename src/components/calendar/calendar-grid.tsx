@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { haptic } from '@/lib/haptic'
+
 import type { CalendarAttendance } from '@/types'
 
 interface CalendarGridProps {
@@ -267,6 +268,7 @@ export function CalendarGrid({
     if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
       const direction = deltaX < 0 ? 'left' : 'right'
       setSlideDirection(direction)
+      haptic()
       setTimeout(() => {
         if (direction === 'left') {
           onMonthChange(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))

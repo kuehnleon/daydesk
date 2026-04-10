@@ -9,6 +9,7 @@ import { Navbar } from '@/components/navbar'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import type { Location, Transport, CalendarAttendance } from '@/types'
 import { minLoadingDelay } from '@/lib/loading'
+import { hapticSuccess } from '@/lib/haptic'
 import { enqueue } from '@/lib/offline-queue'
 import { AttendanceModal } from '@/components/calendar/attendance-modal'
 import { MonthlySummary } from '@/components/calendar/monthly-summary'
@@ -154,6 +155,7 @@ export default function Calendar() {
       const allOk = results.every(r => r.ok)
       if (allOk) {
         showToast(t('attendanceSaved', { count: dates.length }), 'success')
+        hapticSuccess()
         await loadAttendances()
         closeModal()
       } else {
@@ -165,6 +167,7 @@ export default function Calendar() {
           await enqueue({ date: dateStr, type, transportId, locationId })
         }
         showToast(t('savedOffline', { count: dates.length }), 'success')
+        hapticSuccess()
         closeModal()
       } else {
         showToast(t('errorSaving'), 'error')
@@ -194,6 +197,7 @@ export default function Calendar() {
       const allOk = results.every(r => r.ok)
       if (allOk) {
         showToast(t('cleared', { count: toDelete.length }), 'success')
+        hapticSuccess()
         await loadAttendances()
         closeModal()
       } else {
