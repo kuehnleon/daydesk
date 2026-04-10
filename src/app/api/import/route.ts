@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { parseISO } from 'date-fns'
 import { importBatchSchema } from '@/lib/validations'
 import { withLogging } from '@/lib/api-utils'
 
@@ -62,20 +61,20 @@ export const POST = withLogging(async (request) => {
       where: {
         userId_date: {
           userId,
-          date: parseISO(row.date),
+          date: new Date(row.date),
         },
       },
       update: data,
       create: {
         userId,
-        date: parseISO(row.date),
+        date: new Date(row.date),
         ...data,
       },
     })
   })
 
   // Check which dates already exist to count new vs updated
-  const dates = rows.map(r => parseISO(r.date))
+  const dates = rows.map(r => new Date(r.date))
   const existing = await prisma.attendance.findMany({
     where: {
       userId,
@@ -87,7 +86,7 @@ export const POST = withLogging(async (request) => {
     existing.map(e => e.date.toISOString())
   )
 
-  const updated = rows.filter(r => existingDates.has(parseISO(r.date).toISOString())).length
+  const updated = rows.filter(r => existingDates.has(new Date(r.date).toISOString())).length
   const imported = rows.length - updated
 
   await prisma.$transaction(operations)

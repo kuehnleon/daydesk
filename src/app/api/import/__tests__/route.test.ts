@@ -133,13 +133,12 @@ describe('POST /api/import', () => {
   })
 
   it('counts updated rows when dates already exist', async () => {
-    const { parseISO } = await import('date-fns')
     mockAuth.mockResolvedValue({ user: { id: 'user1', email: 'test@test.com' } } as never)
     mockPrisma.location.findMany.mockResolvedValue([] as never)
     mockPrisma.transport.findMany.mockResolvedValue([] as never)
-    // Use parseISO to match the exact Date the route creates
+    // Use new Date() to match the exact Date the route creates
     mockPrisma.attendance.findMany.mockResolvedValue([
-      { date: parseISO('2024-01-15') },
+      { date: new Date('2024-01-15') },
     ] as never)
     mockPrisma.attendance.upsert.mockResolvedValue({} as never)
     mockPrisma.$transaction.mockResolvedValue([{}, {}] as never)
