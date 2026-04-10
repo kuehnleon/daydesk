@@ -77,6 +77,7 @@ export const updateSettingsSchema = z.object({
   reminderEnabled: z.boolean().optional(),
   reminderWorkDaysOnly: z.boolean().optional(),
   dashboardHidden: z.string().max(500).optional(),
+  onboardingCompleted: z.boolean().optional(),
 })
 
 export const exportQuerySchema = z.object({

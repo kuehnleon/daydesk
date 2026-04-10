@@ -22,6 +22,7 @@ model User {
   reminderEnabled      Boolean      @default(false)
   reminderWorkDaysOnly Boolean      @default(true)
   dashboardHidden      String       @default("")
+  onboardingCompleted  Boolean      @default(false)
   createdAt            DateTime     @default(now())
   updatedAt            DateTime     @updatedAt
   attendances          Attendance[]
