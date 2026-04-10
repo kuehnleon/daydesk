@@ -5,6 +5,7 @@ import { signOut } from 'next-auth/react'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Menu, X } from 'lucide-react'
+import { haptic } from '@/lib/haptic'
 
 export function Navbar() {
   const pathname = usePathname()
@@ -45,7 +46,7 @@ export function Navbar() {
             <div className="flex items-center gap-3">
               {/* Hamburger button — mobile only */}
               <button
-                onClick={() => setIsMenuOpen(true)}
+                onClick={() => { haptic(); setIsMenuOpen(true) }}
                 className="rounded-md p-2 text-text-secondary hover:bg-surface-secondary md:hidden"
                 aria-label={t('openMenu')}
               >
@@ -136,7 +137,7 @@ export function Navbar() {
               </svg>
             </a>
             <button
-              onClick={() => setIsMenuOpen(false)}
+              onClick={() => { haptic(); setIsMenuOpen(false) }}
               className="rounded-md p-2 text-text-secondary hover:bg-surface-secondary"
               aria-label={t('closeMenu')}
             >

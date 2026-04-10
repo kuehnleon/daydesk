@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useCallback, useEffect, useRef, ReactNode } from 'react'
+import { hapticHeavy } from '@/lib/haptic'
 
 interface ConfirmOptions {
   title?: string
@@ -36,6 +37,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const handleConfirm = useCallback(() => {
+    hapticHeavy()
     resolveRef.current?.(true)
     resolveRef.current = null
     setOptions(null)
