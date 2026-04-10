@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.12.0] - 2026-04-10
+
+### Added
+
+- Add onboarding wizard for first-time users
+
+### Fixed
+
+- Logout issues
+
+### Miscellaneous
+
+- Bump vite from 8.0.3 to 8.0.8 (#18)
+- Bump defu from 6.1.4 to 6.1.6 (#12)
+- Bump @types/node from 24.12.0 to 24.12.2 (#15)
+
 ## [0.11.0] - 2026-04-10
 
 ### Added
@@ -229,6 +245,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix next auth and middleware
 
+[0.12.0]: https://github.com/kuehnleon/daydesk/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/kuehnleon/daydesk/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/kuehnleon/daydesk/compare/v0.9.4...v0.10.0
 [0.9.4]: https://github.com/kuehnleon/daydesk/compare/v0.9.3...v0.9.4
