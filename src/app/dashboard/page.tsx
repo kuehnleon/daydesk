@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
 import { useTranslations, useLocale } from 'next-intl'
+import { useRouter } from 'next/navigation'
 import { getDateFnsLocale } from '@/lib/date-locale'
 import { useToast } from '@/components/ui/toast'
 import { Navbar } from '@/components/navbar'
@@ -30,6 +31,7 @@ export default function Dashboard() {
   const t = useTranslations('dashboard')
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
+  const router = useRouter()
 
   const today = format(new Date(), 'yyyy-MM-dd')
 
@@ -84,6 +86,10 @@ export default function Dashboard() {
       const response = await fetch('/api/settings')
       if (response.ok) {
         const data = await response.json()
+        if (data.onboardingCompleted === false) {
+          router.push('/onboarding')
+          return
+        }
         if (data.dashboardHidden) {
           setDashboardHidden(new Set(data.dashboardHidden.split(',').filter(Boolean)))
         }

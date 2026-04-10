@@ -50,6 +50,9 @@ self.addEventListener('fetch', (event) => {
   // Skip non-HTTP(S) requests (e.g. chrome-extension://)
   if (!url.protocol.startsWith('http')) return;
 
+  // Skip cross-origin requests (e.g. external APIs)
+  if (url.origin !== self.location.origin) return;
+
   // Skip auth-related requests (never cache)
   if (url.pathname.startsWith('/api/auth')) return;
 
