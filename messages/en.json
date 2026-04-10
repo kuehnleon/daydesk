@@ -50,7 +50,11 @@
     "cleared": "Cleared {count, plural, one {# entry} other {# entries}}",
     "failedToClear": "Failed to clear some entries",
     "errorClearing": "Error clearing attendance",
-    "changeTransport": "Change transport method"
+    "changeTransport": "Change transport method",
+    "note": "Note",
+    "notePlaceholder": "e.g., client visit, team offsite...",
+    "noteCharCount": "{count}/500",
+    "noteHint": "Select an attendance type to save the note"
   },
   "statistics": {
     "title": "Statistics",

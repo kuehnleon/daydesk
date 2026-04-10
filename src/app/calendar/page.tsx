@@ -135,7 +135,8 @@ export default function Calendar() {
   const saveAttendance = async (
     type: string,
     transportId: string | null,
-    locationId: string | null = null
+    locationId: string | null = null,
+    notes?: string | null
   ) => {
     const dates = getSelectedDatesArray()
     if (dates.length === 0) return
@@ -147,7 +148,7 @@ export default function Calendar() {
           fetch('/api/attendance', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ date: dateStr, type, transportId, locationId }),
+            body: JSON.stringify({ date: dateStr, type, transportId, locationId, ...(notes !== undefined && { notes }) }),
           })
         )
       )
@@ -164,7 +165,7 @@ export default function Calendar() {
     } catch {
       if (!navigator.onLine) {
         for (const dateStr of dates) {
-          await enqueue({ date: dateStr, type, transportId, locationId })
+          await enqueue({ date: dateStr, type, transportId, locationId, ...(notes !== undefined && { notes: notes || undefined }) })
         }
         showToast(t('savedOffline', { count: dates.length }), 'success')
         hapticSuccess()

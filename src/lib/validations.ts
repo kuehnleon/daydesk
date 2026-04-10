@@ -22,7 +22,7 @@ export const createAttendanceSchema = z.object({
   type: attendanceTypeSchema,
   transportId: z.string().nullable().optional(),
   locationId: z.string().nullable().optional(),
-  notes: z.string().max(500).optional(),
+  notes: z.string().max(500).nullable().optional(),
 })
 
 export const getAttendanceQuerySchema = z.object({
