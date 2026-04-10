@@ -9,9 +9,10 @@ spec:
   schedule: "* * * * *"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
-  failedJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
+      ttlSecondsAfterFinished: 604800 # keep completed jobs for 7 days
       activeDeadlineSeconds: 55
       template:
         metadata:
