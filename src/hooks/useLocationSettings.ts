@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 import { useToast } from '@/components/ui/toast'
+import { useConfirm } from '@/components/ui/confirm-dialog'
 import { minLoadingDelay } from '@/lib/loading'
 import type { Location, Transport, LocationFormData } from '@/types'
 
@@ -32,6 +33,7 @@ export function useLocationSettings() {
     color: COLOR_OPTIONS[0],
   })
   const { showToast } = useToast()
+  const { confirm } = useConfirm()
   const t = useTranslations('settings')
 
   const load = useCallback(async () => {
@@ -147,7 +149,12 @@ export function useLocationSettings() {
   }
 
   const remove = async (id: string) => {
-    if (!confirm(t('deleteLocationConfirm'))) return
+    if (!(await confirm({
+      message: t('deleteLocationConfirm'),
+      confirmLabel: t('delete'),
+      cancelLabel: t('cancel'),
+      destructive: true,
+    }))) return
 
     try {
       const response = await fetch(`/api/locations/${id}`, { method: 'DELETE' })

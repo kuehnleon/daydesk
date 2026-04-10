@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 import { useToast } from '@/components/ui/toast'
+import { useConfirm } from '@/components/ui/confirm-dialog'
 import { minLoadingDelay } from '@/lib/loading'
 import type { Transport, TransportFormData } from '@/types'
 
@@ -13,6 +14,7 @@ export function useTransportSettings(onDataChange?: () => void) {
   const [editing, setEditing] = useState<Transport | null>(null)
   const [form, setForm] = useState<TransportFormData>({ name: '' })
   const { showToast } = useToast()
+  const { confirm } = useConfirm()
   const t = useTranslations('settings')
 
   const load = useCallback(async () => {
@@ -113,7 +115,12 @@ export function useTransportSettings(onDataChange?: () => void) {
   }
 
   const remove = async (id: string) => {
-    if (!confirm(t('deleteTransportConfirm'))) return
+    if (!(await confirm({
+      message: t('deleteTransportConfirm'),
+      confirmLabel: t('delete'),
+      cancelLabel: t('cancel'),
+      destructive: true,
+    }))) return
 
     try {
       const response = await fetch(`/api/transports/${id}`, { method: 'DELETE' })

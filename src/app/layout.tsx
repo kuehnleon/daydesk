@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages, getTranslations } from 'next-intl/server'
 import { AuthProvider } from "@/components/auth-provider";
 import { ToastProvider } from "@/components/ui/toast";
+import { ConfirmProvider } from "@/components/ui/confirm-dialog";
 import { ServiceWorkerRegister } from "@/components/service-worker-register";
 import { NotificationScheduler } from "@/components/notification-scheduler";
 import { ErrorBoundary } from "@/components/error-boundary";
@@ -71,8 +72,10 @@ export default async function RootLayout({
           <LocaleSync />
           <NextIntlClientProvider locale={locale} messages={messages}>
             <ToastProvider>
-              <OfflineBanner />
-              <ErrorBoundary>{children}</ErrorBoundary>
+              <ConfirmProvider>
+                <OfflineBanner />
+                <ErrorBoundary>{children}</ErrorBoundary>
+              </ConfirmProvider>
             </ToastProvider>
           </NextIntlClientProvider>
         </AuthProvider>

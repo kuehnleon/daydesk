@@ -107,6 +107,7 @@
     "name": "Name",
     "transportPlaceholder": "z.B. Eigenes Auto, Fahrrad, ÖPNV",
     "cancel": "Abbrechen",
+    "delete": "Löschen",
     "save": "Speichern",
     "transportUpdated": "Verkehrsmittel aktualisiert",
     "transportAdded": "Verkehrsmittel hinzugefügt",
@@ -205,7 +206,12 @@
     "csvInvalidHeader": "Ungültige CSV-Kopfzeile. Erwartet: {headers}",
     "csvInvalidDate": "Zeile {row}: Ungültiges Datumsformat \"{date}\" (erwartet YYYY-MM-DD)",
     "csvInvalidType": "Zeile {row}: Ungültiger Typ \"{type}\" (erwartet: office, home, off, holiday, sick)",
-    "importedToast": "{imported} neue importiert, {updated} bestehende aktualisiert"
+    "importedToast": "{imported} neue importiert, {updated} bestehende aktualisiert",
+    "unmatchedNames": "Nicht zugeordnete Namen",
+    "unmatchedNamesHint": "Die folgenden Namen aus der CSV stimmen mit keinem vorhandenen Eintrag überein. Wählen Sie, wie jeder behandelt werden soll.",
+    "createNew": "Neu erstellen",
+    "skipLeaveEmpty": "Überspringen (leer lassen)",
+    "checkingNames": "Namen werden überprüft..."
   },
   "signin": {
     "tagline": "Verfolgen Sie Ihre Büroanwesenheit, Pendelwege und Arbeitsorte",
