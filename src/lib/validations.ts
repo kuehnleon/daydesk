@@ -102,8 +102,20 @@ export const importRowSchema = z.object({
   notes: z.string().max(500).optional().default(''),
 })
 
+export const nameMappingSchema = z.object({
+  csvName: z.string().max(100),
+  action: z.enum(['skip', 'map', 'create']),
+  existingId: z.string().optional(),
+})
+
+export const importMappingsSchema = z.object({
+  locations: z.array(nameMappingSchema).default([]),
+  transports: z.array(nameMappingSchema).default([]),
+})
+
 export const importBatchSchema = z.object({
   rows: z.array(importRowSchema).min(1, 'At least one row is required').max(3660),
+  mappings: importMappingsSchema.optional(),
 })
 
 // --- Push notification schemas ---
