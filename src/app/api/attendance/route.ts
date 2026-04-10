@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { startOfMonth, endOfMonth, parseISO } from 'date-fns'
+import { startOfMonth, endOfMonth } from 'date-fns'
 import { getAttendanceQuerySchema, createAttendanceSchema } from '@/lib/validations'
 import { withLogging } from '@/lib/api-utils'
 
@@ -25,7 +25,7 @@ export const GET = withLogging(async (request) => {
 
   let dateFilter = {}
   if (month) {
-    const date = parseISO(`${month}-01`)
+    const date = new Date(`${month}-01`)
     dateFilter = {
       date: {
         gte: startOfMonth(date),
@@ -35,8 +35,8 @@ export const GET = withLogging(async (request) => {
   } else if (startDate && endDate) {
     dateFilter = {
       date: {
-        gte: parseISO(startDate),
-        lte: parseISO(endDate),
+        gte: new Date(startDate),
+        lte: new Date(endDate),
       },
     }
   }

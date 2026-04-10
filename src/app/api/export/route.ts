@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { format, parseISO } from 'date-fns'
+import { format } from 'date-fns'
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import type { AttendanceWithRelations } from '@/types'
@@ -34,8 +34,8 @@ export const GET = withLogging(async (request) => {
     where: {
       userId: session.user.id,
       date: {
-        gte: parseISO(startDate),
-        lte: parseISO(endDate),
+        gte: new Date(startDate),
+        lte: new Date(endDate),
       },
     },
     include: {
@@ -149,7 +149,7 @@ async function generatePDF(attendances: AttendanceWithRelations[], startDate: st
     }
 
     // Month header
-    const monthName = format(parseISO(`${monthKey}-01`), 'MMMM yyyy').toUpperCase()
+    const monthName = format(new Date(`${monthKey}-01`), 'MMMM yyyy').toUpperCase()
     doc.setFontSize(12)
     doc.setFont('helvetica', 'bold')
     doc.text(monthName, 14, yPos)
