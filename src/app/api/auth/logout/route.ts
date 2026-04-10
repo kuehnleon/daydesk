@@ -7,7 +7,11 @@ const SESSION_COOKIE = process.env.NODE_ENV === 'production'
   : 'next-auth.session-token'
 
 export const GET = withLogging(async (request) => {
-  const { origin } = new URL(request.url)
+  const forwardedHost = request.headers.get('x-forwarded-host')
+  const forwardedProto = request.headers.get('x-forwarded-proto') ?? 'https'
+  const origin = forwardedHost
+    ? `${forwardedProto}://${forwardedHost}`
+    : new URL(request.url).origin
   const signInUrl = `${origin}/auth/signin`
 
   // Clear the NextAuth session cookie
