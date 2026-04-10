@@ -6,7 +6,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import { getDateFnsLocale } from '@/lib/date-locale'
 import { useToast } from '@/components/ui/toast'
 import { Navbar } from '@/components/navbar'
-import { Building2, Home, Palmtree, ThermometerSun, StickyNote } from 'lucide-react'
+import { Building2, Home, Palmtree, ThermometerSun } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { minLoadingDelay } from '@/lib/loading'
 import { hapticSuccess } from '@/lib/haptic'
@@ -172,9 +172,8 @@ export default function Dashboard() {
             {t('logForToday', { date: format(new Date(), 'EEEE, MMMM d, yyyy', { locale: dateFnsLocale }) })}
           </p>
           {todayAttendance?.notes && (
-            <p className="mt-2 flex items-center gap-1.5 text-sm text-text-tertiary">
-              <StickyNote className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate">{todayAttendance.notes}</span>
+            <p className="mt-1 text-sm text-text-tertiary truncate">
+              {todayAttendance.notes}
             </p>
           )}
         </div>
