@@ -50,7 +50,11 @@
     "cleared": "{count, plural, one {# Eintrag} other {# Einträge}} gelöscht",
     "failedToClear": "Einige Einträge konnten nicht gelöscht werden",
     "errorClearing": "Fehler beim Löschen der Anwesenheit",
-    "changeTransport": "Verkehrsmittel ändern"
+    "changeTransport": "Verkehrsmittel ändern",
+    "note": "Notiz",
+    "notePlaceholder": "z.B. Kundenbesuch, Team-Offsite...",
+    "noteCharCount": "{count}/500",
+    "noteHint": "Anwesenheitstyp auswählen, um die Notiz zu speichern"
   },
   "statistics": {
     "title": "Statistiken",

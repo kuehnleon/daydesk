@@ -6,7 +6,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import { getDateFnsLocale } from '@/lib/date-locale'
 import { useToast } from '@/components/ui/toast'
 import { Navbar } from '@/components/navbar'
-import { Building2, Home, Palmtree, ThermometerSun } from 'lucide-react'
+import { Building2, Home, Palmtree, ThermometerSun, StickyNote } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { minLoadingDelay } from '@/lib/loading'
 import { hapticSuccess } from '@/lib/haptic'
@@ -17,6 +17,7 @@ interface TodayAttendance {
   type: string
   transportId: string | null
   locationId: string | null
+  notes: string | null
 }
 
 export default function Dashboard() {
@@ -57,6 +58,7 @@ export default function Dashboard() {
             type: todayEntry.type,
             transportId: todayEntry.transportId,
             locationId: todayEntry.locationId,
+            notes: todayEntry.notes || null,
           })
         }
       }
@@ -110,7 +112,7 @@ export default function Dashboard() {
       })
 
       if (response.ok) {
-        setTodayAttendance({ type, transportId, locationId })
+        setTodayAttendance({ type, transportId, locationId, notes: null })
         hapticSuccess()
         showToast(t('attendanceLogged'), 'success')
       } else {
@@ -119,7 +121,7 @@ export default function Dashboard() {
     } catch {
       if (!navigator.onLine) {
         await enqueue({ date: today, type, transportId, locationId })
-        setTodayAttendance({ type, transportId, locationId })
+        setTodayAttendance({ type, transportId, locationId, notes: null })
         hapticSuccess()
         showToast(t('savedOffline'), 'success')
       } else {
@@ -169,6 +171,12 @@ export default function Dashboard() {
           >
             {t('logForToday', { date: format(new Date(), 'EEEE, MMMM d, yyyy', { locale: dateFnsLocale }) })}
           </p>
+          {todayAttendance?.notes && (
+            <p className="mt-2 flex items-center gap-1.5 text-sm text-text-tertiary">
+              <StickyNote className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">{todayAttendance.notes}</span>
+            </p>
+          )}
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

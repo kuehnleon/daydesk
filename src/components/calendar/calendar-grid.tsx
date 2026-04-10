@@ -322,8 +322,9 @@ export function CalendarGrid({
               onTouchStart={() => !isDayDisabled && handleTouchStart(day)}
               onTouchEnd={(e) => handleTouchEnd(day, e)}
               disabled={isDayDisabled}
+              title={attendance?.notes || undefined}
               className={`
-                min-h-14 rounded-lg p-1.5 text-left transition-all sm:min-h-20 sm:p-2
+                flex min-h-14 flex-col rounded-lg p-1.5 text-left transition-all sm:min-h-20 sm:p-2
                 ${getDayColor(day)}
                 ${isToday(day) ? 'ring-2 ring-accent' : ''}
                 ${isDayDisabled
@@ -341,6 +342,11 @@ export function CalendarGrid({
                   {!isHoliday && attendance && getAttendanceIcon(attendance)}
                 </span>
               </div>
+              {attendance?.notes && (
+                <div className="mt-auto hidden sm:block">
+                  <div className="h-1.5 w-1.5 rounded-full bg-accent" />
+                </div>
+              )}
             </button>
           )
         })

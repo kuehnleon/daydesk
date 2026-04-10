@@ -21,7 +21,7 @@ interface AttendanceModalProps {
   locations: Location[]
   transports: Transport[]
   isLoading: boolean
-  onSave: (type: string, transportId: string | null, locationId?: string | null) => Promise<void>
+  onSave: (type: string, transportId: string | null, locationId?: string | null, notes?: string | null) => Promise<void>
   onClear: () => Promise<void>
   onClose: () => void
 }
@@ -41,6 +41,21 @@ export function AttendanceModal({
   const t = useTranslations('calendar')
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
+
+  const isSingleDate = selectedDates.size === 1
+  const singleDateStr = isSingleDate ? Array.from(selectedDates)[0] : null
+  const existingAttendance = singleDateStr ? attendances[singleDateStr] : null
+  const existingNote = existingAttendance?.notes || ''
+
+  const [notes, setNotes] = useState(existingNote)
+
+  const getNotesValue = (): string | null | undefined => {
+    if (!isSingleDate) return undefined
+    const trimmed = notes.trim()
+    return trimmed || null
+  }
+
+  const noteChanged = isSingleDate && notes.trim() !== existingNote.trim()
 
   const getSelectedDatesArray = (): string[] => {
     return Array.from(selectedDates).sort()
@@ -165,7 +180,7 @@ export function AttendanceModal({
                   {/* Save Button */}
                   <div className="border-t border-white/20 p-3">
                     <button
-                      onClick={() => onSave('office', selectedTransportId, location.id)}
+                      onClick={() => onSave('office', selectedTransportId, location.id, getNotesValue())}
                       disabled={isLoading}
                       className="w-full cursor-pointer rounded-lg bg-white py-2.5 font-semibold transition-all hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-50"
                       style={{ color: location.color }}
@@ -196,7 +211,7 @@ export function AttendanceModal({
                       existing?.locationId === location.id
                         ? existing.transportId
                         : location.transportId
-                    onSave('office', transportId, location.id)
+                    onSave('office', transportId, location.id, getNotesValue())
                   }}
                   disabled={isLoading}
                   className="flex flex-1 cursor-pointer items-center gap-4 p-4 text-left disabled:cursor-not-allowed disabled:opacity-50"
@@ -277,7 +292,7 @@ export function AttendanceModal({
             return (
               <>
                 <button
-                  onClick={() => onSave('home', null)}
+                  onClick={() => onSave('home', null, undefined, getNotesValue())}
                   disabled={isLoading}
                   className={`relative flex cursor-pointer items-center gap-4 rounded-xl bg-emerald-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50 ${
                     isHome ? 'ring-3 ring-emerald-300 ring-offset-2 dark:ring-emerald-400 dark:ring-offset-background' : ''
@@ -290,7 +305,7 @@ export function AttendanceModal({
                 </button>
 
                 <button
-                  onClick={() => onSave('off', null)}
+                  onClick={() => onSave('off', null, undefined, getNotesValue())}
                   disabled={isLoading}
                   className={`relative flex cursor-pointer items-center gap-4 rounded-xl bg-amber-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50 ${
                     isOff ? 'ring-3 ring-amber-300 ring-offset-2 dark:ring-amber-400 dark:ring-offset-background' : ''
@@ -303,7 +318,7 @@ export function AttendanceModal({
                 </button>
 
                 <button
-                  onClick={() => onSave('sick', null)}
+                  onClick={() => onSave('sick', null, undefined, getNotesValue())}
                   disabled={isLoading}
                   className={`relative flex cursor-pointer items-center gap-4 rounded-xl bg-red-500 p-4 text-left text-white transition-all hover:scale-[1.02] hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50 ${
                     isSick ? 'ring-3 ring-red-300 ring-offset-2 dark:ring-red-400 dark:ring-offset-background' : ''
@@ -318,6 +333,32 @@ export function AttendanceModal({
             )
           })()}
         </div>
+
+        {isSingleDate && (
+          <div className="mt-3 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-sm text-text-secondary">
+                {t('note')}
+              </label>
+              <span className="text-xs text-text-tertiary">
+                {t('noteCharCount', { count: notes.length })}
+              </span>
+            </div>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder={t('notePlaceholder')}
+              maxLength={500}
+              rows={2}
+              className="w-full resize-none rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-text-tertiary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+            />
+            {noteChanged && (
+              <p className="text-xs text-text-tertiary">
+                {t('noteHint')}
+              </p>
+            )}
+          </div>
+        )}
 
         {hasExistingAttendance() && (
           <button
