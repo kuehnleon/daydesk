@@ -21,6 +21,8 @@ export default function Settings() {
   const [locationKey, setLocationKey] = useState(0)
   const [readyCount, setReadyCount] = useState(0)
   const [dashboardHidden, setDashboardHidden] = useState<Set<string>>(new Set())
+  const [userName, setUserName] = useState<string | null>(null)
+  const [userEmail, setUserEmail] = useState<string | null>(null)
 
   useEffect(() => {
     fetch('/api/settings')
@@ -29,6 +31,8 @@ export default function Settings() {
         if (data?.dashboardHidden !== undefined) {
           setDashboardHidden(parseDashboardHidden(data.dashboardHidden))
         }
+        if (data?.name) setUserName(data.name)
+        if (data?.email) setUserEmail(data.email)
       })
       .catch(() => {})
   }, [])
@@ -62,7 +66,14 @@ export default function Settings() {
       <Navbar />
 
       <main className="mx-auto max-w-3xl px-4 py-6 pb-[calc(1.5rem+var(--sai-bottom))] sm:py-12 sm:px-6 lg:px-8">
-        <h2 className="mb-4 text-2xl font-semibold tracking-tight text-text-primary sm:mb-8 sm:text-3xl">{t('title')}</h2>
+        <h2 className="mb-1 text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">{t('title')}</h2>
+        {userName && (
+          <p className="mb-4 text-sm text-text-tertiary sm:mb-8">
+            {t('loggedInAs')} <span className="font-medium text-text-secondary">{userName}</span>
+            {userEmail && <> ({userEmail})</>}
+          </p>
+        )}
+        {!userName && <div className="mb-4 sm:mb-8" />}
 
         {!allReady && <SettingsSkeleton />}
 

@@ -84,6 +84,7 @@
   },
   "settings": {
     "title": "Settings",
+    "loggedInAs": "Logged in as",
     "transportMethods": "Transport Methods",
     "add": "Add",
     "noTransportMethods": "No transport methods configured. Add methods like \"Own Car\", \"Bike\", \"Public Transport\".",
