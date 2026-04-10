@@ -107,6 +107,7 @@
     "name": "Name",
     "transportPlaceholder": "e.g., Own Car, Bike, Public Transport",
     "cancel": "Cancel",
+    "delete": "Delete",
     "save": "Save",
     "transportUpdated": "Transport updated",
     "transportAdded": "Transport added",
@@ -205,7 +206,12 @@
     "csvInvalidHeader": "Invalid CSV header. Expected: {headers}",
     "csvInvalidDate": "Row {row}: Invalid date format \"{date}\" (expected YYYY-MM-DD)",
     "csvInvalidType": "Row {row}: Invalid type \"{type}\" (expected: office, home, off, holiday, sick)",
-    "importedToast": "Imported {imported} new, updated {updated} existing entries"
+    "importedToast": "Imported {imported} new, updated {updated} existing entries",
+    "unmatchedNames": "Unmatched Names Found",
+    "unmatchedNamesHint": "The following names from your CSV don't match any existing entries. Choose how to handle each one.",
+    "createNew": "Create new",
+    "skipLeaveEmpty": "Skip (leave empty)",
+    "checkingNames": "Checking names..."
   },
   "signin": {
     "tagline": "Track your office attendance, commute, and work location",
