@@ -84,6 +84,7 @@
   },
   "settings": {
     "title": "Einstellungen",
+    "loggedInAs": "Angemeldet als",
     "transportMethods": "Verkehrsmittel",
     "add": "Hinzufügen",
     "noTransportMethods": "Keine Verkehrsmittel konfiguriert. Fügen Sie z.B. \"Eigenes Auto\", \"Fahrrad\", \"ÖPNV\" hinzu.",
