@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
 import { withLogging } from '@/lib/api-utils'
 
-export const GET = withLogging(async () => {
-  const baseUrl = process.env.NEXTAUTH_URL || process.env.APP_BASE_URL || 'http://localhost:3000'
-  const signInUrl = `${baseUrl}/auth/signin`
+export const GET = withLogging(async (request) => {
+  const { origin } = new URL(request.url)
+  const signInUrl = `${origin}/auth/signin`
 
   // If the provider exposes a logout endpoint, redirect through it first
   const providerLogoutUrl = process.env.OAUTH_LOGOUT_URL
