@@ -1,8 +1,9 @@
-const CACHE_NAME = 'daydesk-v6';
+const CACHE_NAME = 'daydesk-v7';
 
 const STATIC_ASSETS = [
   '/icon-192.png',
   '/icon-512.png',
+  '/offline.html',
 ];
 
 // Protected pages that require authentication — never serve from cache
@@ -52,8 +53,18 @@ self.addEventListener('fetch', (event) => {
   // Skip auth-related requests (never cache)
   if (url.pathname.startsWith('/api/auth')) return;
 
-  // Skip root path — it redirects to /dashboard, and caching redirects causes errors
-  if (url.pathname === '/') return;
+  // Root path: let the server redirect when online; redirect client-side when offline
+  if (url.pathname === '/') {
+    event.respondWith(
+      fetch(request).catch(() => {
+        return new Response(
+          '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=/dashboard"></head></html>',
+          { headers: { 'Content-Type': 'text/html' } }
+        );
+      })
+    );
+    return;
+  }
 
   // API requests: network-first with cache fallback
   if (url.pathname.startsWith('/api/')) {
@@ -91,7 +102,9 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(() => {
-          return caches.match(request);
+          return caches.match(request).then((cached) => {
+            return cached || caches.match('/offline.html');
+          });
         })
     );
     return;
@@ -100,15 +113,23 @@ self.addEventListener('fetch', (event) => {
   // Static assets: stale-while-revalidate
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
-      const fetchPromise = fetch(request).then((networkResponse) => {
-        if (networkResponse.ok && !networkResponse.redirected) {
-          const responseClone = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, responseClone);
-          });
-        }
-        return networkResponse;
-      });
+      const fetchPromise = fetch(request)
+        .then((networkResponse) => {
+          if (networkResponse.ok && !networkResponse.redirected) {
+            const responseClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, responseClone);
+            });
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          // Navigation requests with no cache get the offline fallback
+          if (request.mode === 'navigate') {
+            return caches.match('/offline.html');
+          }
+          return undefined;
+        });
 
       // Return cached response immediately, update cache in background
       return cachedResponse || fetchPromise;
