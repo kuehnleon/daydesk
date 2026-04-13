@@ -44,7 +44,7 @@
     "next-intl": "^4.9.1",
     "pino": "^10.3.1",
     "prisma": "^6.11.0",
-    "react": "19.2.4",
+    "react": "19.2.5",
     "react-dom": "19.2.4",
     "tailwind-merge": "^3.5.0",
     "web-push": "^3.6.7",
