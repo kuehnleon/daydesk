@@ -1,25 +1,26 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 120" width="440" height="120">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#4C6EF5"/>
-      <stop offset="100%" stop-color="#3B5BDB"/>
-    </linearGradient>
-  </defs>
-
-  <!-- Icon: minimal calendar -->
-  <rect x="4" y="20" width="80" height="76" rx="14" fill="url(#g)"/>
-  <rect x="14" y="40" width="60" height="46" rx="6" fill="#fff"/>
-  <rect x="24" y="8" width="12" height="24" rx="4" fill="url(#g)"/>
-  <rect x="52" y="8" width="12" height="24" rx="4" fill="url(#g)"/>
-
-  <!-- Calendar dots (today indicator) -->
-  <circle cx="32" cy="55" r="4" fill="#e2e8f0"/>
-  <circle cx="52" cy="55" r="4" fill="#e2e8f0"/>
-  <circle cx="32" cy="72" r="4" fill="#e2e8f0"/>
-  <circle cx="52" cy="72" r="5.5" fill="url(#g)"/>
-
-  <!-- Wordmark -->
-  <text x="104" y="82" font-family="-apple-system, 'SF Pro Display', 'Inter', 'Helvetica Neue', Arial, sans-serif" font-size="68" font-weight="700" letter-spacing="-2.5">
-    <tspan fill="#1a1a2e">day</tspan><tspan fill="url(#g)">desk</tspan>
+<svg width="365" height="110" xmlns="http://www.w3.org/2000/svg">
+ <defs>
+  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+   <stop offset="0%" stop-color="#4C6EF5"/>
+   <stop offset="100%" stop-color="#3B5BDB"/>
+  </linearGradient>
+ </defs>
+ <!-- Icon: minimal calendar -->
+ <!-- Calendar dots (today indicator) -->
+ <!-- Wordmark -->
+ <g>
+  <title>Layer 1</title>
+  <rect x="4" y="20" width="80" height="76" rx="14" fill="url(#g)" id="svg_1"/>
+  <rect x="14" y="40" width="60" height="46" rx="6" fill="#fff" id="svg_2"/>
+  <rect x="24" y="8" width="12" height="24" rx="4" fill="url(#g)" id="svg_3"/>
+  <rect x="52" y="8" width="12" height="24" rx="4" fill="url(#g)" id="svg_4"/>
+  <circle cx="32" cy="55" r="4" fill="#e2e8f0" id="svg_5"/>
+  <circle cx="52" cy="55" r="4" fill="#e2e8f0" id="svg_6"/>
+  <circle cx="32" cy="72" r="4" fill="#e2e8f0" id="svg_7"/>
+  <circle cx="52" cy="72" r="5.5" fill="url(#g)" id="svg_8"/>
+  <text style="cursor: move;" x="104" y="82" font-family="-apple-system, 'SF Pro Display', 'Inter', 'Helvetica Neue', Arial, sans-serif" font-size="68" font-weight="700" letter-spacing="-2.5" id="svg_9">
+   <tspan fill="#1a1a2e" id="svg_10">day</tspan>
+   <tspan fill="url(#g)" id="svg_11">desk</tspan>
   </text>
+ </g>
 </svg>
