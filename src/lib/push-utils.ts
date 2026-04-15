@@ -8,3 +8,10 @@ export function urlBase64ToUint8Array(base64String: string): Uint8Array {
   }
   return outputArray
 }
+
+export async function clearAttendanceNotifications(): Promise<void> {
+  if (!('serviceWorker' in navigator)) return
+  const registration = await navigator.serviceWorker.ready
+  const notifications = await registration.getNotifications({ tag: 'daydesk-attendance-reminder' })
+  notifications.forEach((n) => n.close())
+}
