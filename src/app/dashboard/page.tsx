@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { minLoadingDelay } from '@/lib/loading'
 import { hapticSuccess } from '@/lib/haptic'
 import { enqueue } from '@/lib/offline-queue'
+import { clearAttendanceNotifications } from '@/lib/push-utils'
 import type { Location } from '@/types'
 
 interface TodayAttendance {
@@ -121,6 +122,7 @@ export default function Dashboard() {
         setTodayAttendance({ type, transportId, locationId, notes: null })
         hapticSuccess()
         showToast(t('attendanceLogged'), 'success')
+        clearAttendanceNotifications()
       } else {
         showToast(t('failedToLog'), 'error')
       }
@@ -130,6 +132,7 @@ export default function Dashboard() {
         setTodayAttendance({ type, transportId, locationId, notes: null })
         hapticSuccess()
         showToast(t('savedOffline'), 'success')
+        clearAttendanceNotifications()
       } else {
         showToast(t('errorLogging'), 'error')
       }

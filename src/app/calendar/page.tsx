@@ -11,6 +11,7 @@ import type { Location, Transport, CalendarAttendance } from '@/types'
 import { minLoadingDelay } from '@/lib/loading'
 import { hapticSuccess } from '@/lib/haptic'
 import { enqueue } from '@/lib/offline-queue'
+import { clearAttendanceNotifications } from '@/lib/push-utils'
 import { AttendanceModal } from '@/components/calendar/attendance-modal'
 import { MonthlySummary } from '@/components/calendar/monthly-summary'
 import { CalendarGrid } from '@/components/calendar/calendar-grid'
@@ -157,6 +158,7 @@ export default function Calendar() {
       if (allOk) {
         showToast(t('attendanceSaved', { count: dates.length }), 'success')
         hapticSuccess()
+        clearAttendanceNotifications()
         await loadAttendances()
         closeModal()
       } else {
@@ -169,6 +171,7 @@ export default function Calendar() {
         }
         showToast(t('savedOffline', { count: dates.length }), 'success')
         hapticSuccess()
+        clearAttendanceNotifications()
         closeModal()
       } else {
         showToast(t('errorSaving'), 'error')
