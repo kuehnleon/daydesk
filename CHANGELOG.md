@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.12.7] - 2026-04-16
+
+### Miscellaneous
+
+- Trim whitespace and center icon in svg logos
+
 ## [0.12.6] - 2026-04-16
 
 ### Miscellaneous
@@ -292,6 +298,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix next auth and middleware
 
+[0.12.7]: https://github.com/kuehnleon/daydesk/compare/v0.12.6...v0.12.7
 [0.12.6]: https://github.com/kuehnleon/daydesk/compare/v0.12.5...v0.12.6
 [0.12.5]: https://github.com/kuehnleon/daydesk/compare/v0.12.4...v0.12.5
 [0.12.4]: https://github.com/kuehnleon/daydesk/compare/v0.12.3...v0.12.4
