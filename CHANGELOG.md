@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.12.8] - 2026-04-21
+
+### Miscellaneous
+
+- Bump react-dom from 19.2.4 to 19.2.5 (#25)
+- Bump next-auth from 4.24.13 to 4.24.14 (#24)
+- Bump lucide-react from 1.7.0 to 1.8.0 (#23)
+
 ## [0.12.7] - 2026-04-16
 
 ### Miscellaneous
@@ -298,6 +306,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix next auth and middleware
 
+[0.12.8]: https://github.com/kuehnleon/daydesk/compare/v0.12.7...v0.12.8
 [0.12.7]: https://github.com/kuehnleon/daydesk/compare/v0.12.6...v0.12.7
 [0.12.6]: https://github.com/kuehnleon/daydesk/compare/v0.12.5...v0.12.6
 [0.12.5]: https://github.com/kuehnleon/daydesk/compare/v0.12.4...v0.12.5
