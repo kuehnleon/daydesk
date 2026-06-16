@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.12.9] - 2026-06-16
+
+### Miscellaneous
+
+- Bump tailwindcss from 4.2.2 to 4.2.4 (#30)
+- Bump vitest from 4.1.2 to 4.1.5 (#29)
+- Bump @swc/core from 1.15.24 to 1.15.30 (#28)
+- Bump next from 16.2.3 to 16.2.4 (#31)
+- Bump happy-dom from 20.8.9 to 20.9.0 (#32)
+- Bump icu-minify from 4.9.1 to 4.11.0 (#36)
+- Bump next-intl from 4.9.1 to 4.9.2 (#35)
+- Bump lucide-react from 1.8.0 to 1.14.0 (#33)
+- Bump @swc/core from 1.15.30 to 1.15.33 (#38)
+- Bump vite from 8.0.10 to 8.0.16 (#41)
+- Bump next from 16.2.4 to 16.2.6 (#40)
+- Bump dompurify from 3.4.0 to 3.4.10 (#42)
+- Bump js-yaml from 4.1.1 to 4.2.0 (#43)
+
 ## [0.12.8] - 2026-04-21
 
 ### Miscellaneous
@@ -306,6 +324,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix next auth and middleware
 
+[0.12.9]: https://github.com/kuehnleon/daydesk/compare/v0.12.8...v0.12.9
 [0.12.8]: https://github.com/kuehnleon/daydesk/compare/v0.12.7...v0.12.8
 [0.12.7]: https://github.com/kuehnleon/daydesk/compare/v0.12.6...v0.12.7
 [0.12.6]: https://github.com/kuehnleon/daydesk/compare/v0.12.5...v0.12.6
