@@ -136,7 +136,6 @@ jobs:
   build-docker:
     name: Build Docker Image
     needs: [lint, test, e2e]
-    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-24.04-arm
     permissions:
       contents: read
@@ -150,6 +149,7 @@ jobs:
         uses: docker/setup-buildx-action@v4
 
       - name: Log in to Container Registry
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
@@ -158,6 +158,7 @@ jobs:
 
       - name: Get version from tag
         id: version
+        if: startsWith(github.ref, 'refs/tags/v')
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
@@ -167,10 +168,11 @@ jobs:
         with:
           context: .
           platforms: linux/arm64
-          push: true
+          # Push only on tag pushes; PR builds are smoke-tests, kept local.
+          push: ${{ startsWith(github.ref, 'refs/tags/v') }}
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version || 'pr' }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ startsWith(github.ref, 'refs/tags/v') && 'latest' || format('pr-{0}', github.event.pull_request.number) }}
 
   build-helm:
     name: Package Helm Chart
