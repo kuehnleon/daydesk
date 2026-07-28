@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [master]
 
+# Cancel superseded PR runs; give each tag its own group so releases never
+# cancel each other mid-publish.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 
