@@ -40,7 +40,7 @@
     "jspdf-autotable": "^5.0.7",
     "lucide-react": "^1.14.0",
     "next": "16.2.12",
-    "next-auth": "4.24.14",
+    "next-auth": "4.24.15",
     "next-intl": "^4.9.2",
     "pino": "^10.3.1",
     "prisma": "^6.11.0",
