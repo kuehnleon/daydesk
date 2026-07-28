@@ -76,19 +76,9 @@ jobs:
           --health-timeout 5s
           --health-retries 10
     env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/daydesk_test
-      DIRECT_URL: postgresql://postgres:postgres@localhost:5432/daydesk_test
-      NEXTAUTH_SECRET: e2e-fixed-secret-do-not-use-in-production
-      NEXTAUTH_URL: http://localhost:3100
+      # All static env values live in .env.test (checked into the repo).
+      # Playwright's config loads it. Only truly-per-run values live here.
       PLAYWRIGHT_USE_BUILD: '1'
-      # Placeholders so `next build` accepts the OIDC config (never hit at runtime in tests).
-      OAUTH_ISSUER: http://localhost/oidc
-      OAUTH_CLIENT_ID: test
-      OAUTH_CLIENT_SECRET: test
-      OAUTH_LOGOUT_URL: http://localhost/logout
-      VAPID_SUBJECT: mailto:e2e@example.test
-      PUSH_API_SECRET: e2e
-      NEXT_PUBLIC_DISABLE_SW: '1'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5

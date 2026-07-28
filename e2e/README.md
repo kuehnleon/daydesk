@@ -10,12 +10,15 @@ Layered on top of the existing Vitest unit tests (`npm test`) — this suite cat
 # 1. Start Postgres (the docker-compose service is fine — no need to start the app)
 docker compose up -d postgres
 
-# 2. Create .env.test from the tracked template (once)
-cp .env.test.example .env.test
-# (edit if your Postgres creds/port differ)
+# 2. Fill in throwaway VAPID keys in .env.test (one-time, values stay local).
+#    `next build` validates them as real P-256 keys.
+node -e "const k=require('web-push').generateVAPIDKeys();\
+         console.log('VAPID_PUBLIC_KEY='+k.publicKey);\
+         console.log('VAPID_PRIVATE_KEY='+k.privateKey)"
+# → paste both lines into .env.test, replacing the empty values.
 
 # 3. Run the suite (Playwright starts `next dev` on port 3100 automatically,
-#    loading .env.test — your real .env is untouched)
+#    loading .env.test — your real .env is temporarily shrouded for the run)
 npm run test:e2e
 ```
 
