@@ -54,7 +54,8 @@
     "note": "Note",
     "notePlaceholder": "e.g., client visit, team offsite...",
     "noteCharCount": "{count}/500",
-    "noteHint": "Select an attendance type to save the note"
+    "noteHint": "Select an attendance type to save the note",
+    "close": "Close"
   },
   "statistics": {
     "title": "Statistics",
@@ -149,7 +150,15 @@
     "language": "Language",
     "languageHelp": "Interface language",
     "english": "English",
-    "german": "Deutsch"
+    "german": "Deutsch",
+    "reorderLocation": "Reorder {name}",
+    "reorderTransport": "Reorder {name}",
+    "editLocationName": "Edit {name}",
+    "editTransportName": "Edit {name}",
+    "deleteLocationName": "Delete {name}",
+    "deleteTransportName": "Delete {name}",
+    "showLocationOnDashboard": "Show {name} on dashboard",
+    "hideLocationFromDashboard": "Hide {name} from dashboard"
   },
   "days": {
     "monday": "Monday",

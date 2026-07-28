@@ -1,8 +1,15 @@
 # End-to-End Tests
 
-Browser-driven tests using [Playwright](https://playwright.dev/) that exercise the real Next.js app against a real Postgres database.
+Browser-driven tests using [Playwright](https://playwright.dev/) that exercise the real Next.js app against a real Postgres database. Complements the existing Vitest unit + component tests (`npm test`) — this suite catches integration and visual regressions those can't see.
 
-Layered on top of the existing Vitest unit tests (`npm test`) — this suite catches integration regressions the unit tests can't see.
+## Test layers
+
+| Layer | Where | What it covers |
+|---|---|---|
+| **Unit / API-route** (Vitest) | `src/**/__tests__/`, `src/**/*.test.ts` | Pure functions, API handlers (with `prisma` mocked) |
+| **Component / hook** (Vitest + RTL) | `src/**/*.test.tsx` | UI primitives, onboarding steps, custom hooks with `renderHook` |
+| **E2E** (Playwright) | `e2e/tests/*.spec.ts` | Full auth → page → API → DB flows in a real browser |
+| **Visual regression** (Playwright snapshots) | `e2e/tests/visual-regression.spec.ts` | Screenshot comparisons across theme × locale × viewport |
 
 ## Running locally
 
@@ -22,15 +29,35 @@ node -e "const k=require('web-push').generateVAPIDKeys();\
 npm run test:e2e
 ```
 
-Useful variants:
+**Skip visual regression during quick iteration:**
+```bash
+npm run test:e2e -- --grep-invert visual
+```
 
-| Command | What it does |
-|---|---|
-| `npm run test:e2e` | Headless run, HTML report opens on failure. |
-| `npm run test:e2e:ui` | Interactive UI mode — pick a test, watch it drive the browser. |
-| `npm run test:e2e:debug` | Debug mode with the Playwright inspector. |
-| `PLAYWRIGHT_USE_BUILD=1 npm run test:e2e` | Test against `next build && next start` (matches CI). |
-| `PLAYWRIGHT_BASE_URL=http://localhost:3000 npm run test:e2e` | Use an already-running server. |
+## Visual regression
+
+The `visual-regression.spec.ts` file generates a matrix of screenshots:
+
+- **4 pages** — `/dashboard`, `/calendar`, `/statistics`, `/settings`
+- **2 themes** — `light`, `dark` (`prefers-color-scheme` via Playwright's `colorScheme`)
+- **2 locales** — `en`, `de` (`NEXT_LOCALE` cookie)
+- **2 viewports** — desktop 1280×720, mobile 390×844
+
+= **32 snapshots**, checked into `e2e/tests/visual-regression.spec.ts-snapshots/`.
+
+**Baselines are Linux-only.** Pixel comparisons don't survive OS boundaries, so baselines are generated inside the official Playwright Docker image (same as CI). Two helper scripts under `e2e/scripts/`:
+
+```bash
+# Regenerate all baselines (writes to the snapshots dir).
+# Prereq: Docker running + `daydesk-e2e-pg` postgres container on the
+# `daydesk-e2e` network — see the script header.
+./e2e/scripts/generate-visual-baselines.sh
+
+# Verify the current UI matches the committed baselines.
+./e2e/scripts/verify-visual-baselines.sh
+```
+
+**When a visual diff is real** (intentional UI change), regenerate baselines and commit the PNGs. **When it's flake** (rare — the setup is fairly hardened), just rerun.
 
 ## Structure
 
@@ -44,6 +71,7 @@ e2e/
 │   └── test.ts     Base `test` with { user, authedPage } fixtures
 ├── pages/          Page-Object-Model wrappers (thin locator bundles)
 ├── tests/          Actual specs — one file per feature area
+├── scripts/        generate-/verify-visual-baselines.sh (Linux snapshot infra)
 ├── auth.setup.ts   Bootstraps the "configured" user + storageState
 ├── global-setup.ts Runs `prisma db push`/`migrate deploy` + initial reset
 └── global-teardown.ts
@@ -63,8 +91,9 @@ No production code changes were needed to enable this — see `e2e/fixtures/auth
 Follows [Playwright best practices](https://playwright.dev/docs/best-practices#use-locators):
 1. `getByRole` / `getByLabel` / `getByText` first — resilient to layout changes.
 2. `t('key.path')` for user-facing strings so tests don't break on copy edits.
-3. `data-testid` only where nothing else works well (calendar cells, etc.).
-   Introduce them **incrementally, only when a test needs one** — no bulk sprinkling.
+3. `data-testid` only where nothing else works well. Currently used exclusively
+   for `data-date` on calendar day cells (a machine-friendly hook parallel
+   to the localized `aria-label`).
 
 ## Adding a test
 
@@ -77,4 +106,5 @@ Follows [Playwright best practices](https://playwright.dev/docs/best-practices#u
 
 The `e2e` job in `.github/workflows/build.yml` runs on every PR:
 Postgres service → `npx playwright install chromium` → `npm run test:e2e`.
-On failure it uploads `playwright-report/` and `test-results/` as artifacts.
+On failure it uploads `playwright-report/` and `test-results/` as artifacts
+(traces, screenshots, videos, and visual-regression diff PNGs).

@@ -21,7 +21,10 @@ import dotenv from 'dotenv'
 
 const envTestPath = path.resolve(__dirname, '.env.test')
 if (fs.existsSync(envTestPath)) {
-  dotenv.config({ path: envTestPath, override: true })
+  // override: false — the shell env wins if a variable is already set.
+  // This lets CI / Docker containers override DATABASE_URL etc. without
+  // needing to edit the tracked .env.test file.
+  dotenv.config({ path: envTestPath, override: false })
 }
 
 // Shroud developer's real .env for the duration of the run — Next.js and

@@ -65,6 +65,7 @@ function SortableLocationItem({
     >
       <button
         className="touch-none cursor-grab active:cursor-grabbing p-0.5 text-text-tertiary hover:text-text-secondary"
+        aria-label={t('reorderLocation', { name: location.name })}
         {...attributes}
         {...listeners}
       >
@@ -88,6 +89,7 @@ function SortableLocationItem({
       <button
         onClick={() => onToggleVisibility(location.id)}
         className="rounded p-1 text-text-tertiary hover:bg-surface-secondary hover:text-foreground transition-colors"
+        aria-label={t(isHidden ? 'showLocationOnDashboard' : 'hideLocationFromDashboard', { name: location.name })}
         title={t('showOnDashboard')}
       >
         {isHidden ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -95,12 +97,14 @@ function SortableLocationItem({
       <button
         onClick={() => onEdit(location)}
         className="rounded p-1 text-text-tertiary hover:bg-surface-secondary hover:text-foreground transition-colors"
+        aria-label={t('editLocationName', { name: location.name })}
       >
         <Pencil className="h-4 w-4" />
       </button>
       <button
         onClick={() => onRemove(location.id)}
         className="rounded p-1 text-gray-500 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
+        aria-label={t('deleteLocationName', { name: location.name })}
       >
         <Trash2 className="h-4 w-4" />
       </button>
@@ -260,6 +264,7 @@ export function LocationSettings({ onReady, dashboardHidden, onToggleVisibility 
                 <button
                   onClick={() => onToggleVisibility(item.id)}
                   className="rounded p-1 text-text-tertiary hover:bg-surface-secondary hover:text-foreground transition-colors"
+                  aria-label={t(dashboardHidden.has(item.id) ? 'showLocationOnDashboard' : 'hideLocationFromDashboard', { name: t(item.labelKey) })}
                   title={t('showOnDashboard')}
                 >
                   {dashboardHidden.has(item.id) ? (
@@ -276,8 +281,13 @@ export function LocationSettings({ onReady, dashboardHidden, onToggleVisibility 
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="mx-4 my-[calc(1rem+var(--sai-top))] max-h-[calc(100dvh-2rem-var(--sai-top)-var(--sai-bottom))] w-full max-w-md overflow-y-auto rounded-xl border border-border bg-surface p-6 shadow-overlay">
-            <h3 className="mb-4 text-lg font-semibold text-text-primary">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="location-modal-title"
+            className="mx-4 my-[calc(1rem+var(--sai-top))] max-h-[calc(100dvh-2rem-var(--sai-top)-var(--sai-bottom))] w-full max-w-md overflow-y-auto rounded-xl border border-border bg-surface p-6 shadow-overlay"
+          >
+            <h3 id="location-modal-title" className="mb-4 text-lg font-semibold text-text-primary">
               {editing ? t('editLocation') : t('addLocation')}
             </h3>
 
