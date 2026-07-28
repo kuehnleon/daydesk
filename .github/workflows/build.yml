@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [master]
 
+# Cancel superseded PR runs; give each tag its own group so releases never
+# cancel each other mid-publish.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 
@@ -35,7 +41,6 @@ jobs:
 
   test:
     name: Test
-    needs: lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -53,10 +58,74 @@ jobs:
       - name: Run tests
         run: npm test
 
+  e2e:
+    name: E2E (Playwright)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: daydesk_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # All static env values live in .env.test (checked into the repo).
+      # Playwright's config loads it. Only truly-per-run values live here.
+      PLAYWRIGHT_USE_BUILD: '1'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate throwaway VAPID keys
+        run: |
+          node -e "const k=require('web-push').generateVAPIDKeys();\
+            console.log('VAPID_PUBLIC_KEY='+k.publicKey);\
+            console.log('VAPID_PRIVATE_KEY='+k.privateKey);" >> "$GITHUB_ENV"
+
+      - name: Prisma generate
+        run: npx prisma generate
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+      - name: Upload traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: test-results/
+          retention-days: 7
+
   build-docker:
     name: Build Docker Image
-    needs: [lint, test]
-    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [lint, test, e2e]
     runs-on: ubuntu-24.04-arm
     permissions:
       contents: read
@@ -70,6 +139,7 @@ jobs:
         uses: docker/setup-buildx-action@v4
 
       - name: Log in to Container Registry
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
@@ -78,6 +148,7 @@ jobs:
 
       - name: Get version from tag
         id: version
+        if: startsWith(github.ref, 'refs/tags/v')
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
@@ -87,10 +158,11 @@ jobs:
         with:
           context: .
           platforms: linux/arm64
-          push: true
+          # Push only on tag pushes; PR builds are smoke-tests, kept local.
+          push: ${{ startsWith(github.ref, 'refs/tags/v') }}
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version || 'pr' }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ startsWith(github.ref, 'refs/tags/v') && 'latest' || format('pr-{0}', github.event.pull_request.number) }}
 
   build-helm:
     name: Package Helm Chart
