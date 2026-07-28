@@ -20,6 +20,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "PWDEBUG=1 playwright test",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
@@ -54,6 +57,7 @@
     "effect": "3.20.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -62,6 +66,8 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/web-push": "^3.6.4",
+    "dotenv": "^17.4.2",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^9.0.0",
     "eslint-config-next": "16.2.1",
     "happy-dom": "^20.9.0",
