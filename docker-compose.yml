@@ -10,6 +10,23 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  # Disposable Postgres for the e2e test suite. Uses host port 5433 so it can
+  # run alongside the dev `postgres` service (5432). `.env.test` targets 5433.
+  #
+  # Start with: `docker compose --profile e2e up -d postgres-e2e`
+  # Stop with:  `docker compose --profile e2e stop postgres-e2e`
+  #             `docker compose --profile e2e rm -f postgres-e2e`  (also wipes data)
+  postgres-e2e:
+    profiles: ["e2e"]
+    image: postgres:17-alpine
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=daydesk_test
+    # Ephemeral — no volume mount, so `rm` wipes it.
+
   app:
     image: node:20-alpine
     working_dir: /app
