@@ -42,7 +42,7 @@ const VIEWPORTS = [
  * Seed a deterministic dataset for the frozen instant.
  * Called by the setup fixture below (via test.beforeAll analogue).
  */
-async function seedStableDataset(baseURL: string) {
+async function seedStableDataset() {
   await resetDb()
 
   const user = await createUser({
@@ -111,9 +111,8 @@ for (const theme of THEMES) {
         })
 
         let userInfo: { id: string; email: string; name: string }
-        test.beforeAll(async ({ baseURL }) => {
-          if (!baseURL) throw new Error('baseURL missing')
-          userInfo = await seedStableDataset(baseURL)
+        test.beforeAll(async () => {
+          userInfo = await seedStableDataset()
         })
 
         for (const pg of PAGES) {

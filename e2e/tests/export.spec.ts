@@ -9,9 +9,8 @@ import path from 'node:path'
 
 test.describe('export', () => {
   test('exports a CSV with the seeded rows', async ({ authedPage, user }) => {
-    // Seed 3 attendance days in a known range.
+    // Seed 3 attendance days in a known range (Mon 6 Jul 2026 → Wed 8 Jul 2026).
     const loc = await seedLocation(user.id, 'Office X', { color: '#3B5BDB' })
-    const start = new Date(2026, 6, 6) // Mon 6 Jul 2026
     for (const dayOffset of [0, 1, 2]) {
       await seedAttendance(user.id, new Date(2026, 6, 6 + dayOffset), 'office', { locationId: loc.id })
     }
