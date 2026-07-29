@@ -69,7 +69,9 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: daydesk_test
         ports:
-          - 5432:5432
+          # Host port matches the one baked into .env.test so no override is
+          # needed in this job's `env:` block.
+          - 5433:5432
         options: >-
           --health-cmd "pg_isready -U postgres"
           --health-interval 5s

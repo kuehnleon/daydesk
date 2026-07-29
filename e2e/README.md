@@ -13,9 +13,21 @@ Browser-driven tests using [Playwright](https://playwright.dev/) that exercise t
 
 ## Running locally
 
+You need a Postgres instance the tests can wipe and repopulate. Everything is
+wired up in the repo's `docker-compose.yml` under an `e2e` profile so it can
+coexist with the dev database on the same host.
+
 ```bash
-# 1. Start Postgres (the docker-compose service is fine — no need to start the app)
-docker compose up -d postgres
+# 1. Start the e2e test Postgres (published on host port 5433 so it doesn't
+#    clash with the dev DB on 5432).
+docker compose --profile e2e up -d postgres-e2e
+# `--profile e2e up -d` (without a service name) works too — postgres-e2e is
+# the only profile-tagged service — but it also spins up the profile-less
+# `postgres` and `app` services, which is usually not what you want for a
+# test run.
+#
+# Stop + wipe with:
+#   docker compose --profile e2e rm -f -s postgres-e2e
 
 # 2. Fill in throwaway VAPID keys in .env.test (one-time, values stay local).
 #    `next build` validates them as real P-256 keys.

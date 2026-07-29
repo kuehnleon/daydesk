@@ -14,6 +14,7 @@ import {
   X,
 } from 'lucide-react'
 import type { Location, Transport, CalendarAttendance } from '@/types'
+import { TransportPicker } from '@/components/dashboard/transport-picker'
 
 interface AttendanceModalProps {
   selectedDates: Set<string>
@@ -132,56 +133,12 @@ export function AttendanceModal({
 
                   {/* Transport Options */}
                   <div className="p-3">
-                    <div className="grid gap-2">
-                      {transports.map(transport => {
-                        const isTransportSelected = selectedTransportId === transport.id
-                        const isDefault = transport.id === location.transportId
-                        return (
-                          <button
-                            key={transport.id}
-                            onClick={() => setSelectedTransportId(transport.id)}
-                            className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-all ${
-                              isTransportSelected
-                                ? 'bg-white/25 ring-2 ring-white/50'
-                                : 'bg-white/10 hover:bg-white/20'
-                            }`}
-                          >
-                            <div className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
-                              isTransportSelected ? 'border-white bg-white' : 'border-white/60'
-                            }`}>
-                              {isTransportSelected && (
-                                <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: location.color }} />
-                              )}
-                            </div>
-                            <span className="flex-1 font-medium">{transport.name}</span>
-                            {isDefault && (
-                              <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs">{t('default')}</span>
-                            )}
-                          </button>
-                        )
-                      })}
-                      {/* No transport option */}
-                      <button
-                        onClick={() => setSelectedTransportId(null)}
-                        className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-all ${
-                          selectedTransportId === null
-                            ? 'bg-white/25 ring-2 ring-white/50'
-                            : 'bg-white/10 hover:bg-white/20'
-                        }`}
-                      >
-                        <div className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
-                          selectedTransportId === null ? 'border-white bg-white' : 'border-white/60'
-                        }`}>
-                          {selectedTransportId === null && (
-                            <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: location.color }} />
-                          )}
-                        </div>
-                        <span className="flex-1 font-medium">{t('noTransport')}</span>
-                        {!location.transportId && (
-                          <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs">{t('default')}</span>
-                        )}
-                      </button>
-                    </div>
+                    <TransportPicker
+                      location={location}
+                      transports={transports}
+                      selectedTransportId={selectedTransportId}
+                      onSelect={setSelectedTransportId}
+                    />
                   </div>
 
                   {/* Save Button */}

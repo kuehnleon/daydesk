@@ -13,7 +13,9 @@ import { minLoadingDelay } from '@/lib/loading'
 import { hapticSuccess } from '@/lib/haptic'
 import { enqueue } from '@/lib/offline-queue'
 import { clearAttendanceNotifications } from '@/lib/push-utils'
-import type { Location } from '@/types'
+import { useLongPress } from '@/hooks/useLongPress'
+import { CardActionModal, type CardTarget } from '@/components/dashboard/card-action-modal'
+import type { Location, Transport } from '@/types'
 
 interface TodayAttendance {
   type: string
@@ -22,12 +24,69 @@ interface TodayAttendance {
   notes: string | null
 }
 
+/**
+ * Single dashboard card with a click / long-press gesture. Extracted so
+ * `useLongPress` can be called at the top-level of the card component,
+ * one hook instance per card (rules-of-hooks compliant even though the
+ * card list is dynamic).
+ */
+interface DashboardCardProps {
+  onClick: () => void
+  onLongPress: () => void
+  disabled: boolean
+  className: string
+  style?: React.CSSProperties
+  selectedStyle?: React.CSSProperties
+  hoverColor?: string
+  baseColor?: string
+  children: React.ReactNode
+}
+
+function DashboardCard({
+  onClick,
+  onLongPress,
+  disabled,
+  className,
+  style,
+  selectedStyle,
+  hoverColor,
+  baseColor,
+  children,
+}: DashboardCardProps) {
+  const handlers = useLongPress({ onClick, onLongPress, disabled })
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      className={className}
+      style={{ ...style, ...selectedStyle }}
+      onMouseDown={handlers.onMouseDown}
+      onMouseUp={handlers.onMouseUp}
+      onMouseLeave={(e) => {
+        handlers.onMouseLeave()
+        if (baseColor) e.currentTarget.style.backgroundColor = baseColor
+      }}
+      onMouseEnter={(e) => {
+        if (!disabled && hoverColor) e.currentTarget.style.backgroundColor = hoverColor
+      }}
+      onTouchStart={handlers.onTouchStart}
+      onTouchMove={handlers.onTouchMove}
+      onTouchEnd={handlers.onTouchEnd}
+      onContextMenu={handlers.onContextMenu}
+    >
+      {children}
+    </button>
+  )
+}
+
 export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingInitial, setIsLoadingInitial] = useState(true)
   const [todayAttendance, setTodayAttendance] = useState<TodayAttendance | null>(null)
   const [locations, setLocations] = useState<Location[]>([])
+  const [transports, setTransports] = useState<Transport[]>([])
   const [dashboardHidden, setDashboardHidden] = useState<Set<string>>(new Set())
+  const [modalTarget, setModalTarget] = useState<CardTarget | null>(null)
   const { showToast } = useToast()
   const t = useTranslations('dashboard')
   const locale = useLocale()
@@ -37,7 +96,13 @@ export default function Dashboard() {
   const today = format(new Date(), 'yyyy-MM-dd')
 
   useEffect(() => {
-    Promise.all([fetchTodayAttendance(), fetchLocations(), fetchDashboardHidden(), minLoadingDelay()]).finally(() => {
+    Promise.all([
+      fetchTodayAttendance(),
+      fetchLocations(),
+      fetchTransports(),
+      fetchDashboardHidden(),
+      minLoadingDelay(),
+    ]).finally(() => {
       setIsLoadingInitial(false)
     })
   }, [])
@@ -82,6 +147,17 @@ export default function Dashboard() {
     }
   }
 
+  const fetchTransports = async () => {
+    try {
+      const response = await fetch('/api/transports')
+      if (response.ok) {
+        setTransports(await response.json())
+      }
+    } catch (error) {
+      console.error('Error fetching transports:', error)
+    }
+  }
+
   const fetchDashboardHidden = async () => {
     try {
       const response = await fetch('/api/settings')
@@ -103,7 +179,8 @@ export default function Dashboard() {
   const logAttendance = async (
     type: string,
     transportId: string | null,
-    locationId: string | null = null
+    locationId: string | null = null,
+    notes: string | null = null,
   ) => {
     setIsLoading(true)
     try {
@@ -115,11 +192,12 @@ export default function Dashboard() {
           type,
           transportId,
           locationId,
+          notes,
         }),
       })
 
       if (response.ok) {
-        setTodayAttendance({ type, transportId, locationId, notes: null })
+        setTodayAttendance({ type, transportId, locationId, notes })
         hapticSuccess()
         showToast(t('attendanceLogged'), 'success')
         clearAttendanceNotifications()
@@ -128,8 +206,8 @@ export default function Dashboard() {
       }
     } catch {
       if (!navigator.onLine) {
-        await enqueue({ date: today, type, transportId, locationId })
-        setTodayAttendance({ type, transportId, locationId, notes: null })
+        await enqueue({ date: today, type, transportId, locationId, notes: notes ?? undefined })
+        setTodayAttendance({ type, transportId, locationId, notes })
         hapticSuccess()
         showToast(t('savedOffline'), 'success')
         clearAttendanceNotifications()
@@ -139,6 +217,16 @@ export default function Dashboard() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleModalSave = async (transportId: string | null, notes: string | null) => {
+    if (!modalTarget) return
+    if (modalTarget.kind === 'location') {
+      await logAttendance('office', transportId, modalTarget.location.id, notes)
+    } else {
+      await logAttendance(modalTarget.kind, null, null, notes)
+    }
+    setModalTarget(null)
   }
 
   const isSelectedLocation = (locationId: string) => {
@@ -202,25 +290,22 @@ export default function Dashboard() {
               {locations.filter((location) => !dashboardHidden.has(location.id)).map((location) => {
                 const selected = isSelectedLocation(location.id)
                 return (
-                  <button
+                  <DashboardCard
                     key={location.id}
                     onClick={() => logAttendance('office', location.transportId, location.id)}
+                    onLongPress={() =>
+                      setModalTarget({ kind: 'location', location, transports })
+                    }
                     disabled={isLoading}
                     className={baseButtonClasses}
-                    style={{
-                      backgroundColor: location.color,
-                      boxShadow: selected
-                        ? `0 0 0 4px white, 0 0 0 6px ${location.color}`
-                        : undefined,
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isLoading) {
-                        e.currentTarget.style.backgroundColor = darkenColor(location.color)
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = location.color
-                    }}
+                    baseColor={location.color}
+                    hoverColor={darkenColor(location.color)}
+                    style={{ backgroundColor: location.color }}
+                    selectedStyle={
+                      selected
+                        ? { boxShadow: `0 0 0 4px white, 0 0 0 6px ${location.color}` }
+                        : undefined
+                    }
                   >
                     <Building2 className="mb-3 h-12 w-12" />
                     <span className="text-lg font-semibold">{location.name}</span>
@@ -230,57 +315,66 @@ export default function Dashboard() {
                     {location.distance && (
                       <span className="mt-1 text-xs opacity-75">{location.distance} km</span>
                     )}
-                  </button>
+                  </DashboardCard>
                 )
               })}
 
               {!dashboardHidden.has('home') && (
-              <button
-                onClick={() => logAttendance('home', null, null)}
-                disabled={isLoading}
-                className={`${baseButtonClasses} bg-emerald-500 hover:bg-emerald-600 ${
-                  isSelectedHomeOffice()
-                    ? 'ring-4 ring-emerald-300 ring-offset-2 dark:ring-emerald-400 dark:ring-offset-background'
-                    : ''
-                }`}
-              >
-                <Home className="mb-3 h-12 w-12" />
-                <span className="text-lg font-semibold">{t('homeOffice')}</span>
-              </button>
+                <DashboardCard
+                  onClick={() => logAttendance('home', null, null)}
+                  onLongPress={() => setModalTarget({ kind: 'home' })}
+                  disabled={isLoading}
+                  className={`${baseButtonClasses} bg-emerald-500 hover:bg-emerald-600 ${
+                    isSelectedHomeOffice()
+                      ? 'ring-4 ring-emerald-300 ring-offset-2 dark:ring-emerald-400 dark:ring-offset-background'
+                      : ''
+                  }`}
+                >
+                  <Home className="mb-3 h-12 w-12" />
+                  <span className="text-lg font-semibold">{t('homeOffice')}</span>
+                </DashboardCard>
               )}
 
               {!dashboardHidden.has('off') && (
-              <button
-                onClick={() => logAttendance('off', null, null)}
-                disabled={isLoading}
-                className={`${baseButtonClasses} bg-amber-500 hover:bg-amber-600 ${
-                  isSelectedType('off')
-                    ? 'ring-4 ring-amber-300 ring-offset-2 dark:ring-amber-400 dark:ring-offset-background'
-                    : ''
-                }`}
-              >
-                <Palmtree className="mb-3 h-12 w-12" />
-                <span className="text-lg font-semibold">{t('dayOff')}</span>
-              </button>
+                <DashboardCard
+                  onClick={() => logAttendance('off', null, null)}
+                  onLongPress={() => setModalTarget({ kind: 'off' })}
+                  disabled={isLoading}
+                  className={`${baseButtonClasses} bg-amber-500 hover:bg-amber-600 ${
+                    isSelectedType('off')
+                      ? 'ring-4 ring-amber-300 ring-offset-2 dark:ring-amber-400 dark:ring-offset-background'
+                      : ''
+                  }`}
+                >
+                  <Palmtree className="mb-3 h-12 w-12" />
+                  <span className="text-lg font-semibold">{t('dayOff')}</span>
+                </DashboardCard>
               )}
 
               {!dashboardHidden.has('sick') && (
-              <button
-                onClick={() => logAttendance('sick', null, null)}
-                disabled={isLoading}
-                className={`${baseButtonClasses} bg-red-500 hover:bg-red-600 ${
-                  isSelectedType('sick')
-                    ? 'ring-4 ring-red-300 ring-offset-2 dark:ring-red-400 dark:ring-offset-background'
-                    : ''
-                }`}
-              >
-                <ThermometerSun className="mb-3 h-12 w-12" />
-                <span className="text-lg font-semibold">{t('sick')}</span>
-              </button>
+                <DashboardCard
+                  onClick={() => logAttendance('sick', null, null)}
+                  onLongPress={() => setModalTarget({ kind: 'sick' })}
+                  disabled={isLoading}
+                  className={`${baseButtonClasses} bg-red-500 hover:bg-red-600 ${
+                    isSelectedType('sick')
+                      ? 'ring-4 ring-red-300 ring-offset-2 dark:ring-red-400 dark:ring-offset-background'
+                      : ''
+                  }`}
+                >
+                  <ThermometerSun className="mb-3 h-12 w-12" />
+                  <span className="text-lg font-semibold">{t('sick')}</span>
+                </DashboardCard>
               )}
             </>
           )}
         </div>
+
+        {!isLoadingInitial && (
+          <p className="mt-4 text-center text-xs text-text-tertiary">
+            {t('longPressHint')}
+          </p>
+        )}
 
         {!isLoadingInitial && locations.length === 0 && (
           <p className="mt-4 text-center text-sm text-text-secondary">
@@ -291,6 +385,17 @@ export default function Dashboard() {
           </p>
         )}
       </main>
+
+      {modalTarget && (
+        <CardActionModal
+          target={modalTarget}
+          existing={todayAttendance}
+          today={new Date()}
+          isLoading={isLoading}
+          onSave={handleModalSave}
+          onClose={() => setModalTarget(null)}
+        />
+      )}
     </div>
   )
 }
