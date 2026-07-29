@@ -20,7 +20,9 @@
     "errorLogging": "Fehler beim Eintragen der Anwesenheit",
     "savedOffline": "Offline gespeichert. Wird synchronisiert, sobald die Verbindung wiederhergestellt ist.",
     "addLocationsHint": "Bürostandorte in den Einstellungen hinzufügen",
-    "addLocationsHintSuffix": "um Schnelleintrag-Verknüpfungen für Ihre Arbeitsplätze zu erstellen."
+    "addLocationsHintSuffix": "um Schnelleintrag-Verknüpfungen für Ihre Arbeitsplätze zu erstellen.",
+    "save": "Speichern",
+    "longPressHint": "Halten Sie eine Karte gedrückt oder klicken Sie mit der rechten Maustaste für weitere Optionen (Verkehrsmittel ändern, Notiz hinzufügen)."
   },
   "calendar": {
     "today": "Heute",
