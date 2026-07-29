@@ -6,6 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.13.0] - 2026-07-29
+
+### Added
+
+- Introduce Playwright end-to-end UI test suite (#51)
+- Expand test suite with component/hook/visual coverage (#52)
+- Long-press dashboard cards to pick transport and add notes (#53)
+
+### Miscellaneous
+
+- Bump next from 16.2.6 to 16.2.12 (#49)
+- Bump dompurify from 3.4.10 to 3.4.12 (#47)
+- Bump js-yaml from 4.2.0 to 4.3.0 (#50)
+- Bump next-auth from 4.24.14 to 4.24.15 (#48)
+- Bump ws from 8.20.0 to 8.21.1 (#46)
+
+### Deps
+
+- Lock file maintenance via npm audit fix
+
 ## [0.12.9] - 2026-06-16
 
 ### Miscellaneous
@@ -324,6 +344,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix next auth and middleware
 
+[0.13.0]: https://github.com/kuehnleon/daydesk/compare/v0.12.9...v0.13.0
 [0.12.9]: https://github.com/kuehnleon/daydesk/compare/v0.12.8...v0.12.9
 [0.12.8]: https://github.com/kuehnleon/daydesk/compare/v0.12.7...v0.12.8
 [0.12.7]: https://github.com/kuehnleon/daydesk/compare/v0.12.6...v0.12.7
