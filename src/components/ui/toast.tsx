@@ -43,10 +43,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <div className="fixed bottom-[calc(1rem+var(--sai-bottom))] right-[calc(1rem+var(--sai-right))] z-50 flex flex-col gap-2">
+      <div
+        className="fixed bottom-[calc(1rem+var(--sai-bottom))] right-[calc(1rem+var(--sai-right))] z-50 flex flex-col gap-2"
+        role="region"
+        aria-label="Notifications"
+      >
         {toasts.map((toast) => (
           <div
             key={toast.id}
+            role={toast.type === 'error' ? 'alert' : 'status'}
             className={`flex items-center gap-3 rounded-lg border border-border px-4 py-3 shadow-elevated transition-all duration-300 animate-in slide-in-from-right ${
               toast.type === 'success'
                 ? 'bg-emerald-600 text-white border-emerald-700'
@@ -74,6 +79,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             <button
               onClick={() => removeToast(toast.id)}
               className="ml-2 rounded p-1 hover:bg-white/20"
+              aria-label="Close notification"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

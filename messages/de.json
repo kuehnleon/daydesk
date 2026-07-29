@@ -54,7 +54,8 @@
     "note": "Notiz",
     "notePlaceholder": "z.B. Kundenbesuch, Team-Offsite...",
     "noteCharCount": "{count}/500",
-    "noteHint": "Anwesenheitstyp auswählen, um die Notiz zu speichern"
+    "noteHint": "Anwesenheitstyp auswählen, um die Notiz zu speichern",
+    "close": "Schließen"
   },
   "statistics": {
     "title": "Statistiken",
@@ -149,7 +150,15 @@
     "language": "Sprache",
     "languageHelp": "Sprache der Benutzeroberfläche",
     "english": "English",
-    "german": "Deutsch"
+    "german": "Deutsch",
+    "reorderLocation": "{name} neu anordnen",
+    "reorderTransport": "{name} neu anordnen",
+    "editLocationName": "{name} bearbeiten",
+    "editTransportName": "{name} bearbeiten",
+    "deleteLocationName": "{name} löschen",
+    "deleteTransportName": "{name} löschen",
+    "showLocationOnDashboard": "{name} auf Dashboard anzeigen",
+    "hideLocationFromDashboard": "{name} vom Dashboard ausblenden"
   },
   "days": {
     "monday": "Montag",

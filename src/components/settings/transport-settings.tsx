@@ -35,6 +35,7 @@ function SortableTransportItem({
   onEdit: (transport: Transport) => void
   onRemove: (id: string) => void
 }) {
+  const t = useTranslations('settings')
   const {
     attributes,
     listeners,
@@ -59,6 +60,7 @@ function SortableTransportItem({
     >
       <button
         className="touch-none cursor-grab active:cursor-grabbing p-0.5 text-text-tertiary hover:text-text-secondary"
+        aria-label={t('reorderTransport', { name: transport.name })}
         {...attributes}
         {...listeners}
       >
@@ -70,12 +72,14 @@ function SortableTransportItem({
       <button
         onClick={() => onEdit(transport)}
         className="rounded p-1 text-text-tertiary hover:bg-surface-secondary hover:text-foreground transition-colors"
+        aria-label={t('editTransportName', { name: transport.name })}
       >
         <Pencil className="h-4 w-4" />
       </button>
       <button
         onClick={() => onRemove(transport.id)}
         className="rounded p-1 text-gray-500 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
+        aria-label={t('deleteTransportName', { name: transport.name })}
       >
         <Trash2 className="h-4 w-4" />
       </button>
@@ -203,8 +207,13 @@ export function TransportSettings({ onDataChange, onReady }: TransportSettingsPr
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="mx-4 my-[calc(1rem+var(--sai-top))] max-h-[calc(100dvh-2rem-var(--sai-top)-var(--sai-bottom))] w-full max-w-md overflow-y-auto rounded-xl border border-border bg-surface p-6 shadow-overlay">
-            <h3 className="mb-4 text-lg font-semibold text-text-primary">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="transport-modal-title"
+            className="mx-4 my-[calc(1rem+var(--sai-top))] max-h-[calc(100dvh-2rem-var(--sai-top)-var(--sai-bottom))] w-full max-w-md overflow-y-auto rounded-xl border border-border bg-surface p-6 shadow-overlay"
+          >
+            <h3 id="transport-modal-title" className="mb-4 text-lg font-semibold text-text-primary">
               {editing ? t('editTransport') : t('addTransport')}
             </h3>
 

@@ -70,15 +70,19 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
           onClick={handleCancel}
         >
           <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={options.title ? 'confirm-dialog-title' : undefined}
+            aria-describedby="confirm-dialog-message"
             className="mx-4 w-full max-w-sm rounded-xl border border-border bg-surface p-6 shadow-overlay"
             onClick={(e) => e.stopPropagation()}
           >
             {options.title && (
-              <h3 className="mb-2 text-lg font-semibold text-text-primary">
+              <h3 id="confirm-dialog-title" className="mb-2 text-lg font-semibold text-text-primary">
                 {options.title}
               </h3>
             )}
-            <p className="text-sm text-text-secondary">{options.message}</p>
+            <p id="confirm-dialog-message" className="text-sm text-text-secondary">{options.message}</p>
             <div className="mt-6 flex gap-3">
               <button
                 autoFocus

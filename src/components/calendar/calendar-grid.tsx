@@ -317,6 +317,8 @@ export function CalendarGrid({
           return (
             <button
               key={dateStr}
+              data-date={dateStr}
+              aria-label={format(day, 'EEEE, MMMM d, yyyy')}
               onMouseDown={(e) => !isDayDisabled && handleMouseDown(day, e)}
               onMouseEnter={() => handleMouseEnter(day)}
               onTouchStart={() => !isDayDisabled && handleTouchStart(day)}

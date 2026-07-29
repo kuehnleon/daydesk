@@ -75,13 +75,20 @@ export function AttendanceModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
-      <div className="mx-4 my-[calc(1rem+var(--sai-top))] max-h-[calc(100dvh-2rem-var(--sai-top)-var(--sai-bottom))] w-full max-w-lg overflow-y-auto rounded-xl border border-border bg-surface p-6 shadow-overlay" onClick={(e) => e.stopPropagation()}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="attendance-modal-title"
+        className="mx-4 my-[calc(1rem+var(--sai-top))] max-h-[calc(100dvh-2rem-var(--sai-top)-var(--sai-bottom))] w-full max-w-lg overflow-y-auto rounded-xl border border-border bg-surface p-6 shadow-overlay"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="mb-6 flex items-center justify-between">
-          <h3 className="text-xl font-semibold tracking-tight text-text-primary">
+          <h3 id="attendance-modal-title" className="text-xl font-semibold tracking-tight text-text-primary">
             {getModalTitle()}
           </h3>
           <button
             onClick={onClose}
+            aria-label={t('close')}
             className="rounded-lg p-2 text-text-tertiary hover:bg-surface-secondary hover:text-foreground transition-colors"
           >
             <X className="h-5 w-5" />
