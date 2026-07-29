@@ -108,16 +108,29 @@ jobs:
         run: npm run test:e2e
 
       - name: Upload Playwright report
-        if: failure()
-        uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
 
+      - name: Upload visual regression baselines + diffs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: visual-regression
+          # The committed baselines (always) + any actual/diff PNGs written
+          # by failing visual tests (only present on failure).
+          path: |
+            e2e/tests/visual-regression.spec.ts-snapshots/**
+            test-results/**/visual-regression*/**
+          retention-days: 14
+          if-no-files-found: ignore
+
       - name: Upload traces
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-traces
           path: test-results/
