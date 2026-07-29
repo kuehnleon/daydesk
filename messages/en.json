@@ -20,7 +20,9 @@
     "errorLogging": "Error logging attendance",
     "savedOffline": "Saved offline. Will sync when you reconnect.",
     "addLocationsHint": "Add office locations in Settings",
-    "addLocationsHintSuffix": "to create quick-log shortcuts for your workplaces."
+    "addLocationsHintSuffix": "to create quick-log shortcuts for your workplaces.",
+    "save": "Save",
+    "longPressHint": "Hold or right-click a card for more options (change transport, add a note)."
   },
   "calendar": {
     "today": "Today",
