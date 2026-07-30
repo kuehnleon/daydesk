@@ -45,6 +45,11 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 
+# Prisma 7 reads datasource URL from prisma.config.ts at CLI-invocation
+# time (used by the migrate initContainer). Without this the CLI errors
+# with "datasource.url property is required".
+COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
+
 # Copy generated Prisma client
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
