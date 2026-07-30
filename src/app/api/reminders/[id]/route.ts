@@ -2,11 +2,13 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { withLogging } from '@/lib/api-utils'
+import logger from '@/lib/logger'
 
 export const DELETE = withLogging(async (_request, { params }) => {
   const session = await auth()
 
   if (!session?.user?.id) {
+    logger.warn({ path: '/api/reminders/[id]' }, 'unauthorized')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -19,5 +21,6 @@ export const DELETE = withLogging(async (_request, { params }) => {
 
   await prisma.reminderTime.delete({ where: { id } })
 
+  logger.info({ userId: session.user.id, reminderId: id }, 'reminder deleted')
   return NextResponse.json({ success: true })
 })

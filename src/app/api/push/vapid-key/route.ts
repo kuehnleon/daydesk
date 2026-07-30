@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { withLogging } from '@/lib/api-utils'
+import logger from '@/lib/logger'
 
 export const GET = withLogging(async () => {
   const session = await auth()
   if (!session?.user?.id) {
+    logger.warn({ path: '/api/push/vapid-key' }, 'unauthorized')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

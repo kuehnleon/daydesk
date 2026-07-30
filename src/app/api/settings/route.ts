@@ -3,11 +3,13 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { updateSettingsSchema } from '@/lib/validations'
 import { withLogging } from '@/lib/api-utils'
+import logger from '@/lib/logger'
 
 export const GET = withLogging(async () => {
   const session = await auth()
 
   if (!session?.user?.id) {
+    logger.warn({ path: '/api/settings' }, 'unauthorized')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -46,6 +48,7 @@ export const PATCH = withLogging(async (request) => {
   const session = await auth()
 
   if (!session?.user?.id) {
+    logger.warn({ path: '/api/settings' }, 'unauthorized')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -55,6 +58,7 @@ export const PATCH = withLogging(async (request) => {
   }
   const parsed = updateSettingsSchema.safeParse(body)
   if (!parsed.success) {
+    logger.warn({ userId: session.user.id, issues: parsed.error.flatten() }, 'validation failed')
     return NextResponse.json(
       { error: 'Validation failed', details: parsed.error.flatten() },
       { status: 400 }
@@ -77,5 +81,6 @@ export const PATCH = withLogging(async (request) => {
     },
   })
 
+  logger.info({ userId: session.user.id, fields: Object.keys(parsed.data) }, 'settings updated')
   return NextResponse.json(user)
 })

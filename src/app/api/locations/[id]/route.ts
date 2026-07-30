@@ -3,11 +3,13 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { updateLocationSchema } from '@/lib/validations'
 import { withLogging } from '@/lib/api-utils'
+import logger from '@/lib/logger'
 
 export const PATCH = withLogging(async (request, { params }) => {
   const session = await auth()
 
   if (!session?.user?.id) {
+    logger.warn({ path: '/api/locations/[id]' }, 'unauthorized')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -18,6 +20,7 @@ export const PATCH = withLogging(async (request, { params }) => {
   }
   const parsed = updateLocationSchema.safeParse(body)
   if (!parsed.success) {
+    logger.warn({ userId: session.user.id, issues: parsed.error.flatten() }, 'validation failed')
     return NextResponse.json(
       { error: 'Validation failed', details: parsed.error.flatten() },
       { status: 400 }
@@ -46,6 +49,7 @@ export const PATCH = withLogging(async (request, { params }) => {
     include: { transport: true },
   })
 
+  logger.info({ userId: session.user.id, locationId: id }, 'location updated')
   return NextResponse.json(location)
 })
 
@@ -53,6 +57,7 @@ export const DELETE = withLogging(async (request, { params }) => {
   const session = await auth()
 
   if (!session?.user?.id) {
+    logger.warn({ path: '/api/locations/[id]' }, 'unauthorized')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -71,5 +76,6 @@ export const DELETE = withLogging(async (request, { params }) => {
     where: { id },
   })
 
+  logger.info({ userId: session.user.id, locationId: id }, 'location deleted')
   return NextResponse.json({ success: true })
 })

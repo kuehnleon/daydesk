@@ -5,18 +5,21 @@ import { sendPushNotification } from '@/lib/web-push'
 import { getCurrentTimeInTimezone, getDayOfWeekInTimezone, getTodayDateInTimezone } from '@/lib/timezone'
 import { isDateHoliday } from '@/lib/holidays'
 import { withLogging } from '@/lib/api-utils'
+import logger from '@/lib/logger'
 
 export const POST = withLogging(async (request) => {
   const authHeader = request.headers.get('authorization')
   const expectedSecret = process.env.PUSH_API_SECRET
 
   if (!expectedSecret || !authHeader) {
+    logger.warn({ path: '/api/push/send' }, 'unauthorized')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const expected = Buffer.from(`Bearer ${expectedSecret}`)
   const actual = Buffer.from(authHeader)
   if (expected.length !== actual.length || !timingSafeEqual(expected, actual)) {
+    logger.warn({ path: '/api/push/send' }, 'unauthorized')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -114,5 +117,6 @@ export const POST = withLogging(async (request) => {
     }
   }
 
+  logger.info({ notified, errors, cleaned, targetUserIds: Array.from(notifiedUsers) }, 'push notifications sent')
   return NextResponse.json({ notified, errors, cleaned })
 })

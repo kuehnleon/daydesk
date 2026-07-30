@@ -3,10 +3,12 @@ import { auth } from '@/lib/auth'
 import { holidaysQuerySchema } from '@/lib/validations'
 import { withLogging } from '@/lib/api-utils'
 import { fetchHolidaysFromApi } from '@/lib/holidays'
+import logger from '@/lib/logger'
 
 export const GET = withLogging(async (request) => {
   const session = await auth()
   if (!session?.user?.id) {
+    logger.warn({ path: '/api/holidays' }, 'unauthorized')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -14,6 +16,7 @@ export const GET = withLogging(async (request) => {
   const query = Object.fromEntries(searchParams.entries())
   const parsed = holidaysQuerySchema.safeParse(query)
   if (!parsed.success) {
+    logger.warn({ userId: session.user.id, issues: parsed.error.flatten() }, 'validation failed')
     return NextResponse.json(
       { error: 'Validation failed', details: parsed.error.flatten() },
       { status: 400 }

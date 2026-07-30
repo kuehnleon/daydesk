@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth'
 import { withLogging } from '@/lib/api-utils'
 import { countryCodeSchema } from '@/lib/validations'
 import iso3166 from 'iso-3166-2'
+import logger from '@/lib/logger'
 
 interface Holiday {
   counties: string[] | null
@@ -24,12 +25,14 @@ const regionsCache = new Map<string, CacheEntry>()
 export const GET = withLogging(async (_request, context) => {
   const session = await auth()
   if (!session?.user?.id) {
+    logger.warn({ path: '/api/countries/[country]/regions' }, 'unauthorized')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const { country } = await context.params
   const parsed = countryCodeSchema.safeParse(country)
   if (!parsed.success) {
+    logger.warn({ userId: session.user.id, issues: parsed.error.flatten() }, 'validation failed')
     return NextResponse.json(
       { error: 'Invalid country code' },
       { status: 400 }
