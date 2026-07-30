@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { withLogging } from '@/lib/api-utils'
+import logger from '@/lib/logger'
 
 interface AvailableCountry {
   countryCode: string
@@ -18,6 +19,7 @@ let countriesCache: CacheEntry | null = null
 export const GET = withLogging(async () => {
   const session = await auth()
   if (!session?.user?.id) {
+    logger.warn({ path: '/api/countries' }, 'unauthorized')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

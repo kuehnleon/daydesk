@@ -7,6 +7,7 @@ import autoTable from 'jspdf-autotable'
 import type { AttendanceWithRelations } from '@/types'
 import { exportQuerySchema } from '@/lib/validations'
 import { withLogging } from '@/lib/api-utils'
+import logger from '@/lib/logger'
 
 interface jsPDFWithAutoTable extends jsPDF {
   lastAutoTable: { finalY: number }
@@ -16,6 +17,7 @@ export const GET = withLogging(async (request) => {
   const session = await auth()
 
   if (!session?.user?.id) {
+    logger.warn({ path: '/api/export' }, 'unauthorized')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -23,6 +25,7 @@ export const GET = withLogging(async (request) => {
   const query = Object.fromEntries(searchParams.entries())
   const parsed = exportQuerySchema.safeParse(query)
   if (!parsed.success) {
+    logger.warn({ userId: session.user.id, issues: parsed.error.flatten() }, 'validation failed')
     return NextResponse.json(
       { error: 'Validation failed', details: parsed.error.flatten() },
       { status: 400 }

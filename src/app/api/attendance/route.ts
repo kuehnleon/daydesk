@@ -4,11 +4,13 @@ import { prisma } from '@/lib/db'
 import { startOfMonth, endOfMonth } from 'date-fns'
 import { getAttendanceQuerySchema, createAttendanceSchema } from '@/lib/validations'
 import { withLogging } from '@/lib/api-utils'
+import logger from '@/lib/logger'
 
 export const GET = withLogging(async (request) => {
   const session = await auth()
 
   if (!session?.user?.id) {
+    logger.warn({ path: '/api/attendance' }, 'unauthorized')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -16,6 +18,7 @@ export const GET = withLogging(async (request) => {
   const query = Object.fromEntries(searchParams.entries())
   const parsed = getAttendanceQuerySchema.safeParse(query)
   if (!parsed.success) {
+    logger.warn({ userId: session.user.id, issues: parsed.error.flatten() }, 'validation failed')
     return NextResponse.json(
       { error: 'Validation failed', details: parsed.error.flatten() },
       { status: 400 }
@@ -62,6 +65,7 @@ export const POST = withLogging(async (request) => {
   const session = await auth()
 
   if (!session?.user?.id) {
+    logger.warn({ path: '/api/attendance' }, 'unauthorized')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -71,6 +75,7 @@ export const POST = withLogging(async (request) => {
   }
   const parsed = createAttendanceSchema.safeParse(body)
   if (!parsed.success) {
+    logger.warn({ userId: session.user.id, issues: parsed.error.flatten() }, 'validation failed')
     return NextResponse.json(
       { error: 'Validation failed', details: parsed.error.flatten() },
       { status: 400 }
@@ -105,5 +110,6 @@ export const POST = withLogging(async (request) => {
     },
   })
 
+  logger.info({ userId: session.user.id, attendanceId: attendance.id, date, type }, 'attendance upserted')
   return NextResponse.json(attendance)
 })
