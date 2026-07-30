@@ -71,6 +71,13 @@ spec:
             - secretRef:
                 name: {{ include "daydesk.vapidSecretName" . }}
             {{- end }}
+          # Explicit env: entries take precedence over envFrom, so PORT
+          # cannot be shadowed by a stray key in one of the mounted secrets.
+          env:
+            - name: PORT
+              value: {{ .Values.service.targetPort | quote }}
+            - name: HOSTNAME
+              value: "0.0.0.0"
           {{- with .Values.startupProbe }}
           startupProbe:
             {{- toYaml . | nindent 12 }}
