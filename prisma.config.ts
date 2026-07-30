@@ -1,4 +1,3 @@
-import 'dotenv/config'
 import { defineConfig } from 'prisma/config'
 
 /**
@@ -8,6 +7,11 @@ import { defineConfig } from 'prisma/config'
  *
  * `DIRECT_URL` is preferred when set (Supabase/PgBouncer setups use it for
  * migrations while the app talks to the pooled `DATABASE_URL`).
+ *
+ * NOTE: `dotenv` is intentionally NOT imported here. It's a devDep and would
+ * crash the production runtime image. The Prisma CLI loads `.env` natively
+ * for local development, and in production env vars come from the
+ * Kubernetes secret via envFrom.
  */
 export default defineConfig({
   schema: 'prisma/schema.prisma',
