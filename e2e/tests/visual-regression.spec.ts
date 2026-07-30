@@ -16,7 +16,7 @@
  */
 import { test, expect, type Page } from '@playwright/test'
 import { makeSessionCookie } from '../fixtures/auth'
-import { resetDb } from '../fixtures/db'
+import { resetDb, prisma } from '../fixtures/db'
 import { createUser, seedLocation, seedTransport, seedAttendance } from '../fixtures/seed'
 
 /** Frozen wall clock; matches the dataset the tests seed below. */
@@ -60,11 +60,9 @@ async function seedStableDataset() {
 
   // Attendance: 5 days in July 2026 (before the frozen "today" of Jul 15).
   const days = [1, 2, 6, 7, 8]
-  const locations = await import('@prisma/client').then(async ({ PrismaClient }) => {
-    const p = new PrismaClient()
-    const l = await p.location.findMany({ where: { userId: user.id }, orderBy: { sortOrder: 'asc' } })
-    await p.$disconnect()
-    return l
+  const locations = await prisma.location.findMany({
+    where: { userId: user.id },
+    orderBy: { sortOrder: 'asc' },
   })
   for (let i = 0; i < days.length; i++) {
     const date = new Date(FROZEN_YEAR, FROZEN_MONTH, days[i])

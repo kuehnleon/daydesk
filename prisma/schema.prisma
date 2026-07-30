@@ -1,7 +1,7 @@
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  // Connection URL is supplied at runtime via the pg driver adapter
+  // (see src/lib/db.ts) and to the CLI via prisma.config.ts.
 }
 
 generator client {
