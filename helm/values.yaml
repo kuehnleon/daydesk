@@ -42,6 +42,9 @@ securityContext:
 service:
   type: ClusterIP
   port: 80
+  # -- The port the Next.js app binds to inside the container. Also used as
+  # containerPort and as PORT in the app's env. Change this if you need to
+  # avoid a conflict; otherwise leave at 3000.
   targetPort: 3000
 
 ingress:
