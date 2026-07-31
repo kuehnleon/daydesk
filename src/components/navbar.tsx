@@ -34,6 +34,11 @@ export function Navbar() {
   ]
 
   const handleSignOut = async () => {
+    // Two-step logout: (1) NextAuth clears the local session cookie
+    // (server-side, correct cookie name across environments), (2) our route
+    // redirects through the IdP's end_session_endpoint so the SSO session
+    // ends too. Both steps are required — either alone leaves the user
+    // partially logged in.
     await signOut({ redirect: false })
     window.location.href = '/api/auth/logout'
   }
