@@ -265,6 +265,7 @@ export default function Dashboard() {
           <p
             className="mt-2 text-sm text-text-secondary"
             suppressHydrationWarning
+            data-testid="today-date"
           >
             {t('logForToday', { date: format(new Date(), 'EEEE, MMMM d, yyyy', { locale: dateFnsLocale }) })}
           </p>
