@@ -63,7 +63,7 @@ http://localhost:3000/api/auth/callback/oidc
 
 **Allowed Logout URL:**
 ```
-http://localhost:3000
+http://localhost:3000/auth/signin
 ```
 
 Your provider must support the `openid email profile` scopes so that the ID token includes the user's email, name, and picture.
@@ -77,7 +77,7 @@ Your provider must support the `openid email profile` scopes so that the ID toke
 
    **Allowed Callback URLs:** `http://localhost:3000/api/auth/callback/oidc`
 
-   **Allowed Logout URLs:** `http://localhost:3000`
+   **Allowed Logout URLs:** `http://localhost:3000/auth/signin`
 
    **Allowed Web Origins:** `http://localhost:3000`
 
@@ -86,10 +86,7 @@ Your provider must support the `openid email profile` scopes so that the ID toke
    - Client ID → `OAUTH_CLIENT_ID`
    - Client Secret → `OAUTH_CLIENT_SECRET`
 
-5. For logout support, set `OAUTH_LOGOUT_URL` to:
-   ```
-   https://your-tenant.auth0.com/v2/logout?client_id=YOUR_CLIENT_ID
-   ```
+5. Enable OIDC-conformant logout so RP-initiated logout works: **Tenant Settings → Advanced → Login and Logout → RP-Initiated Logout End Session Endpoint Discovery** (on by default for tenants created after Nov 2023).
 </details>
 
 ### Local Development
@@ -242,7 +239,7 @@ https://daydesk.your-domain.com/api/auth/callback/oidc
 
 **Allowed Logout URL:**
 ```
-https://daydesk.your-domain.com
+https://daydesk.your-domain.com/auth/signin
 ```
 
 ## PWA Installation
