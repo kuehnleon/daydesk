@@ -7,3 +7,12 @@ declare module 'next-auth' {
     } & DefaultSession['user']
   }
 }
+
+declare module 'next-auth/jwt' {
+  interface JWT {
+    id?: string
+    // OIDC id_token persisted at sign-in for use as `id_token_hint` in
+    // RP-initiated logout. Server-side only; never exposed to the client.
+    idToken?: string
+  }
+}

@@ -34,7 +34,6 @@ docker run --rm --network "$NETWORK" \
   -e OAUTH_ISSUER='http://localhost/oidc' \
   -e OAUTH_CLIENT_ID='test' \
   -e OAUTH_CLIENT_SECRET='test' \
-  -e OAUTH_LOGOUT_URL='http://localhost/logout' \
   -e VAPID_SUBJECT='mailto:e2e@example.test' \
   -e PUSH_API_SECRET='e2e' \
   -e NEXT_PUBLIC_DISABLE_SW='1' \

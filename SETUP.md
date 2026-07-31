@@ -14,7 +14,7 @@ npm install
 daydesk works with any OIDC-compliant identity provider. Configure a "Web Application" in your provider with:
 
 - **Allowed Callback URL**: `http://localhost:3000/api/auth/callback/oidc`
-- **Allowed Logout URL**: `http://localhost:3000`
+- **Allowed Logout URL**: `http://localhost:3000/auth/signin`
 
 You need these values from your provider:
 
@@ -29,7 +29,7 @@ You need these values from your provider:
 2. Create a new **Regular Web Application**
 3. In the application settings:
    - **Allowed Callback URLs**: `http://localhost:3000/api/auth/callback/oidc`
-   - **Allowed Logout URLs**: `http://localhost:3000`
+   - **Allowed Logout URLs**: `http://localhost:3000/auth/signin`
    - **Allowed Web Origins**: `http://localhost:3000`
    - Save changes
 4. Copy these values from the "Basic Information" section:
@@ -125,7 +125,7 @@ helm upgrade --install daydesk ./helm -f ./helm/values.local.yaml
 
 In your OIDC provider settings, add:
 - **Allowed Callback URL**: `https://daydesk.yourdomain.com/api/auth/callback/oidc`
-- **Allowed Logout URL**: `https://daydesk.yourdomain.com`
+- **Allowed Logout URL**: `https://daydesk.yourdomain.com/auth/signin`
 
 ### Option 2: Docker Compose (Development/Testing)
 

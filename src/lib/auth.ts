@@ -30,9 +30,16 @@ export const authOptions: NextAuthOptions = {
   },
   providers: [oidcProvider],
   callbacks: {
-    jwt({ token, user }) {
+    jwt({ token, user, account }) {
       if (user) {
         token.id = user.id
+      }
+      // Persist the OIDC id_token on the JWT so the logout route can send it
+      // as `id_token_hint` to the provider's end_session_endpoint. `account`
+      // is only populated on first sign-in; subsequent calls only see `token`.
+      // Server-side only — not exposed via `session`.
+      if (account?.id_token) {
+        token.idToken = account.id_token
       }
       return token
     },

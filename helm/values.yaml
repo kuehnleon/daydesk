@@ -110,19 +110,16 @@ appUrl: "http://localhost:3000"
 env:
   NEXT_PUBLIC_SKELETON_MIN_MS: "300"
   LOG_LEVEL: "info"
-  # OAUTH_LOGOUT_URL: ""   # optional — set if your OIDC provider supports RP-initiated logout
 
 # -- OAuth / OIDC secret configuration (works with any OIDC provider: Auth0, Keycloak, Okta, Azure AD, etc.)
 # If existingSecret is set, no OAuth Secret resource is created.
 # The existing secret must contain keys: NEXTAUTH_SECRET, OAUTH_ISSUER, OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET
-# Optional key: OAUTH_LOGOUT_URL
 oauth:
   existingSecret: ""
   issuer: ""            # OIDC issuer URL (e.g. https://your-tenant.auth0.com)
   clientId: ""
   clientSecret: ""
   nextauthSecret: ""    # random secret for NextAuth.js JWT signing
-  logoutUrl: ""         # optional RP-initiated logout URL
 
 # -- Postgres secret configuration
 # Provide databaseUrl to create a managed secret, or set existingSecret to reference a pre-created one.

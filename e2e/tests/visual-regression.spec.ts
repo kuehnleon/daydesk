@@ -177,8 +177,19 @@ for (const theme of THEMES) {
             // permutation gets its own baseline (Playwright doesn't inject
             // the describe path).
             const snapshotName = `${pg.name}-${theme}-${locale}-${viewport.name}.png`
+            // The dashboard has a "today" line that renders `new Date()` in a
+            // client component — Playwright's `page.clock.install()` doesn't
+            // reliably freeze `new Date()` for the SSR/initial hydration path
+            // in Next.js App Router, so mask the date to keep the snapshot
+            // stable across days. Other pages have no wall-clock-dependent
+            // text, so the mask array is empty for them.
+            const mask =
+              pg.name === 'dashboard'
+                ? [page.getByTestId('today-date')]
+                : []
             await expect(page).toHaveScreenshot(snapshotName, {
               fullPage: false,
+              mask,
               // Allow up to 5% pixel drift — anti-aliasing across GPU stacks
               // and Tailwind's arbitrary-value classes can nudge sub-pixel
               // rounding by a few pixels per glyph. 5% is generous enough to
