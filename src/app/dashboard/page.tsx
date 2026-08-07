@@ -95,6 +95,17 @@ export default function Dashboard() {
 
   const today = format(new Date(), 'yyyy-MM-dd')
 
+  // Render the "today" label client-side only. `new Date()` on the server
+  // sees the real Node clock — divergent from the client's clock (or a
+  // Playwright-frozen clock in E2E), which causes hydration mismatch AND
+  // defeats the visual-regression mask (its bounding box was date-sensitive,
+  // making the test flake daily). Defer to post-mount and the client's
+  // rendered box is stable.
+  const [todayLabel, setTodayLabel] = useState('')
+  useEffect(() => {
+    setTodayLabel(t('logForToday', { date: format(new Date(), 'EEEE, MMMM d, yyyy', { locale: dateFnsLocale }) }))
+  }, [t, dateFnsLocale])
+
   useEffect(() => {
     Promise.all([
       fetchTodayAttendance(),
@@ -263,11 +274,10 @@ export default function Dashboard() {
         <div className="mb-4 sm:mb-8">
           <h2 className="text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">{t('quickLog')}</h2>
           <p
-            className="mt-2 text-sm text-text-secondary"
-            suppressHydrationWarning
+            className="mt-2 text-sm text-text-secondary min-h-[1.25rem]"
             data-testid="today-date"
           >
-            {t('logForToday', { date: format(new Date(), 'EEEE, MMMM d, yyyy', { locale: dateFnsLocale }) })}
+            {todayLabel}
           </p>
           {todayAttendance?.notes && (
             <p className="mt-1 text-sm text-text-tertiary truncate">
