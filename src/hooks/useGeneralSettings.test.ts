@@ -71,7 +71,8 @@ describe('useGeneralSettings', () => {
     await act(async () => { await result.current.saveSettings() })
 
     const patchCall = fetchSpy.mock.calls.find(
-      ([url, init]) => url === '/api/settings' && (init as RequestInit)?.method === 'PATCH',
+      ([url, init]: [RequestInfo | URL, RequestInit | undefined]) =>
+        url === '/api/settings' && init?.method === 'PATCH',
     )
     expect(patchCall).toBeDefined()
     const body = JSON.parse((patchCall![1] as RequestInit).body as string)
