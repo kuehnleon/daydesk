@@ -1,6 +1,19 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, act, waitFor, DaydeskProviders } from '@/test/render'
+import type { Transport } from '@/types'
 import { useTransportSettings } from './useTransportSettings'
+
+function makeTransport(overrides: Partial<Transport> = {}): Transport {
+  return {
+    id: '1',
+    userId: 'u1',
+    name: 'Bike',
+    sortOrder: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    ...overrides,
+  }
+}
 
 /**
  * Mock the minLoadingDelay so tests don't wait 300ms per load.
@@ -64,7 +77,7 @@ describe('useTransportSettings', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
     act(() => {
-      result.current.openEdit({ id: '5', name: 'Old' })
+      result.current.openEdit(makeTransport({ id: '5', name: 'Old' }))
       result.current.setForm({ name: 'New' })
     })
     await act(async () => { await result.current.save() })
@@ -109,7 +122,9 @@ describe('useTransportSettings', () => {
     // Order becomes [B, C, A] after moving 'a' to index of 'c'
     expect(result.current.transports.map((t) => t.id)).toEqual(['b', 'c', 'a'])
     // Should have issued 3 PATCH calls with sortOrder 0/1/2
-    const patchCalls = fetchSpy.mock.calls.filter(([, init]) => (init as RequestInit)?.method === 'PATCH')
+    const patchCalls = fetchSpy.mock.calls.filter(
+      ([, init]: [RequestInfo | URL, RequestInit | undefined]) => init?.method === 'PATCH',
+    )
     expect(patchCalls.length).toBe(3)
   })
 })
