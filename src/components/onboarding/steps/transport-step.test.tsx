@@ -1,6 +1,19 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderWithProviders, screen, userEvent, waitFor } from '@/test/render'
+import type { Transport } from '@/types'
 import { TransportStep } from './transport-step'
+
+function makeTransport(overrides: Partial<Transport> = {}): Transport {
+  return {
+    id: '1',
+    userId: 'u1',
+    name: 'Bike',
+    sortOrder: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    ...overrides,
+  }
+}
 
 describe('TransportStep', () => {
   let fetchSpy: ReturnType<typeof vi.spyOn>
@@ -66,7 +79,7 @@ describe('TransportStep', () => {
     const onNext = vi.fn()
     renderWithProviders(
       <TransportStep
-        transports={[{ id: '1', name: 'Bike' }]}
+        transports={[makeTransport()]}
         setTransports={vi.fn()}
         onNext={onNext}
         onBack={vi.fn()}

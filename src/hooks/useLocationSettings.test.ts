@@ -32,7 +32,7 @@ describe('useLocationSettings', () => {
     expect(result.current.locations).toEqual([{ id: 'l1', name: 'Office', color: '#3B5BDB' }])
     expect(result.current.transports).toEqual([{ id: 't1', name: 'Bike' }])
     // First two calls should be /api/locations and /api/transports.
-    const urls = fetchSpy.mock.calls.slice(0, 2).map(([u]) => u)
+    const urls = fetchSpy.mock.calls.slice(0, 2).map(([u]: [RequestInfo | URL, RequestInit | undefined]) => u)
     expect(urls).toEqual(expect.arrayContaining(['/api/locations', '/api/transports']))
   })
 
@@ -55,7 +55,8 @@ describe('useLocationSettings', () => {
     await act(async () => { await result.current.save() })
 
     const postCall = fetchSpy.mock.calls.find(
-      ([url, init]) => url === '/api/locations' && (init as RequestInit)?.method === 'POST',
+      ([url, init]: [RequestInfo | URL, RequestInit | undefined]) =>
+        url === '/api/locations' && init?.method === 'POST',
     )
     expect(postCall).toBeDefined()
     expect(JSON.parse((postCall![1] as RequestInit).body as string).name).toBe('Berlin')
