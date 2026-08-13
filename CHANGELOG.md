@@ -6,6 +6,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.14.5] - 2026-08-13
+
+### Fixed
+
+- Render today-date client-side to stabilize visual snapshot (#67)
+- Prevent LocaleSync from stomping cookie in i18n test (#70)
+- Type errors in test files surfaced by stricter next build (#73)
+
+### Miscellaneous
+
+- Bump zod from 4.3.6 to 4.4.3 (#63)
+- Bump @tailwindcss/postcss from 4.2.2 to 4.3.3 (#64)
+- Bump tailwindcss from 4.2.4 to 4.3.3 (#60)
+- Bump fast-uri from 3.1.4 to 3.1.5 (#65)
+- Bump js-yaml from 4.3.0 to 4.3.1 (#69)
+- Bump postcss and next (#66)
+- Bump dompurify from 3.4.12 to 3.4.13 (#71)
+- Bump react + react-dom together, group in dependabot (#74)
+- Bump date-fns from 4.1.0 to 4.4.0 (#77)
+- Bump vitest from 4.1.5 to 4.1.10 (#76)
+- Bump @testing-library/user-event from 14.6.1 to 14.6.3 (#75)
+- Bump @testing-library/jest-dom from 6.9.1 to 7.0.1 (#78)
+
 ## [0.14.4] - 2026-07-31
 
 ### Fixed
@@ -382,6 +405,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix next auth and middleware
 
+[0.14.5]: https://github.com/kuehnleon/daydesk/compare/v0.14.4...v0.14.5
 [0.14.4]: https://github.com/kuehnleon/daydesk/compare/v0.14.3...v0.14.4
 [0.14.3]: https://github.com/kuehnleon/daydesk/compare/v0.14.2...v0.14.3
 [0.14.2]: https://github.com/kuehnleon/daydesk/compare/v0.14.1...v0.14.2
