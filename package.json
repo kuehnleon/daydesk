@@ -63,7 +63,7 @@
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
-    "@testing-library/user-event": "^14.6.1",
+    "@testing-library/user-event": "^14.6.3",
     "@types/iso-3166-2": "^1.0.4",
     "@types/node": "^24",
     "@types/pg": "^8.20.0",
