@@ -11,3 +11,13 @@ updates:
       interval: "weekly"
     commit-message:
       prefix: "chore"
+    # Packages that must move together (e.g. React requires `react` and
+    # `react-dom` to be at the exact same version — separate PRs land in a
+    # broken intermediate state).
+    groups:
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
