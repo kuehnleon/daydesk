@@ -6,6 +6,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.14.6] - 2026-09-28
+
+### Fixed
+
+- Prevent text selection on mobile long-press (#99)
+
+### Miscellaneous
+
+- Bump @playwright/test from 1.62.0 to 1.62.1 (#82)
+- Bump lucide-react from 1.14.0 to 1.31.0 (#81)
+- Bump happy-dom from 20.9.0 to 20.11.2 (#80)
+- Bump pg and @types/pg (#86)
+- Bump @testing-library/user-event from 14.6.3 to 14.6.5 (#84)
+- Bump sharp from 0.35.3 to 0.35.4 (#95)
+- Bump fast-uri from 3.1.5 to 3.1.7 (#91)
+- Bump next from 16.3.0 to 16.3.4 (#96)
+- Bump js-yaml from 4.3.1 to 4.3.2 (#97)
+- Bump @humanfs/node from 0.16.7 to 0.16.8 (#92)
+- Bump tailwind-merge from 3.5.0 to 3.6.0 (#88)
+- Bump the react group across 1 directory with 4 updates (#98)
+- Bump @vitest/mocker and vitest (#94)
+- Bump fflate from 0.8.2 to 0.8.3 (#93)
+
+### Deps
+
+- Update lock file by npm audit fix
+
 ## [0.14.5] - 2026-08-13
 
 ### Fixed
@@ -405,6 +432,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix next auth and middleware
 
+[0.14.6]: https://github.com/kuehnleon/daydesk/compare/v0.14.5...v0.14.6
 [0.14.5]: https://github.com/kuehnleon/daydesk/compare/v0.14.4...v0.14.5
 [0.14.4]: https://github.com/kuehnleon/daydesk/compare/v0.14.3...v0.14.4
 [0.14.3]: https://github.com/kuehnleon/daydesk/compare/v0.14.2...v0.14.3
