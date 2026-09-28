@@ -287,6 +287,9 @@ export function CalendarGrid({
       onTouchStart={handleSwipeStart}
       onTouchEnd={handleSwipeEnd}
       style={{
+        // iOS Safari ignores `select-none` for its long-press copy/paste
+        // callout — suppress it explicitly to match the dashboard cards.
+        WebkitTouchCallout: 'none',
         transition: slideDirection ? 'transform 150ms ease-out, opacity 150ms ease-out' : undefined,
         transform: slideDirection === 'left' ? 'translateX(-30px)' : slideDirection === 'right' ? 'translateX(30px)' : undefined,
         opacity: slideDirection ? 0.5 : undefined,
