@@ -58,8 +58,12 @@ function DashboardCard({
     <button
       type="button"
       disabled={disabled}
-      className={className}
-      style={{ ...style, ...selectedStyle }}
+      // `select-none` + `-webkit-touch-callout: none` suppress the mobile
+      // text-selection and iOS Safari copy/paste callout that would
+      // otherwise fire during the long-press gesture before the modal
+      // opens. Matches the pattern used on the calendar grid.
+      className={`${className ?? ''} select-none`}
+      style={{ WebkitTouchCallout: 'none', ...style, ...selectedStyle }}
       onMouseDown={handlers.onMouseDown}
       onMouseUp={handlers.onMouseUp}
       onMouseLeave={(e) => {
