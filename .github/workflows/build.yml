@@ -204,12 +204,12 @@ jobs:
       - name: Update Chart version
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
-          sed -i "s/^version:.*/version: $VERSION/" helm/Chart.yaml
-          sed -i "s/^appVersion:.*/appVersion: \"$VERSION\"/" helm/Chart.yaml
+          sed -i "s/^version:.*/version: $VERSION/" charts/Chart.yaml
+          sed -i "s/^appVersion:.*/appVersion: \"$VERSION\"/" charts/Chart.yaml
 
       - name: Package Helm chart
         run: |
-          helm package helm
+          helm package charts
 
       - name: Push Helm chart to OCI Registry
         run: |

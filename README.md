@@ -206,7 +206,7 @@ docker build -t daydesk:latest .
 ### Deploy with Helm
 
 ```bash
-cd helm
+cd charts
 
 # Create values override file
 cat > values.local.yaml <<EOF
@@ -312,7 +312,7 @@ curl -X POST http://localhost:3000/api/push/send \
   -H "Content-Type: application/json"
 ```
 
-In production, a Kubernetes CronJob handles this automatically (see `helm/templates/cronjob.yaml`).
+In production, a Kubernetes CronJob handles this automatically (see `charts/templates/cronjob.yaml`).
 
 ## Public Holiday API
 
