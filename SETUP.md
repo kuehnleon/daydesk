@@ -93,7 +93,7 @@ docker push your-registry/daydesk:1.0.0
 1. Create custom values file:
 
 ```bash
-cat > helm/values.local.yaml <<EOF
+cat > charts/values.local.yaml <<EOF
 image:
   repository: your-registry/daydesk
   tag: "1.0.0"
@@ -118,7 +118,7 @@ EOF
 2. Install with Helm:
 
 ```bash
-helm upgrade --install daydesk ./helm -f ./helm/values.local.yaml
+helm upgrade --install daydesk ./charts -f ./charts/values.local.yaml
 ```
 
 #### Update OIDC Provider for Production
