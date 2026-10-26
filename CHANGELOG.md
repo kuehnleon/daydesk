@@ -6,6 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.15.0] - 2026-10-26
+
+### Changed
+
+- Rename helm/ to charts/
+
+### Fixed
+
+- Update dependencies to resolve security vulnerabilities (#111)
+
+### Miscellaneous
+
+- Bump next from 16.3.4 to 16.3.8 (#103)
+- Bump source-map-js from 1.2.1 to 1.2.2 (#104)
+- Bump vite from 8.2.2 to 8.3.5 (#105)
+- Bump next from 16.3.8 to 16.4.3 (#110)
+- Bump happy-dom from 20.11.2 to 21.0.4 (#108)
+- Bump dompurify from 3.4.13 to 3.4.17 (#107)
+- Bump fast-uri from 3.1.7 to 3.1.9 (#106)
+- Bump brace-expansion from 1.1.18 to 1.1.21 (#102)
+- Bump zod from 4.4.3 to 4.6.7 (#109)
+
 ## [0.14.6] - 2026-09-28
 
 ### Fixed
@@ -432,6 +454,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix next auth and middleware
 
+[0.15.0]: https://github.com/kuehnleon/daydesk/compare/v0.14.6...v0.15.0
 [0.14.6]: https://github.com/kuehnleon/daydesk/compare/v0.14.5...v0.14.6
 [0.14.5]: https://github.com/kuehnleon/daydesk/compare/v0.14.4...v0.14.5
 [0.14.4]: https://github.com/kuehnleon/daydesk/compare/v0.14.3...v0.14.4
