@@ -42,7 +42,7 @@ A lightweight multi-user application for tracking office and home office attenda
 
 ### Prerequisites
 
-- Node.js 20+ and npm
+- Node.js 26+ and npm (run `nvm use` if you use nvm)
 - [pre-commit](https://pre-commit.com/) (`brew install pre-commit` or `pip install pre-commit`)
 - An OIDC-compliant identity provider (e.g. [Auth0](https://auth0.com), [Keycloak](https://www.keycloak.org), [Okta](https://www.okta.com), [Azure AD](https://azure.microsoft.com/en-us/products/active-directory))
 

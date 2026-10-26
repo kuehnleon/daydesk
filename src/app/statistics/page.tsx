@@ -9,6 +9,7 @@ import { Building2, Home, Palmtree, Car, MapPin, Calendar, TrendingUp, Thermomet
 import type { Location, Transport } from '@/types'
 import { Skeleton } from '@/components/ui/skeleton'
 import { minLoadingDelay } from '@/lib/loading'
+import { useHydrated } from '@/hooks/useHydrated'
 
 interface Attendance {
   id: string
@@ -23,65 +24,57 @@ interface Attendance {
 
 type DatePreset = 'this-month' | 'last-month' | 'this-year' | 'custom'
 
+function getPresetRange(preset: Exclude<DatePreset, 'custom'>) {
+  const now = new Date()
+  const start = preset === 'this-year' ? startOfYear(now)
+    : startOfMonth(preset === 'last-month' ? subMonths(now, 1) : now)
+  const end = preset === 'this-year' ? endOfYear(now)
+    : endOfMonth(preset === 'last-month' ? subMonths(now, 1) : now)
+  return { startDate: format(start, 'yyyy-MM-dd'), endDate: format(end, 'yyyy-MM-dd') }
+}
+
 export default function Statistics() {
   const t = useTranslations('statistics')
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
+  const isHydrated = useHydrated()
   const [preset, setPreset] = useState<DatePreset>('this-month')
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
+  const [customRange, setCustomRange] = useState({ startDate: '', endDate: '' })
+  const { startDate, endDate } = preset === 'custom' || !isHydrated
+    ? customRange : getPresetRange(preset)
   const [attendances, setAttendances] = useState<Attendance[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-
-  // Initialize dates based on preset
-  useEffect(() => {
-    const now = new Date()
-    let start: Date
-    let end: Date
-
-    switch (preset) {
-      case 'this-month':
-        start = startOfMonth(now)
-        end = endOfMonth(now)
-        break
-      case 'last-month':
-        const lastMonth = subMonths(now, 1)
-        start = startOfMonth(lastMonth)
-        end = endOfMonth(lastMonth)
-        break
-      case 'this-year':
-        start = startOfYear(now)
-        end = endOfYear(now)
-        break
-      case 'custom':
-        return // Don't override custom dates
-    }
-
-    setStartDate(format(start, 'yyyy-MM-dd'))
-    setEndDate(format(end, 'yyyy-MM-dd'))
-  }, [preset])
+  const [loadedRange, setLoadedRange] = useState<string | null>(null)
+  const rangeKey = `${startDate}:${endDate}`
+  const isLoading = Boolean(startDate && endDate && loadedRange !== rangeKey)
 
   useEffect(() => {
-    if (startDate && endDate) {
-      loadAttendances()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startDate, endDate])
+    if (!startDate || !endDate) return
+    const controller = new AbortController()
 
-  const loadAttendances = async () => {
-    setIsLoading(true)
-    try {
-      const [response] = await Promise.all([
-        fetch(`/api/attendance?startDate=${startDate}&endDate=${endDate}`),
-        minLoadingDelay(),
-      ])
-      if (response.ok) {
-        const data = await response.json()
-        setAttendances(data)
+    const loadAttendances = async () => {
+      try {
+        const [response] = await Promise.all([
+          fetch(`/api/attendance?startDate=${startDate}&endDate=${endDate}`, { signal: controller.signal }),
+          minLoadingDelay(),
+        ])
+        if (response.ok) {
+          const data = await response.json()
+          if (!controller.signal.aborted) setAttendances(data)
+        }
+      } catch (error) {
+        if (!controller.signal.aborted) console.error('Error loading statistics:', error)
+      } finally {
+        if (!controller.signal.aborted) setLoadedRange(rangeKey)
       }
-    } finally {
-      setIsLoading(false)
     }
+
+    loadAttendances()
+    return () => controller.abort()
+  }, [startDate, endDate, rangeKey])
+
+  const changePreset = (nextPreset: DatePreset) => {
+    if (nextPreset === 'custom') setCustomRange({ startDate, endDate })
+    setPreset(nextPreset)
   }
 
   // Calculate statistics
@@ -183,7 +176,7 @@ export default function Statistics() {
               </label>
               <select
                 value={preset}
-                onChange={(e) => setPreset(e.target.value as DatePreset)}
+                onChange={(e) => changePreset(e.target.value as DatePreset)}
                 className="rounded-lg border border-border bg-surface px-4 py-2 text-foreground focus:border-accent focus:ring-accent"
               >
                 <option value="this-month">{t('thisMonth')}</option>
@@ -202,7 +195,7 @@ export default function Statistics() {
                   <input
                     type="date"
                     value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
+                    onChange={(e) => setCustomRange({ ...customRange, startDate: e.target.value })}
                     className="rounded-lg border border-border bg-surface px-4 py-2 text-foreground focus:border-accent focus:ring-accent"
                   />
                 </div>
@@ -213,7 +206,7 @@ export default function Statistics() {
                   <input
                     type="date"
                     value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
+                    onChange={(e) => setCustomRange({ ...customRange, endDate: e.target.value })}
                     className="rounded-lg border border-border bg-surface px-4 py-2 text-foreground focus:border-accent focus:ring-accent"
                   />
                 </div>
