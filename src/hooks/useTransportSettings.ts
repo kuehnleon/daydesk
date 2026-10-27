@@ -18,7 +18,6 @@ export function useTransportSettings(onDataChange?: () => void) {
   const t = useTranslations('settings')
 
   const load = useCallback(async () => {
-    setIsLoading(true)
     try {
       const [response] = await Promise.all([fetch('/api/transports'), minLoadingDelay()])
       if (response.ok) {
@@ -33,6 +32,11 @@ export function useTransportSettings(onDataChange?: () => void) {
   useEffect(() => {
     load()
   }, [load])
+
+  const reload = () => {
+    setIsLoading(true)
+    return load()
+  }
 
   const openAdd = () => {
     setEditing(null)
@@ -79,7 +83,7 @@ export function useTransportSettings(onDataChange?: () => void) {
         }
       }
       setShowModal(false)
-      load()
+      reload()
       onDataChange?.()
     } catch {
       showToast(t('errorSavingTransport'), 'error')
@@ -110,7 +114,7 @@ export function useTransportSettings(onDataChange?: () => void) {
       )
     } catch {
       showToast(t('reorderFailed'), 'error')
-      load()
+      reload()
     }
   }
 
@@ -126,7 +130,7 @@ export function useTransportSettings(onDataChange?: () => void) {
       const response = await fetch(`/api/transports/${id}`, { method: 'DELETE' })
       if (response.ok) {
         showToast(t('transportDeleted'), 'success')
-        load()
+        reload()
         onDataChange?.()
       } else {
         showToast(t('failedToDeleteTransport'), 'error')

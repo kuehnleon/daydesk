@@ -7,7 +7,12 @@ echo ""
 
 # Check Node.js
 if ! command -v node &> /dev/null; then
-    echo "❌ Node.js not found. Please install Node.js 20+ first."
+    echo "❌ Node.js not found. Please install Node.js 26+ first."
+    exit 1
+fi
+
+if ! node -e 'if (Number(process.versions.node.split(".")[0]) < 26) process.exit(1)'; then
+    echo "❌ Node.js 26+ is required. Run nvm use or install Node.js 26+."
     exit 1
 fi
 

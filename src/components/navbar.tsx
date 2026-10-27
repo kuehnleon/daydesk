@@ -40,6 +40,8 @@ export function Navbar() {
     // ends too. Both steps are required — either alone leaves the user
     // partially logged in.
     await signOut({ redirect: false })
+    // This API route must perform a full-page redirect to the identity provider.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     window.location.href = '/api/auth/logout'
   }
 

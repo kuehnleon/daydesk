@@ -28,7 +28,7 @@ services:
     # Ephemeral — no volume mount, so `rm` wipes it.
 
   app:
-    image: node:20-alpine
+    image: node:26-alpine
     working_dir: /app
     volumes:
       - .:/app

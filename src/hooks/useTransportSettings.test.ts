@@ -86,6 +86,23 @@ describe('useTransportSettings', () => {
     expect(fetchSpy.mock.calls[1][1]).toMatchObject({ method: 'PATCH' })
   })
 
+  it('shows loading while refreshing transports after a save', async () => {
+    let resolveReload!: (response: Response) => void
+    fetchSpy.mockResolvedValueOnce(Response.json([]))
+    fetchSpy.mockResolvedValueOnce(Response.json({ id: 'new', name: 'Bike' }))
+    fetchSpy.mockImplementationOnce(() => new Promise(resolve => { resolveReload = resolve }))
+    const { result } = renderHook(() => useTransportSettings(), { wrapper: DaydeskProviders })
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+
+    act(() => { result.current.setForm({ name: 'Bike' }) })
+    await act(async () => { await result.current.save() })
+    expect(result.current.isLoading).toBe(true)
+
+    await act(async () => { resolveReload(Response.json([{ id: 'new', name: 'Bike' }])) })
+    expect(result.current.isLoading).toBe(false)
+    expect(result.current.transports).toEqual([{ id: 'new', name: 'Bike' }])
+  })
+
   it('save() with empty name shows an error and does not fetch', async () => {
     fetchSpy.mockResolvedValueOnce(new Response(JSON.stringify([]), { status: 200 }))
     const { result } = renderHook(() => useTransportSettings(), { wrapper: DaydeskProviders })

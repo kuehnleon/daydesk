@@ -15,6 +15,14 @@ import { clearAttendanceNotifications } from '@/lib/push-utils'
 import { AttendanceModal } from '@/components/calendar/attendance-modal'
 import { MonthlySummary } from '@/components/calendar/monthly-summary'
 import { CalendarGrid } from '@/components/calendar/calendar-grid'
+import { useHydrated } from '@/hooks/useHydrated'
+
+async function fetchAttendances(month: string, signal?: AbortSignal) {
+  const response = await fetch(`/api/attendance?month=${month}`, { signal })
+  if (!response.ok) return null
+  const data: CalendarAttendance[] = await response.json()
+  return Object.fromEntries(data.map(attendance => [attendance.date.split('T')[0], attendance]))
+}
 
 export default function Calendar() {
   const [currentMonth, setCurrentMonth] = useState(new Date())
@@ -31,89 +39,88 @@ export default function Calendar() {
   const [locations, setLocations] = useState<Location[]>([])
   const [transports, setTransports] = useState<Transport[]>([])
   const [isLoadingInitial, setIsLoadingInitial] = useState(true)
-  const [isLoadingMonth, setIsLoadingMonth] = useState(true)
+  const [loadedMonth, setLoadedMonth] = useState<string | null>(null)
+  const month = format(currentMonth, 'yyyy-MM')
+  const year = currentMonth.getFullYear()
+  const monthKey = `${month}:${country}:${defaultState}`
+  const isLoadingMonth = loadedMonth !== monthKey
   const isLoadingAny = isLoadingInitial || isLoadingMonth
-  const [selectionHint, setSelectionHint] = useState('')
   const { showToast } = useToast()
   const t = useTranslations('calendar')
   const locale = useLocale()
   const dateFnsLocale = getDateFnsLocale(locale)
 
-  useEffect(() => {
-    const isTouchDevice = window.matchMedia('(pointer: coarse)').matches
-    if (isTouchDevice) {
-      setSelectionHint(t('selectionHintTouch'))
-    } else {
-      const isMac = navigator.platform.toUpperCase().includes('MAC')
-      const modifier = isMac ? '⌘' : 'Ctrl'
-      setSelectionHint(t('selectionHintDesktop', { modifier }))
-    }
-  }, [])
+  const isHydrated = useHydrated()
+  const selectionHint = !isHydrated ? '' : window.matchMedia('(pointer: coarse)').matches
+    ? t('selectionHintTouch')
+    : t('selectionHintDesktop', { modifier: navigator.platform.toUpperCase().includes('MAC') ? '⌘' : 'Ctrl' })
 
   useEffect(() => {
+    const loadSettings = async () => {
+      const response = await fetch('/api/settings')
+      if (response.ok) {
+        const data = await response.json()
+        setWeekStartDay(data.weekStartDay ?? 1)
+        if (data.workDays) {
+          setWorkDays(data.workDays.split(',').map(Number))
+        }
+        setCountry(data.country ?? 'DE')
+        setDefaultState(data.defaultState ?? '')
+      }
+    }
+
+    const loadLocations = async () => {
+      const response = await fetch('/api/locations')
+      if (response.ok) {
+        setLocations(await response.json())
+      }
+    }
+
+    const loadTransports = async () => {
+      const response = await fetch('/api/transports')
+      if (response.ok) {
+        setTransports(await response.json())
+      }
+    }
+
     Promise.all([loadSettings(), loadLocations(), loadTransports(), minLoadingDelay()]).finally(() => {
       setIsLoadingInitial(false)
     })
   }, [])
 
   useEffect(() => {
-    setIsLoadingMonth(true)
-    Promise.all([loadAttendances(), loadHolidays(), minLoadingDelay()]).finally(() => {
-      setIsLoadingMonth(false)
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentMonth])
+    const controller = new AbortController()
 
-  const loadSettings = async () => {
-    const response = await fetch('/api/settings')
-    if (response.ok) {
-      const data = await response.json()
-      setWeekStartDay(data.weekStartDay ?? 1)
-      if (data.workDays) {
-        setWorkDays(data.workDays.split(',').map(Number))
+    const loadAttendances = async () => {
+      const data = await fetchAttendances(month, controller.signal)
+      if (data && !controller.signal.aborted) setAttendances(data)
+    }
+
+    const loadHolidays = async () => {
+      const params = new URLSearchParams({ year: year.toString(), country })
+      if (defaultState) params.set('state', defaultState)
+      const response = await fetch(`/api/holidays?${params}`, { signal: controller.signal })
+      if (response.ok) {
+        const data: { date: string }[] = await response.json()
+        if (!controller.signal.aborted) setHolidays(new Set(data.map(holiday => holiday.date)))
       }
-      setCountry(data.country ?? 'DE')
-      setDefaultState(data.defaultState ?? '')
     }
-  }
 
-  const loadLocations = async () => {
-    const response = await fetch('/api/locations')
-    if (response.ok) {
-      setLocations(await response.json())
-    }
-  }
-
-  const loadTransports = async () => {
-    const response = await fetch('/api/transports')
-    if (response.ok) {
-      setTransports(await response.json())
-    }
-  }
+    Promise.all([
+      loadAttendances(),
+      loadHolidays(),
+      minLoadingDelay(),
+    ]).catch((error) => {
+      if (!controller.signal.aborted) console.error('Error loading calendar:', error)
+    }).finally(() => {
+      if (!controller.signal.aborted) setLoadedMonth(monthKey)
+    })
+    return () => controller.abort()
+  }, [month, year, country, defaultState, monthKey])
 
   const loadAttendances = async () => {
-    const month = format(currentMonth, 'yyyy-MM')
-    const response = await fetch(`/api/attendance?month=${month}`)
-    if (response.ok) {
-      const data = await response.json()
-      const map: Record<string, CalendarAttendance> = {}
-      data.forEach((a: CalendarAttendance) => {
-        map[a.date.split('T')[0]] = a
-      })
-      setAttendances(map)
-    }
-  }
-
-  const loadHolidays = async () => {
-    const year = currentMonth.getFullYear()
-    const params = new URLSearchParams({ year: year.toString(), country })
-    if (defaultState) params.set('state', defaultState)
-    const response = await fetch(`/api/holidays?${params}`)
-    if (response.ok) {
-      const data = await response.json()
-      const dates = new Set<string>(data.map((h: { date: string }) => h.date))
-      setHolidays(dates)
-    }
+    const data = await fetchAttendances(month)
+    if (data) setAttendances(data)
   }
 
   const openModal = () => {

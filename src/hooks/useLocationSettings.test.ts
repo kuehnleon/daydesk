@@ -78,4 +78,22 @@ describe('useLocationSettings', () => {
     // No new fetch calls issued.
     expect(fetchSpy.mock.calls.length).toBe(before)
   })
+
+  it('shows loading while refreshing locations after a save', async () => {
+    let resolveReload!: (response: Response) => void
+    fetchSpy.mockResolvedValueOnce(Response.json([]))
+    fetchSpy.mockResolvedValueOnce(Response.json([]))
+    fetchSpy.mockResolvedValueOnce(Response.json({ id: 'new', name: 'Berlin' }))
+    fetchSpy.mockImplementationOnce(() => new Promise(resolve => { resolveReload = resolve }))
+    const { result } = renderHook(() => useLocationSettings(), { wrapper: DaydeskProviders })
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+
+    act(() => { result.current.setForm({ ...result.current.form, name: 'Berlin' }) })
+    await act(async () => { await result.current.save() })
+    expect(result.current.isLoading).toBe(true)
+
+    await act(async () => { resolveReload(Response.json([{ id: 'new', name: 'Berlin' }])) })
+    expect(result.current.isLoading).toBe(false)
+    expect(result.current.locations).toEqual([{ id: 'new', name: 'Berlin' }])
+  })
 })

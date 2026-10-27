@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/components/ui/toast'
@@ -15,6 +15,15 @@ interface CountryStepProps {
   onNext: () => void
   onBack: () => void
   onSkip: () => void
+}
+
+async function fetchRegions(countryCode: string): Promise<Region[]> {
+  try {
+    const response = await fetch(`/api/countries/${countryCode}/regions`)
+    return response.ok ? await response.json() : []
+  } catch {
+    return []
+  }
 }
 
 export function CountryStep({
@@ -35,26 +44,6 @@ export function CountryStep({
   const [isSaving, setIsSaving] = useState(false)
   const [isDetecting, setIsDetecting] = useState(false)
 
-  const loadRegions = useCallback(async (countryCode: string) => {
-    setIsLoadingRegions(true)
-    try {
-      const response = await fetch(`/api/countries/${countryCode}/regions`)
-      if (response.ok) {
-        const data: Region[] = await response.json()
-        setRegions(data)
-        return data
-      } else {
-        setRegions([])
-        return []
-      }
-    } catch {
-      setRegions([])
-      return []
-    } finally {
-      setIsLoadingRegions(false)
-    }
-  }, [])
-
   useEffect(() => {
     const loadCountries = async () => {
       try {
@@ -67,13 +56,22 @@ export function CountryStep({
       }
     }
     loadCountries()
-    loadRegions(country)
-  }, [country, loadRegions])
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    fetchRegions(country).then((data) => {
+      if (cancelled) return
+      setRegions(data)
+      setIsLoadingRegions(false)
+    })
+    return () => { cancelled = true }
+  }, [country])
 
   const handleCountryChange = (newCountry: string) => {
     setCountry(newCountry)
     setDefaultState('')
-    loadRegions(newCountry)
+    setIsLoadingRegions(true)
   }
 
   const detectLocation = async () => {
@@ -111,7 +109,10 @@ export function CountryStep({
           setCountry(detectedCountryCode)
 
           // Load regions for detected country and try to match state
-          const loadedRegions = await loadRegions(detectedCountryCode)
+          setIsLoadingRegions(true)
+          const loadedRegions = await fetchRegions(detectedCountryCode)
+          setRegions(loadedRegions)
+          setIsLoadingRegions(false)
           if (detectedState && loadedRegions.length > 0) {
             const matchedRegion = loadedRegions.find(
               (r) => r.name.toLowerCase() === detectedState.toLowerCase()

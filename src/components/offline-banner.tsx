@@ -49,7 +49,7 @@ export function OfflineBanner() {
         count().then(setPendingCount).catch(() => {})
       })
     }
-  }, [isOnline, showToast])
+  }, [isOnline, showToast, t])
 
   if (isOnline && pendingCount === 0) return null
 

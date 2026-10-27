@@ -14,6 +14,7 @@ import { hapticSuccess } from '@/lib/haptic'
 import { enqueue } from '@/lib/offline-queue'
 import { clearAttendanceNotifications } from '@/lib/push-utils'
 import { useLongPress } from '@/hooks/useLongPress'
+import { useHydrated } from '@/hooks/useHydrated'
 import { CardActionModal, type CardTarget } from '@/components/dashboard/card-action-modal'
 import type { Location, Transport } from '@/types'
 
@@ -105,12 +106,81 @@ export default function Dashboard() {
   // defeats the visual-regression mask (its bounding box was date-sensitive,
   // making the test flake daily). Defer to post-mount and the client's
   // rendered box is stable.
-  const [todayLabel, setTodayLabel] = useState('')
-  useEffect(() => {
-    setTodayLabel(t('logForToday', { date: format(new Date(), 'EEEE, MMMM d, yyyy', { locale: dateFnsLocale }) }))
-  }, [t, dateFnsLocale])
+  const isHydrated = useHydrated()
+  const todayLabel = isHydrated
+    ? t('logForToday', { date: format(new Date(), 'EEEE, MMMM d, yyyy', { locale: dateFnsLocale }) })
+    : ''
 
   useEffect(() => {
+    const fetchTodayAttendance = async () => {
+      try {
+        const now = new Date()
+        const todayStr = format(now, 'yyyy-MM-dd')
+        const monthStr = format(now, 'yyyy-MM')
+
+        const response = await fetch(`/api/attendance?month=${monthStr}`)
+        if (response.ok) {
+          const data = await response.json()
+          const todayEntry = data.find((entry: { date: string }) => {
+            const entryDate = format(new Date(entry.date), 'yyyy-MM-dd')
+            return entryDate === todayStr
+          })
+
+          if (todayEntry) {
+            setTodayAttendance({
+              type: todayEntry.type,
+              transportId: todayEntry.transportId,
+              locationId: todayEntry.locationId,
+              notes: todayEntry.notes || null,
+            })
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching attendance:', error)
+      }
+    }
+
+    const fetchLocations = async () => {
+      try {
+        const response = await fetch('/api/locations')
+        if (response.ok) {
+          const data = await response.json()
+          setLocations(data)
+        }
+      } catch (error) {
+        console.error('Error fetching locations:', error)
+      }
+    }
+
+    const fetchTransports = async () => {
+      try {
+        const response = await fetch('/api/transports')
+        if (response.ok) {
+          setTransports(await response.json())
+        }
+      } catch (error) {
+        console.error('Error fetching transports:', error)
+      }
+    }
+
+    const fetchDashboardHidden = async () => {
+      try {
+        const response = await fetch('/api/settings')
+        if (response.ok) {
+          const data = await response.json()
+          if (data.onboardingCompleted === false) {
+            router.push('/onboarding')
+            return
+          }
+          if (data.dashboardHidden) {
+            setDashboardHidden(new Set(data.dashboardHidden.split(',').filter(Boolean)))
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching settings:', error)
+      }
+    }
+
     Promise.all([
       fetchTodayAttendance(),
       fetchLocations(),
@@ -120,76 +190,7 @@ export default function Dashboard() {
     ]).finally(() => {
       setIsLoadingInitial(false)
     })
-  }, [])
-
-  const fetchTodayAttendance = async () => {
-    try {
-      const now = new Date()
-      const todayStr = format(now, 'yyyy-MM-dd')
-      const monthStr = format(now, 'yyyy-MM')
-
-      const response = await fetch(`/api/attendance?month=${monthStr}`)
-      if (response.ok) {
-        const data = await response.json()
-        const todayEntry = data.find((entry: { date: string }) => {
-          const entryDate = format(new Date(entry.date), 'yyyy-MM-dd')
-          return entryDate === todayStr
-        })
-
-        if (todayEntry) {
-          setTodayAttendance({
-            type: todayEntry.type,
-            transportId: todayEntry.transportId,
-            locationId: todayEntry.locationId,
-            notes: todayEntry.notes || null,
-          })
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching attendance:', error)
-    }
-  }
-
-  const fetchLocations = async () => {
-    try {
-      const response = await fetch('/api/locations')
-      if (response.ok) {
-        const data = await response.json()
-        setLocations(data)
-      }
-    } catch (error) {
-      console.error('Error fetching locations:', error)
-    }
-  }
-
-  const fetchTransports = async () => {
-    try {
-      const response = await fetch('/api/transports')
-      if (response.ok) {
-        setTransports(await response.json())
-      }
-    } catch (error) {
-      console.error('Error fetching transports:', error)
-    }
-  }
-
-  const fetchDashboardHidden = async () => {
-    try {
-      const response = await fetch('/api/settings')
-      if (response.ok) {
-        const data = await response.json()
-        if (data.onboardingCompleted === false) {
-          router.push('/onboarding')
-          return
-        }
-        if (data.dashboardHidden) {
-          setDashboardHidden(new Set(data.dashboardHidden.split(',').filter(Boolean)))
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching settings:', error)
-    }
-  }
+  }, [router])
 
   const logAttendance = async (
     type: string,
