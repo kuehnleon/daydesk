@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.16.0] - 2026-10-27
+
+### Miscellaneous
+
+- Upgrade to node 26 and eslint 10 (#112)
+
 ## [0.15.0] - 2026-10-26
 
 ### Changed
@@ -454,6 +460,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix next auth and middleware
 
+[0.16.0]: https://github.com/kuehnleon/daydesk/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/kuehnleon/daydesk/compare/v0.14.6...v0.15.0
 [0.14.6]: https://github.com/kuehnleon/daydesk/compare/v0.14.5...v0.14.6
 [0.14.5]: https://github.com/kuehnleon/daydesk/compare/v0.14.4...v0.14.5
