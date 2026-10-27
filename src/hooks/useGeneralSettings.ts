@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 import { useToast } from '@/components/ui/toast'
 import type { AvailableCountry, Region } from '@/types'
+import { useHydrated } from './useHydrated'
 
 export function useGeneralSettings() {
   const [country, setCountry] = useState('DE')
@@ -11,7 +12,7 @@ export function useGeneralSettings() {
   const [workDays, setWorkDays] = useState('1,2,3,4,5')
   const [weekStartDay, setWeekStartDay] = useState(1)
   const [isSaving, setIsSaving] = useState(false)
-  const [isMounted, setIsMounted] = useState(false)
+  const isMounted = useHydrated()
   const [isLoaded, setIsLoaded] = useState(false)
   const [countries, setCountries] = useState<AvailableCountry[]>([])
   const [regions, setRegions] = useState<Region[]>([])
@@ -37,8 +38,6 @@ export function useGeneralSettings() {
   }, [])
 
   useEffect(() => {
-    setIsMounted(true)
-
     const loadSettings = async () => {
       const response = await fetch('/api/settings')
       if (response.ok) {

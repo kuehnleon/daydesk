@@ -37,7 +37,6 @@ export function useLocationSettings() {
   const t = useTranslations('settings')
 
   const load = useCallback(async () => {
-    setIsLoading(true)
     try {
       const [locRes, trRes] = await Promise.all([
         fetch('/api/locations'),
@@ -58,6 +57,11 @@ export function useLocationSettings() {
   useEffect(() => {
     load()
   }, [load])
+
+  const reload = () => {
+    setIsLoading(true)
+    return load()
+  }
 
   const openAdd = () => {
     setEditing(null)
@@ -114,7 +118,7 @@ export function useLocationSettings() {
         }
       }
       setShowModal(false)
-      load()
+      reload()
     } catch {
       showToast(t('errorSavingLocation'), 'error')
     }
@@ -144,7 +148,7 @@ export function useLocationSettings() {
       )
     } catch {
       showToast(t('reorderFailed'), 'error')
-      load()
+      reload()
     }
   }
 
@@ -160,7 +164,7 @@ export function useLocationSettings() {
       const response = await fetch(`/api/locations/${id}`, { method: 'DELETE' })
       if (response.ok) {
         showToast(t('locationDeleted'), 'success')
-        load()
+        reload()
       } else {
         showToast(t('failedToDeleteLocation'), 'error')
       }

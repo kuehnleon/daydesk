@@ -25,7 +25,8 @@ export default function ExportImport() {
   // Mapping state
   const [existingLocations, setExistingLocations] = useState<Location[]>([])
   const [existingTransports, setExistingTransports] = useState<Transport[]>([])
-  const [isLoadingEntities, setIsLoadingEntities] = useState(false)
+  const [loadedEntityRows, setLoadedEntityRows] = useState<ImportRow[] | null>(null)
+  const isLoadingEntities = parsedRows.length > 0 && loadedEntityRows !== parsedRows
   const [locationMappings, setLocationMappings] = useState<Map<string, NameMapping>>(new Map())
   const [transportMappings, setTransportMappings] = useState<Map<string, NameMapping>>(new Map())
 
@@ -34,13 +35,11 @@ export default function ExportImport() {
   // Fetch existing locations/transports and compute unmatched names when rows change
   useEffect(() => {
     if (parsedRows.length === 0) {
-      setLocationMappings(new Map())
-      setTransportMappings(new Map())
       return
     }
 
+    let cancelled = false
     const fetchEntities = async () => {
-      setIsLoadingEntities(true)
       try {
         const [locRes, trRes] = await Promise.all([
           fetch('/api/locations'),
@@ -48,6 +47,7 @@ export default function ExportImport() {
         ])
         const locs: Location[] = locRes.ok ? await locRes.json() : []
         const trs: Transport[] = trRes.ok ? await trRes.json() : []
+        if (cancelled) return
         setExistingLocations(locs)
         setExistingTransports(trs)
 
@@ -93,11 +93,12 @@ export default function ExportImport() {
         }
         setTransportMappings(trMap)
       } finally {
-        setIsLoadingEntities(false)
+        if (!cancelled) setLoadedEntityRows(parsedRows)
       }
     }
 
     fetchEntities()
+    return () => { cancelled = true }
   }, [parsedRows])
 
   const exportData = async (exportFormat: 'csv' | 'pdf') => {
@@ -134,6 +135,8 @@ export default function ExportImport() {
   }
 
   const parseCSV = useCallback((text: string) => {
+    setLocationMappings(new Map())
+    setTransportMappings(new Map())
     const lines = text.split(/\r?\n/).filter(line => line.trim())
     if (lines.length < 2) {
       setParseErrors([t('csvMinRows')])
