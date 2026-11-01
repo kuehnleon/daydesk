@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.16.1] - 2026-11-01
+
+### Miscellaneous
+
+- Bump jspdf-autotable from 5.0.7 to 5.0.9 (#115)
+- Bump @swc/core from 1.15.33 to 1.16.20 (#114)
+- Bump the react group with 2 updates (#113)
+
 ## [0.16.0] - 2026-10-27
 
 ### Miscellaneous
@@ -460,6 +468,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix next auth and middleware
 
+[0.16.1]: https://github.com/kuehnleon/daydesk/compare/v0.16.0...v0.16.1
 [0.16.0]: https://github.com/kuehnleon/daydesk/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/kuehnleon/daydesk/compare/v0.14.6...v0.15.0
 [0.14.6]: https://github.com/kuehnleon/daydesk/compare/v0.14.5...v0.14.6
