@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.16.2] - 2026-11-19
+
+### Miscellaneous
+
+- Bump dotenv-cli from 11.0.0 to 11.1.0 (#118)
+- Bump tailwindcss from 4.3.3 to 4.3.4 (#116)
+- Bump next from 16.4.3 to 16.4.6 (#121)
+- Bump @tailwindcss/postcss from 4.3.3 to 4.3.5 (#120)
+- Bump pg from 8.23.0 to 8.23.1 (#119)
+- Bump eslint from 10.13.0 to 10.14.0 (#117)
+
 ## [0.16.1] - 2026-11-01
 
 ### Miscellaneous
@@ -468,6 +479,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix next auth and middleware
 
+[0.16.2]: https://github.com/kuehnleon/daydesk/compare/v0.16.1...v0.16.2
 [0.16.1]: https://github.com/kuehnleon/daydesk/compare/v0.16.0...v0.16.1
 [0.16.0]: https://github.com/kuehnleon/daydesk/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/kuehnleon/daydesk/compare/v0.14.6...v0.15.0
